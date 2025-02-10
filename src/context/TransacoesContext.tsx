@@ -1,0 +1,125 @@
+import { createContext, ReactNode, useContext, useState } from "react";
+
+
+
+
+interface TransacoesContextData {
+    // transacoes: Transacao[];
+    // saldo: number;
+    // deposito: (number: number) => Promise<void>;
+    // transferencia: (number: number) => Promise<void>;
+    // novaTransacao: (tipoTransacao: string, valor: number, date: string, userId: number) => Promise<void>;
+    // atualizarTransacao: any;
+    // deletarTransacao: any;
+    // user: any;
+    atualizarSaldo:  string;
+  }
+
+
+
+const TransacoesContext = createContext< TransacoesContextData| undefined>(undefined);
+
+export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
+
+
+    const [transacoes, setTransacoes] = useState<any>([]);
+    const [saldo, setSaldo] = useState<number>(0);
+
+    const atualizarSaldo =  "saldo atualizado"
+    
+    //   const atualizaTransacoes = async () => {
+    //     try {
+    //       if (!user?.id) return;
+    //       const transacoesAtualizadas = await getTransacoes(user.id);
+    //       setTransacoes(transacoesAtualizadas);
+    //     } catch (error) {
+    //       console.log("Erro ao atualizar as transações", error);
+    //     }
+    //   };
+    
+    //   const deposito = async (valor: number) => {
+    //     try {
+    //       if (!user?.id) throw new Error("Usuário não autenticado.");
+    //       const novoSaldo = saldo + valor;
+    //       await postSaldo(user.id, novoSaldo);
+    //       await atualizarSaldo();
+    //     } catch (error) {
+    //       console.error("Erro ao realizar depósito:", error);
+    //     }
+    //   };
+    
+    //   const transferencia = async (valor: number) => {
+    //     try {
+    //       if (!user?.id) throw new Error("Usuário não autenticado.");
+    //       const novoSaldo = saldo - valor;
+    //       await postSaldo(user.id, novoSaldo);
+    //       await atualizarSaldo();
+    //     } catch (error) {
+    //       console.error("Erro ao realizar transferência:", error);
+    //     }
+    //   };
+    
+    //   const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: number) => {
+    //     if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
+    //       alert("Saldo insuficiente para realizar a transferência.");
+    //       return;
+    //     }
+        
+    //     const transacao: Transacao = { userId, tipoTransacao, valor, date };
+    //     await postTransacao(transacao);
+    //     await atualizaTransacoes();
+    //   };
+    
+    //   const verificaSaldo = (valor: number): boolean => {
+    //     if (valor > saldo) {
+    //       return false;
+    //     }
+    //     return true;
+    //   };
+    
+    //   const atualizarTransacao = async (transacaoId: number, tipoTransacao: string, valor: number, date: string) => {
+    //     try {
+    //       if (!user?.id) throw new Error("Usuário não autenticado.");
+    
+    //       const transacaoAtualizada = { transacaoId, tipoTransacao, valor, date };
+    //       await putTransacoes(transacaoAtualizada);
+    //       await atualizaTransacoes();
+    //       await atualizarSaldo();
+    //     } catch (error) {
+    //       console.error("Erro ao atualizar a transação:", error);
+    //     }
+    //   };
+    
+    //   const deletarTransacao = async (transacaoId: number) => {
+    //     try {
+    //       if (!transacaoId) throw new Error("Usuário não autenticado.");
+    //       await DeleteTransacao(transacaoId);
+    //       await atualizarSaldo();
+    //       await atualizaTransacoes();
+    //     } catch (error) {
+    //       console.error("Erro ao deletar a transação context:", error);
+    //     }
+    //   };
+    
+
+
+    return(
+       <TransacoesContext.Provider 
+     value={{ atualizarSaldo}}
+       >
+       {children}
+
+       </TransacoesContext.Provider>
+
+    )
+}
+
+export const useTransacoes = () => {
+  const context = useContext(TransacoesContext);
+  if (!context) {
+    throw new Error(
+      "contexto não encontado, useTransacoes deve estar dentro de TransacoesProvider"
+    );
+  }
+  return context;
+};

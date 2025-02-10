@@ -22,11 +22,11 @@ if (!getApps().length) {
     auth = initializeAuth(app, {
         persistence: getReactNativePersistence(ReactNativeAsyncStorage)
     });
-    db = getFirestore(app); // Inicializar o Firestore
+    db = getFirestore(app); 
 } else {
     app = getApp();
     auth = getAuth(app);
-    db = getFirestore(app); // Obter instância existente
+    db = getFirestore(app); 
 }
 
 export { app, auth, db }

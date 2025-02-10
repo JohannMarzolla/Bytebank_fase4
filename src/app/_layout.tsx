@@ -14,6 +14,7 @@ import { AuthProvider } from "@/context/AuthContext";
 
 // Import your global CSS file
 import "./global.css";
+import { TransacoesProvider } from "@/context/TransacoesContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,12 +39,14 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
+      <TransacoesProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(protected)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>
+      </TransacoesProvider>
     </AuthProvider>
   );
 }

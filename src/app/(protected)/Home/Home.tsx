@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { db } from "../../../../firebase/config"
 import { collection, getDocs } from "firebase/firestore";
+import { useTransacoes } from '@/context/TransacoesContext';
 
 
 export default function Home() {
@@ -11,6 +12,8 @@ export default function Home() {
     const [nome, setNome] =  useState<string>();
     const [id, setId] =  useState<any>();
     const [preco, setPreco] =  useState<number>();
+
+    const {atualizarSaldo} = useTransacoes()
 
 
     useEffect(() => {
@@ -43,6 +46,8 @@ export default function Home() {
                 <Text>{id}</Text>
                 <Text>{nome}</Text>
                 <Text>{preco}</Text>
+                <Text>{atualizarSaldo}</Text>
+
             </View>
             
         </View>
