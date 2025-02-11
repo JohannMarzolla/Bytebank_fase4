@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { View, Text } from 'react-native';
 import { db } from "../../../../firebase/config"
@@ -37,6 +36,8 @@ export default function Home() {
         fetchData();
     }, []); // Array de dependências
     console.log("dados", dados)
+
+    console.log("tipo senha acesso usuario", typeof id)
 
   
     return(

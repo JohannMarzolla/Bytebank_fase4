@@ -1,10 +1,11 @@
-import { auth } from "../../firebase/config";
+import { auth, db } from "../../firebase/config";
 import { router } from "expo-router";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   UserCredential,
 } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { createContext, ReactNode, useContext, useState } from "react";
 
 interface IAuthContext {
@@ -38,8 +39,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = (email: string, password: string) => {
-    createUserWithEmailAndPassword(auth, email, password)
+  const signUp = async (email: string, password: string) => {
+    const cadastro =  await createUserWithEmailAndPassword(auth, email, password);
+    const userId = cadastro.user.uid
+
+    await setDoc(doc(db,"users",userId),{
+      email,
+      saldo: 0,
+
+    })
       .then(() => {
         router.replace("/login");
         console.log("AuthProvider :: signUp - usuário cadastrado com sucesso");
