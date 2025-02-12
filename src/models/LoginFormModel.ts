@@ -1,3 +1,5 @@
+import validaEmail from "@/app/utils/validaEmail";
+
 export interface LoginFormErrors {
   email?: string;
   password?: string;
@@ -8,8 +10,8 @@ export class LoginFormModel {
   password: string;
 
   constructor(obj?: LoginFormModel) {
-    this.email = obj?.email || "";
-    this.password = obj?.password || "";
+    this.email = obj?.email ?? "";
+    this.password = obj?.password ?? "";
   }
 
   validate = () => {
@@ -17,22 +19,18 @@ export class LoginFormModel {
     let isValid = true;
 
     if (!this.email) {
-      errors.email = "Email é obrigatório";
+      errors.email = "Campo obrigatório";
       isValid = false;
     } else if (!validaEmail(this.email)) {
-      errors.email = "Email inválido";
+      errors.email = "Formato inválido";
       isValid = false;
     }
 
     if (!this.password) {
-      errors.password = "Password é obrigatório";
+      errors.password = "Campo obrigatório";
       isValid = false;
     }
 
     return { isValid, errors };
   };
-}
-
-function validaEmail(email: string) {
-  return /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
 }

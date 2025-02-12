@@ -1,25 +1,18 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import "react-native-reanimated";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { AuthProvider } from "@/context/AuthContext";
+import { TransacoesProvider } from "@/context/TransacoesContext";
+import { colors } from "@/constants/Colors";
+import "react-native-reanimated";
 
 // Import your global CSS file
 import "./global.css";
-import { TransacoesProvider } from "@/context/TransacoesContext";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const router = useRouter();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
@@ -29,7 +22,7 @@ export default function RootLayout() {
     if (loaded) {
       SplashScreen.hideAsync();
       // Redireciona para a página de login
-      router.replace("/login"); // Rota baseada na estrutura de arquivos
+      // router.replace("/login"); // Rota baseada na estrutura de arquivos
     }
   }, [loaded]);
 
@@ -40,12 +33,12 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <TransacoesProvider>
-      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <Stack>
+          <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
           <Stack.Screen name="(protected)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
-      </ThemeProvider>
       </TransacoesProvider>
     </AuthProvider>
   );

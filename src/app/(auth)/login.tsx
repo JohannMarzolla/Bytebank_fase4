@@ -1,6 +1,5 @@
-import { View, Text, TextInput, Image } from "react-native";
-import { Link } from "expo-router";
-import { router } from "expo-router";
+import { View, Text, Image } from "react-native";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
@@ -11,12 +10,14 @@ export default function Login() {
   const { login } = useAuth();
   const [values, setValues] = useState<LoginFormModel>(new LoginFormModel());
   const [errors, setErrors] = useState<LoginFormErrors>({});
+  const [hasLoginError, setHasLoginError] = useState(false);
 
   function handleOnChange(field: string, value: any) {
+    setHasLoginError(false);
     setValues(new LoginFormModel({ ...values, [field]: value }));
   }
 
-  const onPressLogin = async () => {
+  const onConfirm = async () => {
     const { isValid, errors } = values.validate();
     setErrors(errors);
 
@@ -24,14 +25,16 @@ export default function Login() {
       const isAuthenticated = await login(values.email, values.password);
       if (isAuthenticated) {
         router.replace("/(protected)/profile");
+      } else {
+        setHasLoginError(true);
       }
     }
   };
 
   return (
-    <View className="items-center w-full bg-fiap-white">
+    <View className="flex-1 bg-fiap-white items-center py-12">
       <Image
-        className="my-8"
+        className="mb-8"
         source={require("../../assets/images/ilustracao-login.png")}
         style={{ height: 240 }}
         resizeMode="contain"
@@ -39,7 +42,7 @@ export default function Login() {
 
       <Text className="font-bold text-xl pb-4">Login</Text>
 
-      <View className="flex items-center w-full px-12 pb-12">
+      <View className="w-full px-12">
         <Input
           className="pb-5"
           type="email"
@@ -60,15 +63,18 @@ export default function Login() {
           onValueChanged={(value) => handleOnChange("password", value)}
         ></Input>
 
-        <View className="flex-row gap-3">
-          <Button
-            color="green"
-            text="Criar conta"
-            onPress={() => router.replace("/signup")}
-          />
-          <Button color="orange" text="Acessar" onPress={onPressLogin} />
-        </View>
+        {hasLoginError && (
+          <Text className="text-red-500 pb-6">
+            O usuário informado está incorreto.
+          </Text>
+        )}
       </View>
+
+      <Button color="orange" text="Acessar" onPress={onConfirm} />
+
+      <Link href="/signup" className="mt-4 text-fiap-gray">
+        Não possui uma conta? Crie clicando aqui
+      </Link>
     </View>
   );
 }

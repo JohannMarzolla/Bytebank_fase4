@@ -10,7 +10,9 @@ export interface InputLabelOptions {
 export default function InputLabel(options: InputLabelOptions) {
   return (
     <Text
-      className={`text-black ${options.textBold !== false ? "font-bold" : ""}`}
+      className={`flex-shrink text-black ${
+        options.textBold !== false ? "font-bold" : ""
+      }`}
     >
       {options.text}
     </Text>

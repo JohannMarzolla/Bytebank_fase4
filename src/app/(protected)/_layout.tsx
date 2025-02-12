@@ -1,13 +1,11 @@
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, Text } from 'react-native';
-import { Slot } from 'expo-router';
-import { useAuth } from '@/context/AuthContext';
-import Transacoes  from './Transacoes/Transacoes'
-import Home  from './Home/Home'
-
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import { View, Text } from "react-native";
+import { Slot } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import Transacoes from "./Transacoes/Transacoes";
+import Home from "./Home/Home";
 
 const Drawer = createDrawerNavigator();
-
 
 export default function App() {
   const { isAuthenticated } = useAuth();
@@ -17,7 +15,7 @@ export default function App() {
   }
 
   return (
-    <Drawer.Navigator >
+    <Drawer.Navigator>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Investimentos" component={Transacoes} />
       <Drawer.Screen name="Sair" component={Logout} />
@@ -27,7 +25,7 @@ export default function App() {
 
 function Logout() {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
+    <View style={{ flex: 1, justifyContent: "center", padding: 16 }}>
       <Text style={{ fontSize: 18, marginBottom: 16 }}>Protected Layout</Text>
       <Slot />
     </View>

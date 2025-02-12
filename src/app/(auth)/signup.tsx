@@ -1,41 +1,89 @@
-import { View, Text, Button, TextInput } from 'react-native';
-import { Link } from 'expo-router';
-import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { View, Image, Text, ScrollView } from "react-native";
+import { Link } from "expo-router";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { SignupFormErrors, SignupFormModel } from "@/models/SignupFormModel";
+import InputCheckbox from "@/components/forms/InputCheckbox";
+import Input from "@/components/forms/Input";
+import Button from "@/components/ui/Button";
 
 export default function Signup() {
+  const { signUp } = useAuth();
+  const [values, setValues] = useState<SignupFormModel>(new SignupFormModel());
+  const [errors, setErrors] = useState<SignupFormErrors>({});
 
-  const { signUp } = useAuth()
+  function handleOnChange(field: string, value: any) {
+    setValues(new SignupFormModel({ ...values, [field]: value }));
+  }
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const onConfirm = async () => {
+    const { isValid, errors } = values.validate();
+    setErrors(errors);
+
+    if (isValid) {
+      signUp(values.email, values.password);
+    }
+  };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 16 }}>
-      <Text style={{ fontSize: 24, marginBottom: 16 }}>Sign Up</Text>
-      
-      <TextInput 
-        placeholder="Email" 
-        style={{ borderWidth: 1, marginBottom: 16, padding: 8 }} 
-        value={email}  
-        onChangeText={setEmail}
-      />
-      
-      <TextInput 
-        placeholder="Password" 
-        secureTextEntry 
-        style={{ borderWidth: 1, marginBottom: 16, padding: 8 }} 
-        value={password}
-        onChangeText={setPassword}  
-      />
-      
-      <Button title="Sign Up" onPress={() => {
-        
-        signUp(email, password)
-        
+    <ScrollView className="flex-1 bg-fiap-white">
+      <View className="items-center py-12">
+        <Image
+          className="mb-8"
+          source={require("../../assets/images/ilustracao-nova-conta.png")}
+          style={{ height: 210 }}
+          resizeMode="contain"
+        />
 
-      }} />
-      <Link href="/login" style={{ marginTop: 16 }}>Already have an account? Log in</Link>
-    </View>
+        <Text className="font-bold text-xl pb-5 px-11">
+          Preencha os campos abaixo para criar sua conta corrente!
+        </Text>
+
+        <View className="w-full px-12">
+          {/* <Input
+            className="pb-5"
+            type="string"
+            label="Nome"
+            placeholder="Digite seu nome completo"
+            value={values.nome}
+            error={errors.nome}
+            onValueChanged={(value) => handleOnChange("nome", value)}
+          /> */}
+
+          <Input
+            className="pb-5"
+            type="email"
+            label="Email"
+            placeholder="Digite seu email"
+            value={values.email}
+            error={errors.email}
+            onValueChanged={(value) => handleOnChange("email", value)}
+          />
+
+          <Input
+            className="pb-5"
+            type="password"
+            label="Senha"
+            placeholder="Digite sua senha"
+            value={values.password}
+            error={errors.password}
+            onValueChanged={(value) => handleOnChange("password", value)}
+          />
+
+          <InputCheckbox
+            className="pb-7"
+            label="Li e estou ciente quanto às condições de tratamento dos meus dados conforme descrito na Política de Privacidade do banco."
+            error={errors.termoAceito}
+            onValueChanged={(value) => handleOnChange("termoAceito", value)}
+          />
+        </View>
+
+        <Button color="orange" text="Criar conta" onPress={onConfirm} />
+
+        <Link href="/login" className="mt-4 text-fiap-gray">
+          Já possui uma conta? Acesse clicando aqui
+        </Link>
+      </View>
+    </ScrollView>
   );
 }
