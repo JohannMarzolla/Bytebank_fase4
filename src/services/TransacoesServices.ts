@@ -30,7 +30,7 @@ interface Transacao {
 
   export const getTransacoes = async (userId: string) => {
     try {
-      const transacoesRef = collection(db, "users", userId, "transacoes"); // Acessa a subcoleção "transacoes"
+      const transacoesRef = collection(db, "users", userId, "transacoes"); 
       const querySnapshot = await getDocs(transacoesRef);
       
       const transacoes = querySnapshot.docs.map((doc) => ({
@@ -62,7 +62,7 @@ interface Transacao {
     }
   };
 
- // Buscar uma transação específica pelo ID
+
 export const getTransacao = async (userId: string, transacaoId: string) => {
   try {
     const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
@@ -79,8 +79,7 @@ export const getTransacao = async (userId: string, transacaoId: string) => {
     return null;
   }
 };
-
-// Criar uma nova transação
+ 
 export const postTransacao = async (userId: string, transacao: Transacao) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
@@ -93,8 +92,7 @@ export const postTransacao = async (userId: string, transacao: Transacao) => {
     return null;
   }
 };
-
-// Atualizar uma transação existente
+ 
 export const putTransacao = async (userId: string, transacaoId: string, novosDados: Partial<Transacao>) => {
   try {
     const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
@@ -107,11 +105,8 @@ export const putTransacao = async (userId: string, transacaoId: string, novosDad
     return false;
   }
 };
-export const putTransacoes = async (userId: string , transacaoId:string) =>{
 
-}
 
-// Deletar uma transação
 export const deleteTransacao = async (userId: string, transacaoId: string) => {
   try {
     const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
