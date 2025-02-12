@@ -5,29 +5,34 @@ import { useAuth } from "@/context/AuthContext";
 import Button from "@/components/ui/Button";
 import Input from "@/components/forms/Input";
 import { LoginFormErrors, LoginFormModel } from "@/models/LoginFormModel";
+import { ShowToast } from "@/components/ui/Toast";
 
 export default function Login() {
   const { login } = useAuth();
   const [values, setValues] = useState<LoginFormModel>(new LoginFormModel());
   const [errors, setErrors] = useState<LoginFormErrors>({});
-  const [hasLoginError, setHasLoginError] = useState(false);
+  const [loginRunning, setLoginRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
-    setHasLoginError(false);
     setValues(new LoginFormModel({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {
-    const { isValid, errors } = values.validate();
-    setErrors(errors);
+    if (!loginRunning) {
+      setLoginRunning(true);
 
-    if (isValid) {
-      const isAuthenticated = await login(values.email, values.password);
-      if (isAuthenticated) {
-        router.replace("/(protected)/profile");
-      } else {
-        setHasLoginError(true);
+      const { isValid, errors } = values.validate();
+      setErrors(errors);
+
+      if (isValid) {
+        const isAuthenticated = await login(values.email, values.password);
+        if (isAuthenticated) {
+          router.replace("/(protected)/profile");
+        } else {
+          ShowToast("error", "O usuário informado está incorreto.");
+        }
       }
+      setLoginRunning(false);
     }
   };
 
@@ -62,12 +67,6 @@ export default function Login() {
           error={errors.password}
           onValueChanged={(value) => handleOnChange("password", value)}
         ></Input>
-
-        {hasLoginError && (
-          <Text className="text-red-500 pb-6">
-            O usuário informado está incorreto.
-          </Text>
-        )}
       </View>
 
       <Button color="orange" text="Acessar" onPress={onConfirm} />

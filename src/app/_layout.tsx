@@ -4,7 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { TransacoesProvider } from "@/context/TransacoesContext";
-import { colors } from "@/constants/Colors";
+import Toast from "react-native-toast-message";
 import "react-native-reanimated";
 
 // Import your global CSS file
@@ -31,15 +31,24 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <TransacoesProvider>
-        <Stack>
-          <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
-          <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </TransacoesProvider>
-    </AuthProvider>
+    <>
+      <AuthProvider>
+        <TransacoesProvider>
+          <Stack>
+            <Stack.Screen
+              name="(auth)/login"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="(auth)/signup"
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </TransacoesProvider>
+      </AuthProvider>
+      <Toast />
+    </>
   );
 }

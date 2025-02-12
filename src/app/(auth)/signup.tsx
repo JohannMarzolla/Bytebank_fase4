@@ -11,17 +11,24 @@ export default function Signup() {
   const { signUp } = useAuth();
   const [values, setValues] = useState<SignupFormModel>(new SignupFormModel());
   const [errors, setErrors] = useState<SignupFormErrors>({});
+  const [signupRunning, setSignupRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
     setValues(new SignupFormModel({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {
-    const { isValid, errors } = values.validate();
-    setErrors(errors);
+    if (!signupRunning) {
+      setSignupRunning(true);
 
-    if (isValid) {
-      signUp(values.email, values.password);
+      const { isValid, errors } = values.validate();
+      setErrors(errors);
+
+      if (isValid) {
+        await signUp(values.email, values.password);
+      }
+
+      setSignupRunning(false);
     }
   };
 
