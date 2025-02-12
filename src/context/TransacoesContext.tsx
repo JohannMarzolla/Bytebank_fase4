@@ -6,14 +6,21 @@ import { useAuth } from "@/context/AuthContext";
 
 interface TransacoesContextData {
     // transacoes: Transacao[];
-    // saldo: number;
-    // deposito: (number: number) => Promise<void>;
-    // transferencia: (number: number) => Promise<void>;
-    // novaTransacao: (tipoTransacao: string, valor: number, date: string, userId: number) => Promise<void>;
+    saldo: number;
+    deposito: (number: number) => Promise<void>;
+    transferencia: (number: number) => Promise<void>;
+    novaTransacao: (tipoTransacao: string, valor: number, date: string, userId: string) => Promise<void>;
     // atualizarTransacao: any;
     // deletarTransacao: any;
     // user: any;
     atualizarSaldo: () => Promise<void | undefined>;
+  }
+
+  export interface Transacao {
+    userId: string;
+    tipoTransacao: string;
+    valor: number;
+    date: string;
   }
 
 const TransacoesContext = createContext< TransacoesContextData| undefined>(undefined);
@@ -66,23 +73,23 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
         }
       };
     
-      // const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: number) => {
-      //   if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
-      //     alert("Saldo insuficiente para realizar a transferência.");
-      //     return;
-      //   }
+      const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: string) => {
+        if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
+          alert("Saldo insuficiente para realizar a transferência.");
+          return;
+        }
         
-      //   const transacao: Transacao = { userId, tipoTransacao, valor, date };
-      //   await postTransacao(userId,transacao);
-      //   await atualizaTransacoes();
-      // };
+        const transacao: Transacao = { userId , tipoTransacao, valor, date };
+        await postTransacao(userId,transacao);
+        await atualizaTransacoes();
+      };
     
-      // const verificaSaldo = (valor: number): boolean => {
-      //   if (valor > saldo) {
-      //     return false;
-      //   }
-      //   return true;
-      // };
+      const verificaSaldo = (valor: number): boolean => {
+        if (valor > saldo) {
+          return false;
+        }
+        return true;
+      };
     
       // const atualizarTransacao = async (transacaoId: number, tipoTransacao: string, valor: number, date: string) => {
       //   try {
@@ -112,7 +119,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
 
     return(
        <TransacoesContext.Provider 
-     value={{ atualizarSaldo}}
+     value={{ atualizarSaldo,deposito, transferencia ,novaTransacao, saldo,}}
        >
        {children}
 

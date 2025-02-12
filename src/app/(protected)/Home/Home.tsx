@@ -1,5 +1,6 @@
 import {  useState } from "react";
 import { View, Text } from "react-native";
+import FormNovaTransacao from "../components/FormNovaTransacao";
 
 
 export default function Home() {
@@ -13,12 +14,7 @@ export default function Home() {
   return (
     <View>
       <Text>Home</Text>
-      <View>
-        <Text>{id}</Text>
-        <Text>{nome}</Text>
-        <Text>{preco}</Text>
-     
-      </View>
+      <FormNovaTransacao/>
     </View>
   );
 }
