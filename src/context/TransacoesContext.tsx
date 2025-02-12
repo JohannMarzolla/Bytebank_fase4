@@ -1,5 +1,6 @@
+import { getSaldo, getTransacoes, postSaldo, postTransacao } from "@/services/TransacoesServices";
 import { createContext, ReactNode, useContext, useState } from "react";
-
+import { useAuth } from "@/context/AuthContext";
 
 
 
@@ -12,83 +13,89 @@ interface TransacoesContextData {
     // atualizarTransacao: any;
     // deletarTransacao: any;
     // user: any;
-    atualizarSaldo:  string;
+    atualizarSaldo: () => Promise<void | undefined>;
   }
-
-
 
 const TransacoesContext = createContext< TransacoesContextData| undefined>(undefined);
 
 export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
 
-
+    const {userId} = useAuth();
     const [transacoes, setTransacoes] = useState<any>([]);
     const [saldo, setSaldo] = useState<number>(0);
 
-    const atualizarSaldo =  "saldo atualizado"
+    const atualizarSaldo = async () => {
+      try {
+        if (!userId) return ;
+        const saldoAtualizado = await getSaldo(userId);
+        setSaldo(saldoAtualizado);
+      } catch (error) {
+        console.error("Erro ao atualizar saldo:", error);
+      }
+    };
+
+      const atualizaTransacoes = async () => {
+        try {
+          if (!userId) return;
+          const transacoesAtualizadas = await getTransacoes(userId);
+          setTransacoes(transacoesAtualizadas);
+        } catch (error) {
+          console.log("Erro ao atualizar as transações", error);
+        }
+      };
     
-    //   const atualizaTransacoes = async () => {
-    //     try {
-    //       if (!user?.id) return;
-    //       const transacoesAtualizadas = await getTransacoes(user.id);
-    //       setTransacoes(transacoesAtualizadas);
-    //     } catch (error) {
-    //       console.log("Erro ao atualizar as transações", error);
-    //     }
-    //   };
+      const deposito = async (valor: number) => {
+        try {
+          if (!userId) throw new Error("Usuário não autenticado.");
+          const novoSaldo = saldo + valor;
+          await postSaldo(userId, novoSaldo);
+          await atualizarSaldo();
+        } catch (error) {
+          console.error("Erro ao realizar depósito:", error);
+        }
+      };
     
-    //   const deposito = async (valor: number) => {
-    //     try {
-    //       if (!user?.id) throw new Error("Usuário não autenticado.");
-    //       const novoSaldo = saldo + valor;
-    //       await postSaldo(user.id, novoSaldo);
-    //       await atualizarSaldo();
-    //     } catch (error) {
-    //       console.error("Erro ao realizar depósito:", error);
-    //     }
-    //   };
+      const transferencia = async (valor: number) => {
+        try {
+          if (!userId) throw new Error("Usuário não autenticado.");
+          const novoSaldo = saldo - valor;
+          await postSaldo(userId, novoSaldo);
+          await atualizarSaldo();
+        } catch (error) {
+          console.error("Erro ao realizar transferência:", error);
+        }
+      };
     
-    //   const transferencia = async (valor: number) => {
-    //     try {
-    //       if (!user?.id) throw new Error("Usuário não autenticado.");
-    //       const novoSaldo = saldo - valor;
-    //       await postSaldo(user.id, novoSaldo);
-    //       await atualizarSaldo();
-    //     } catch (error) {
-    //       console.error("Erro ao realizar transferência:", error);
-    //     }
-    //   };
-    
-    //   const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: number) => {
-    //     if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
-    //       alert("Saldo insuficiente para realizar a transferência.");
-    //       return;
-    //     }
+      // const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: number) => {
+      //   if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
+      //     alert("Saldo insuficiente para realizar a transferência.");
+      //     return;
+      //   }
         
-    //     const transacao: Transacao = { userId, tipoTransacao, valor, date };
-    //     await postTransacao(transacao);
-    //     await atualizaTransacoes();
-    //   };
+      //   const transacao: Transacao = { userId, tipoTransacao, valor, date };
+      //   await postTransacao(userId,transacao);
+      //   await atualizaTransacoes();
+      // };
     
-    //   const verificaSaldo = (valor: number): boolean => {
-    //     if (valor > saldo) {
-    //       return false;
-    //     }
-    //     return true;
-    //   };
+      // const verificaSaldo = (valor: number): boolean => {
+      //   if (valor > saldo) {
+      //     return false;
+      //   }
+      //   return true;
+      // };
     
-    //   const atualizarTransacao = async (transacaoId: number, tipoTransacao: string, valor: number, date: string) => {
-    //     try {
-    //       if (!user?.id) throw new Error("Usuário não autenticado.");
+      // const atualizarTransacao = async (transacaoId: number, tipoTransacao: string, valor: number, date: string) => {
+      //   try {
+      //     if (!userId) throw new Error("Usuário não autenticado.");
     
-    //       const transacaoAtualizada = { transacaoId, tipoTransacao, valor, date };
-    //       await putTransacoes(transacaoAtualizada);
-    //       await atualizaTransacoes();
-    //       await atualizarSaldo();
-    //     } catch (error) {
-    //       console.error("Erro ao atualizar a transação:", error);
-    //     }
-    //   };
+      //     const transacaoAtualizada = { transacaoId, tipoTransacao, valor, date };
+      //     await putTransacoes(transacaoAtualizada);
+      //     await atualizaTransacoes();
+      //     await atualizarSaldo();
+      //   } catch (error) {
+      //     console.error("Erro ao atualizar a transação:", error);
+      //   }
+      // };
     
     //   const deletarTransacao = async (transacaoId: number) => {
     //     try {

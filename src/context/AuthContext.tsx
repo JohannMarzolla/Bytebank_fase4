@@ -10,6 +10,7 @@ import { createContext, ReactNode, useContext, useState } from "react";
 
 interface IAuthContext {
   user: UserCredential | null;
+  userId : string;
   login: (email: string, password: string) => Promise<boolean>;
   signUp: (email: string, password: string) => void;
   logout: () => void;
@@ -21,6 +22,7 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<UserCredential | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] =  useState<any>()
 
   const login = async (email: string, password: string) => {
     try {
@@ -29,8 +31,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         password
       );
+      const userId = userCredential.user.uid; 
       setUser(userCredential);
       setIsAuthenticated(true);
+      setUserId(userId);
       return true;
     } catch (error) {
       return false;
@@ -44,6 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       password
     );
     const userId = cadastro.user.uid;
+    setUserId(userId)
 
     await setDoc(doc(db, "users", userId), {
       email,
@@ -69,6 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        userId,
         login,
         signUp,
         logout,
