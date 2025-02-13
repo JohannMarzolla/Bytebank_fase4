@@ -8,7 +8,7 @@ import { useTransacoes } from "@/context/TransacoesContext";
 const FormNovaTransacao = () => {
 
   const {userId} = useAuth()
-  const {deposito, transferencia, novaTransacao} = useTransacoes()
+  const {deposito, transferencia, novaTransacao, } = useTransacoes()
 
   const [formData, setFormData] = useState({
     tipoTransacao: "deposito",
@@ -94,6 +94,7 @@ const FormNovaTransacao = () => {
       />
 
       <Button title="Adicionar Transação" onPress={handleSubmit} color="blue" />
+     
     </View>
   );
 };

@@ -1,4 +1,4 @@
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import { createDrawerNavigator, DrawerNavigationOptions } from "@react-navigation/drawer";
 import { View, Text } from "react-native";
 import { Slot } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -11,11 +11,19 @@ export default function App() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return null; // ou redirecionar para uma tela de login
+    return null; 
   }
 
+  const customScreenOptions :  DrawerNavigationOptions = { 
+    headerStyle: { backgroundColor: "#004D61" },  
+    headerTintColor: "white", 
+    headerTitleAlign: "center" 
+  };
+
   return (
-    <Drawer.Navigator>
+    <Drawer.Navigator
+      screenOptions={customScreenOptions}
+  >
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Investimentos" component={Transacoes} />
       <Drawer.Screen name="Sair" component={Logout} />
