@@ -40,7 +40,7 @@ export default function Login() {
     <View className="flex-1 bg-fiap-white items-center py-12">
       <Image
         className="mb-8"
-        source={require("../../assets/images/ilustracao-login.png")}
+        source={require("@/assets/images/ilustracao-login.png")}
         style={{ height: 240 }}
         resizeMode="contain"
       />

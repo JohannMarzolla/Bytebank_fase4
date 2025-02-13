@@ -1,6 +1,6 @@
 export const colors = {
   fiap: {
-    white: "#F5F5F5",
+    white: "#F8F8F8",
     gray: "#767676",
     "light-gray": "#CBCBCB",
     green: "#47A138",

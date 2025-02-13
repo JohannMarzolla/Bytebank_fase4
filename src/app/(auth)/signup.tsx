@@ -37,7 +37,7 @@ export default function Signup() {
       <View className="items-center py-12">
         <Image
           className="mb-8"
-          source={require("../../assets/images/ilustracao-nova-conta.png")}
+          source={require("@/assets/images/ilustracao-nova-conta.png")}
           style={{ height: 210 }}
           resizeMode="contain"
         />
