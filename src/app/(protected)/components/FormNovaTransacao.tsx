@@ -1,22 +1,21 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { TipoTransacao } from "../../types/tipoTransacao"
+import { TipoTransacao } from "../../types/tipoTransacao";
 import { useAuth } from "@/context/AuthContext";
 import { useTransacoes } from "@/context/TransacoesContext";
 
 const FormNovaTransacao = () => {
-
-  const {userId} = useAuth()
-  const {deposito, transferencia, novaTransacao, } = useTransacoes()
+  const { userId } = useAuth();
+  const { deposito, transferencia, novaTransacao } = useTransacoes();
 
   const [formData, setFormData] = useState({
     tipoTransacao: "deposito",
     valor: "",
-    date: new Date().toISOString()
+    date: new Date().toISOString(),
   });
 
-  const handleChange = (name: string , value: any) => {
+  const handleChange = (name: string, value: any) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -67,7 +66,7 @@ const FormNovaTransacao = () => {
   };
 
   return (
-    <View style={{ padding: 16 }}>
+    <View>
       <Text>Tipo</Text>
       <Picker
         selectedValue={formData.tipoTransacao}
@@ -94,7 +93,6 @@ const FormNovaTransacao = () => {
       />
 
       <Button title="Adicionar Transação" onPress={handleSubmit} color="blue" />
-     
     </View>
   );
 };
