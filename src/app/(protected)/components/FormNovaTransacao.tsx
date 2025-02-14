@@ -1,87 +1,70 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Alert } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { TipoTransacao } from "../../types/tipoTransacao";
 import { useAuth } from "@/context/AuthContext";
 import { useTransacoes } from "@/context/TransacoesContext";
 import Button from "@/components/ui/Button";
 import Input from "@/components/forms/Input";
 import InputDate from "@/components/forms/InputDate";
+import InputSelect from "@/components/forms/InputSelect";
+import { ShowToast } from "@/components/ui/Toast";
+import {
+  TransacaoAdicionar,
+  TransacaoAdicionarErrors,
+} from "@/models/TransacaoAdicionar";
+import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 
 const FormNovaTransacao = () => {
   const { userId } = useAuth();
-  const { deposito, transferencia, novaTransacao } = useTransacoes();
-
-  const [formData, setFormData] = useState({
-    tipoTransacao: "deposito",
-    valor: 0,
-    date: new Date(),
-  });
+  const { novaTransacao } = useTransacoes();
+  const [loginRunning, setLoginRunning] = useState(false);
+  const [formData, setFormData] = useState(new TransacaoAdicionar());
+  const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
   const handleChange = (name: string, value: any) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData(new TransacaoAdicionar({ ...formData, [name]: value }));
   };
 
-  const processarTransacao = () => {
-    const { tipoTransacao, valor, date } = formData;
-    novaTransacao(tipoTransacao, valor, date.toISOString(), userId);
-
-    if (tipoTransacao === TipoTransacao.DEPOSITO) {
-      deposito(valor);
-    } else if (tipoTransacao === TipoTransacao.TRANSFERENCIA) {
-      transferencia(valor);
-    } else {
-      Alert.alert("Erro", "Tipo de Transação é inválido!");
+  const processarTransacao = async () => {
+    try {
+      await novaTransacao(formData);
+    } catch (error: any) {
+      ShowToast("error", error.message);
     }
-  };
-
-  const isFormValid = () => {
-    const { tipoTransacao, valor, date } = formData;
-
-    if (!tipoTransacao || tipoTransacao.trim() === "") return false;
-    if (valor <= 0 || isNaN(valor)) return false;
-    if (!date || isNaN(new Date(date).getTime())) return false;
-
-    return true;
   };
 
   const handleSubmit = () => {
-    if (!isFormValid()) {
-      Alert.alert("Erro", "Dados inválidos!");
-      return;
-    }
-    processarTransacao();
-    resetForm();
-  };
+    if (!loginRunning) {
+      setLoginRunning(true);
 
-  const resetForm = () => {
-    setFormData({
-      tipoTransacao: "deposito",
-      valor: 0,
-      date: new Date(),
-    });
+      const { isValid, errors } = formData.validate();
+      setErrors(errors);
+
+      if (isValid) {
+        processarTransacao();
+        setFormData(new TransacaoAdicionar());
+      }
+      setLoginRunning(false);
+    }
   };
 
   return (
     <View className="gap-4">
-      <Text>Tipo</Text>
-      <Picker
-        selectedValue={formData.tipoTransacao}
-        onValueChange={(value) => handleChange("tipoTransacao", value)}
-      >
-        <Picker.Item label="Selecione o Tipo" value="" />
-        <Picker.Item label="Transferência" value="transferencia" />
-        <Picker.Item label="Depósito" value="deposito" />
-      </Picker>
+      <InputSelect
+        label="Tipo"
+        options={ListaTiposTransacao}
+        style="dark"
+        value={formData.tipoTransacao}
+        error={errors.tipoTransacao}
+        onValueChanged={(value) => handleChange("tipoTransacao", value)}
+      />
 
       <Input
         type="number"
         label="Valor"
         style="dark"
         value={formData.valor}
+        error={errors.valor}
         onValueChanged={(value) => handleChange("valor", value)}
       />
 
@@ -89,7 +72,8 @@ const FormNovaTransacao = () => {
         label="Data"
         style="dark"
         value={formData.date}
-        onValueChanged={(value) => handleChange("valor", value)}
+        error={errors.date}
+        onValueChanged={(value) => handleChange("date", value)}
       />
 
       <Button text="Adicionar transação" color="blue" onPress={handleSubmit} />

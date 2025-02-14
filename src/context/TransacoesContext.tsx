@@ -1,143 +1,175 @@
-import { deleteTransacao, getSaldo, getTransacoes, postSaldo, postTransacao, putTransacao } from "@/services/TransacoesServices";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import {
+  deleteTransacao,
+  getSaldo,
+  getTransacoes,
+  postSaldo,
+  postTransacao,
+  putTransacao,
+} from "@/services/TransacoesServices";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { useAuth } from "@/context/AuthContext";
-import { TipoTransacao } from "@/app/types/tipoTransacao";
-
-
+import { TipoTransacao } from "@/app/types/TipoTransacao";
+import { Transacao } from "@/models/Transacao";
+import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 
 interface TransacoesContextData {
-     transacoes: Transacao[];
-    saldo: number;
-    deposito: (number: number) => Promise<void>;
-    transferencia: (number: number) => Promise<void>;
-    novaTransacao: (tipoTransacao: string, valor: number, date: string, userId: string) => Promise<void>;
-    atualizarTransacao: any;
-    deletarTransacao:(userId:string,transacaoId: string, tipoTransacao: string, valor: number,)=> Promise<void>;
-    // user: any;
-    atualizarSaldo: () => Promise<void | undefined>;
-  }
-
-  export interface Transacao {
-    userId: string;
-    tipoTransacao: string;
-    valor: number;
-    date: string;
-  }
-
-const TransacoesContext = createContext< TransacoesContextData| undefined>(undefined);
-
-export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
-
-    const {userId} = useAuth();
-    const [transacoes, setTransacoes] = useState<any>([]);
-    const [saldo, setSaldo] = useState<number>(0);
-
-
-    useEffect(() => {
-      atualizarSaldo()
-      atualizaTransacoes()
-
-    },[userId])
-
-    const atualizarSaldo = async () => {
-      try {
-        if (!userId) return ;
-        const saldoAtualizado = await getSaldo(userId);
-        setSaldo(saldoAtualizado);
-      } catch (error) {
-        console.error("Erro ao atualizar saldo:", error);
-      }
-    };
-
-      const atualizaTransacoes = async () => {
-        try {
-          if (!userId) return;
-          const transacoesAtualizadas = await getTransacoes(userId);
-          setTransacoes(transacoesAtualizadas);
-        } catch (error) {
-          console.log("Erro ao atualizar as transações", error);
-        }
-      };
-    
-      const deposito = async (valor: number) => {
-        try {
-          if (!userId) throw new Error("Usuário não autenticado.");
-          const novoSaldo = saldo + valor;
-          await postSaldo(userId, novoSaldo);
-          await atualizarSaldo();
-        } catch (error) {
-          console.error("Erro ao realizar depósito:", error);
-        }
-      };
-    
-      const transferencia = async (valor: number) => {
-        try {
-          if (!userId) throw new Error("Usuário não autenticado.");
-          const novoSaldo = saldo - valor;
-          await postSaldo(userId, novoSaldo);
-          await atualizarSaldo();
-        } catch (error) {
-          console.error("Erro ao realizar transferência:", error);
-        }
-      };
-    
-      const novaTransacao = async (tipoTransacao: string, valor: number, date: string, userId: string) => {
-        if (tipoTransacao === "transferencia" && !verificaSaldo(valor)) {
-          alert("Saldo insuficiente para realizar a transferência.");
-          return;
-        }
-        
-        const transacao: Transacao = { userId , tipoTransacao, valor, date };
-        await postTransacao(userId,transacao);
-        await atualizaTransacoes();
-      };
-      
-    
-      const verificaSaldo = (valor: number): boolean => {
-        if (valor > saldo) {
-          return false;
-        }
-        return true;
-      };
-    
-      const atualizarTransacao = async (transacaoId: string, tipoTransacao: string, valor: number, date: string) => {
-        try {
-          if (!userId) throw new Error("Usuário não autenticado.");
-    
-          const transacaoAtualizada = { transacaoId, tipoTransacao, valor, date };
-          await putTransacao(userId,transacaoId,transacaoAtualizada);
-          await atualizaTransacoes();
-          await atualizarSaldo();
-        } catch (error) {
-          console.error("Erro ao atualizar a transação:", error);
-        }
-      };
-    
-      const deletarTransacao = async (userId:string,transacaoId: string, tipoTransacao : any, valor: any) => {
-        try {
-          if (!transacaoId) throw new Error("Usuário não autenticado.");
-          tipoTransacao === "transferencia"? deposito(valor): transferencia(valor);
-          
-          await deleteTransacao(userId,transacaoId);
-          await atualizarSaldo();
-          await atualizaTransacoes();
-        } catch (error) {
-          console.error("Erro ao deletar a transação context:", error);
-        }
-      };
-    
-
-
-    return(
-       <TransacoesContext.Provider 
-     value={{ atualizarSaldo,deposito, transferencia ,novaTransacao,deletarTransacao,atualizarTransacao, saldo,transacoes}}
-       >
-       {children}
-
-       </TransacoesContext.Provider>
-
-    )
+  transacoes: Transacao[];
+  saldo: number;
+  deposito: (number: number) => Promise<void>;
+  transferencia: (number: number) => Promise<void>;
+  novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
+  atualizarTransacao: any;
+  deletarTransacao: (transacao: Transacao) => Promise<void>;
+  atualizarSaldo: () => Promise<void | undefined>;
 }
+
+const TransacoesContext = createContext<TransacoesContextData | undefined>(
+  undefined
+);
+
+export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
+  const { userId } = useAuth();
+  const [transacoes, setTransacoes] = useState<any>([]);
+  const [saldo, setSaldo] = useState<number>(0);
+
+  useEffect(() => {
+    atualizarSaldo();
+    atualizaTransacoes();
+  }, [userId]);
+
+  const atualizarSaldo = async () => {
+    try {
+      if (!userId) return;
+      const saldoAtualizado = await getSaldo(userId);
+      setSaldo(saldoAtualizado);
+    } catch (error) {
+      console.error("Erro ao atualizar saldo:", error);
+    }
+  };
+
+  const atualizaTransacoes = async () => {
+    try {
+      if (!userId) return;
+      const transacoesAtualizadas = await getTransacoes(userId);
+      setTransacoes(transacoesAtualizadas);
+    } catch (error) {
+      console.log("Erro ao atualizar as transações", error);
+    }
+  };
+
+  const deposito = async (valor: number) => {
+    try {
+      if (!userId) throw new Error("Usuário não autenticado.");
+      const novoSaldo = saldo + valor;
+      await postSaldo(userId, novoSaldo);
+      await atualizarSaldo();
+    } catch (error) {
+      console.error("Erro ao realizar depósito:", error);
+    }
+  };
+
+  const transferencia = async (valor: number) => {
+    try {
+      if (!userId) throw new Error("Usuário não autenticado.");
+      const novoSaldo = saldo - valor;
+      await postSaldo(userId, novoSaldo);
+      await atualizarSaldo();
+    } catch (error) {
+      console.error("Erro ao realizar transferência:", error);
+    }
+  };
+
+  const novaTransacao = async (transacao: TransacaoAdicionar) => {
+    if (
+      transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
+      !verificaSaldo(transacao.valor)
+    ) {
+      throw new Error("Saldo insuficiente para realizar a transferência.");
+    }
+
+    await postTransacao(userId, transacao);
+    await atualizaTransacoes();
+
+    switch (transacao.tipoTransacao) {
+      case TipoTransacao.DEPOSITO:
+        await deposito(transacao.valor);
+        break;
+      case TipoTransacao.TRANSFERENCIA:
+        await transferencia(transacao.valor);
+        break;
+    }
+  };
+
+  const verificaSaldo = (valor: number): boolean => {
+    if (valor > saldo) {
+      return false;
+    }
+    return true;
+  };
+
+  const atualizarTransacao = async (
+    transacaoId: string,
+    tipoTransacao: TipoTransacao,
+    valor: number,
+    date: Date
+  ) => {
+    try {
+      if (!userId) throw new Error("Usuário não autenticado.");
+
+      const transacaoAtualizada: Transacao = {
+        transacaoId,
+        tipoTransacao,
+        valor,
+        date,
+      };
+      await putTransacao(userId, transacaoId, transacaoAtualizada);
+      await atualizaTransacoes();
+      await atualizarSaldo();
+    } catch (error) {
+      console.error("Erro ao atualizar a transação:", error);
+    }
+  };
+
+  const deletarTransacao = async (transacao: Transacao) => {
+    if (!transacao?.transacaoId) {
+      throw new Error("Não especificado ID da transação.");
+    }
+
+    try {
+      transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA
+        ? await deposito(transacao.valor)
+        : await transferencia(transacao.valor);
+
+      await deleteTransacao(userId, transacao.transacaoId);
+      await atualizaTransacoes();
+    } catch (error) {
+      console.error("Erro ao deletar a transação context:", error);
+    }
+  };
+
+  return (
+    <TransacoesContext.Provider
+      value={{
+        atualizarSaldo,
+        deposito,
+        transferencia,
+        novaTransacao,
+        deletarTransacao,
+        atualizarTransacao,
+        saldo,
+        transacoes,
+      }}
+    >
+      {children}
+    </TransacoesContext.Provider>
+  );
+};
 
 export const useTransacoes = () => {
   const context = useContext(TransacoesContext);
