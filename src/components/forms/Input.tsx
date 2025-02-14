@@ -54,7 +54,7 @@ export default function Input(options: InputOptions) {
   }
 
   return (
-    <View className={`flex gap-1 w-full ${options.className ?? ""}`}>
+    <View className={`gap-1 w-full ${options.className ?? ""}`}>
       <InputLabel text={options.label} textBold={options.labelTextBold} />
       <TextInput
         className={`w-full bg-white rounded-lg border-[1px] p-3 ${

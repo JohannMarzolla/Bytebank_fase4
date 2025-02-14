@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { View, Button, Text } from "react-native";
-import DatePicker from "react-native-date-picker";
+import { useState } from "react";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { format } from "date-fns";
 import InputLabel from "./InputLabel";
 
 export interface InputDateOptions {
@@ -22,33 +23,46 @@ export interface InputDateOptions {
 
 export default function InputDate(options: InputDateOptions) {
   const [date, setDate] = useState(options.value ?? new Date());
-  const [open, setOpen] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [formattedDate, setFormattedDate] = useState("Selecionar data");
   const style = options.style ?? "ligth";
 
-  return (
-    <View
-      className={`flex flex-col gap-1 w-full h-full ${options.className ?? ""}`}
-    >
-      <Text className="text-xl mb-4">
-        Data selecionada: {date.toLocaleDateString()}
-      </Text>
-      <Button title="Selecionar Data" onPress={() => setOpen(true)} />
+  function onChange(event: any, selectedDate: any) {
+    if (selectedDate) {
+      setDate(selectedDate);
+      setFormattedDate(format(selectedDate, "dd/MM/yyyy"));
+    }
+    setShowPicker(false);
+    if (options.onValueChanged) options.onValueChanged(selectedDate);
+  }
 
+  return (
+    <View className={`gap-1 w-full ${options.className ?? ""}`}>
       <InputLabel text={options.label} textBold={options.labelTextBold} />
 
-      <DatePicker
-        className={`input bg-white w-full border-[1px] ${
+      <TouchableOpacity
+        className={`w-full bg-white rounded-lg border-[1px] p-3 ${
           style === "ligth" ? "border-fiap-light-blue" : "border-fiap-navy-blue"
         }`}
-        modal
-        open={open}
-        date={date}
-        onConfirm={(selectedDate) => {
-          setOpen(false);
-          setDate(selectedDate);
-        }}
-        onCancel={() => setOpen(false)}
-      />
+        onPress={() => setShowPicker(true)}
+      >
+        <Text
+          className={
+            formattedDate === "Selecionar data" ? "text-gray-400" : "text-black"
+          }
+        >
+          {formattedDate}
+        </Text>
+      </TouchableOpacity>
+
+      {showPicker && (
+        <DateTimePicker
+          value={date}
+          mode="date"
+          display={Platform.OS === "ios" ? "spinner" : "default"}
+          onChange={onChange}
+        />
+      )}
 
       {options.error && <Text className="text-red-500">{options.error}</Text>}
     </View>
