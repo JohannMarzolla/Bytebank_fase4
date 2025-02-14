@@ -1,17 +1,18 @@
 import { deleteTransacao, getSaldo, getTransacoes, postSaldo, postTransacao, putTransacao } from "@/services/TransacoesServices";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { TipoTransacao } from "@/app/types/tipoTransacao";
 
 
 
 interface TransacoesContextData {
-    // transacoes: Transacao[];
+     transacoes: Transacao[];
     saldo: number;
     deposito: (number: number) => Promise<void>;
     transferencia: (number: number) => Promise<void>;
     novaTransacao: (tipoTransacao: string, valor: number, date: string, userId: string) => Promise<void>;
     atualizarTransacao: any;
-    deletarTransacao:(userId:string, transacaoId: string)=> Promise<void>;
+    deletarTransacao:(userId:string,transacaoId: string, tipoTransacao: string, valor: number,)=> Promise<void>;
     // user: any;
     atualizarSaldo: () => Promise<void | undefined>;
   }
@@ -34,6 +35,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
 
     useEffect(() => {
       atualizarSaldo()
+      atualizaTransacoes()
 
     },[userId])
 
@@ -89,6 +91,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
         await postTransacao(userId,transacao);
         await atualizaTransacoes();
       };
+      
     
       const verificaSaldo = (valor: number): boolean => {
         if (valor > saldo) {
@@ -110,9 +113,11 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
         }
       };
     
-      const deletarTransacao = async (userId:string,transacaoId: string) => {
+      const deletarTransacao = async (userId:string,transacaoId: string, tipoTransacao : any, valor: any) => {
         try {
           if (!transacaoId) throw new Error("Usuário não autenticado.");
+          tipoTransacao === "transferencia"? deposito(valor): transferencia(valor);
+          
           await deleteTransacao(userId,transacaoId);
           await atualizarSaldo();
           await atualizaTransacoes();
@@ -125,7 +130,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
 
     return(
        <TransacoesContext.Provider 
-     value={{ atualizarSaldo,deposito, transferencia ,novaTransacao,deletarTransacao,atualizarTransacao, saldo,}}
+     value={{ atualizarSaldo,deposito, transferencia ,novaTransacao,deletarTransacao,atualizarTransacao, saldo,transacoes}}
        >
        {children}
 

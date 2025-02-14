@@ -1,11 +1,13 @@
 "use client";
 
+import { formatarMoeda } from "@/app/utils/formatarMoeda";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Image, Text, View } from "react-native";
 
 
 export default function Saldo() {
     const {saldo} = useTransacoes()
+    const saldoFormato = formatarMoeda(saldo );
 
   return (
     <View className="relative w-full bg-fiap-navy-blue rounded-[8px] p-6">
