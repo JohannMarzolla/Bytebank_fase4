@@ -1,5 +1,5 @@
 import { deleteTransacao, getSaldo, getTransacoes, postSaldo, postTransacao, putTransacao } from "@/services/TransacoesServices";
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 
@@ -30,6 +30,12 @@ export const TransacoesProvider = ({ children }: { children: ReactNode })=>{
     const {userId} = useAuth();
     const [transacoes, setTransacoes] = useState<any>([]);
     const [saldo, setSaldo] = useState<number>(0);
+
+
+    useEffect(() => {
+      atualizarSaldo()
+
+    },[userId])
 
     const atualizarSaldo = async () => {
       try {
