@@ -6,17 +6,10 @@ import { View, Text, TouchableHighlight } from "react-native";
 export default function Transacoes() {
   const { transacoes, deletarTransacao } = useTransacoes();
   const { userId } = useAuth();
-  // id de transaçoes é gerado pelo firebase , nao tem o campo id em transaçoes para nao ficar com dois ids iguais
-  //  por isso o vscode reclama
 
   function handleDelete(transacao: Transacao) {
     deletarTransacao(transacao);
   }
-
-  console.log(
-    "transacao id",
-    transacoes.map((transacao) => transacao.id)
-  );
 
   return (
     <View className="p-4">

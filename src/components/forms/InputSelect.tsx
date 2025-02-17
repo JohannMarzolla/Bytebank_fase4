@@ -1,5 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
 import InputLabel from "./InputLabel";
+import { Text, View } from "react-native";
+import { colors } from "@/constants/Colors";
 
 export interface InputSelectOption {
   /** Valor da opção, utilizado para identificar o valor selecionado. */
@@ -31,23 +33,32 @@ export default function InputSelect(options: InputSelectOptions) {
   }
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <View className="gap-1 w-full">
       <InputLabel text={options.label} />
 
-      <Picker
-        className={`input w-full border-[1px] ${
+      <View
+        className={`flex-1 justify-center w-full h-12 overflow-hidden rounded-lg border-[1px] ${
           style === "ligth" ? "border-fiap-light-blue" : "border-fiap-navy-blue"
         }`}
-        selectedValue={options.value}
-        onValueChange={onValueChanged}
       >
-        {options.options?.length &&
-          options.options.map((option) => (
-            <Picker.Item label={option.label} value={option.value} />
-          ))}
-      </Picker>
+        <Picker
+          selectedValue={options.value}
+          onValueChange={onValueChanged}
+          style={{ backgroundColor: colors.fiap.white }}
+          itemStyle={{}}
+        >
+          {options.options?.length &&
+            options.options.map((option) => (
+              <Picker.Item
+                key={option.value}
+                label={option.label}
+                value={option.value}
+              />
+            ))}
+        </Picker>
+      </View>
 
-      {options.error && <span className="text-red-500">{options.error}</span>}
-    </div>
+      {options.error && <Text className="text-red-500">{options.error}</Text>}
+    </View>
   );
 }

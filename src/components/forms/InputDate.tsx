@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { format } from "date-fns";
 import InputLabel from "./InputLabel";
+import { formatarData } from "@/app/utils/FormatarData";
 
 export interface InputDateOptions {
   /** Texto do label */
@@ -24,13 +24,13 @@ export interface InputDateOptions {
 export default function InputDate(options: InputDateOptions) {
   const [date, setDate] = useState(options.value ?? new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const [formattedDate, setFormattedDate] = useState("Selecionar data");
+  const [formattedDate, setFormattedDate] = useState(formatarData(date));
   const style = options.style ?? "ligth";
 
   function onChange(event: any, selectedDate: any) {
     if (selectedDate) {
       setDate(selectedDate);
-      setFormattedDate(format(selectedDate, "dd/MM/yyyy"));
+      setFormattedDate(formatarData(selectedDate));
     }
     setShowPicker(false);
     if (options.onValueChanged) options.onValueChanged(selectedDate);

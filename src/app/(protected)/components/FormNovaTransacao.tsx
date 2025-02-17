@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Alert } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import { useAuth } from "@/context/AuthContext";
+import { View } from "react-native";
 import { useTransacoes } from "@/context/TransacoesContext";
 import Button from "@/components/ui/Button";
 import Input from "@/components/forms/Input";
@@ -15,9 +13,8 @@ import {
 import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 
 const FormNovaTransacao = () => {
-  const { userId } = useAuth();
   const { novaTransacao } = useTransacoes();
-  const [loginRunning, setLoginRunning] = useState(false);
+  const [addRunning, setAddRunning] = useState(false);
   const [formData, setFormData] = useState(new TransacaoAdicionar());
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
@@ -34,8 +31,8 @@ const FormNovaTransacao = () => {
   };
 
   const handleSubmit = () => {
-    if (!loginRunning) {
-      setLoginRunning(true);
+    if (!addRunning) {
+      setAddRunning(true);
 
       const { isValid, errors } = formData.validate();
       setErrors(errors);
@@ -44,12 +41,12 @@ const FormNovaTransacao = () => {
         processarTransacao();
         setFormData(new TransacaoAdicionar());
       }
-      setLoginRunning(false);
+      setAddRunning(false);
     }
   };
 
   return (
-    <View className="gap-4">
+    <View className="gap-4 items-center">
       <InputSelect
         label="Tipo"
         options={ListaTiposTransacao}
@@ -76,7 +73,7 @@ const FormNovaTransacao = () => {
         onValueChanged={(value) => handleChange("date", value)}
       />
 
-      <Button text="Adicionar transação" color="blue" onPress={handleSubmit} />
+      <Button text="Adicionar" color="blue" onPress={handleSubmit} />
     </View>
   );
 };

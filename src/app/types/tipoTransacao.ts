@@ -6,7 +6,6 @@ export enum TipoTransacao {
 }
 
 export const ListaTiposTransacao: InputSelectOption[] = [
-  { value: "", label: "Selecione o Tipo" },
   { value: TipoTransacao.TRANSFERENCIA, label: "Transferência" },
   { value: TipoTransacao.DEPOSITO, label: "Depósito" },
 ];

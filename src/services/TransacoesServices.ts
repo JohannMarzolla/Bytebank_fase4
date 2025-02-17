@@ -11,24 +11,6 @@ import { db } from "../../firebase/config";
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 
-export const getSaldo = async (userId: string) => {
-  try {
-    const docRef = doc(db, "users", userId);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return data.saldo;
-    } else {
-      console.log("No such document!");
-      return null;
-    }
-  } catch (error) {
-    console.error("Erro ao buscar saldo:", error);
-    return null;
-  }
-};
-
 export const getTransacoes = async (userId: string) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
@@ -43,22 +25,6 @@ export const getTransacoes = async (userId: string) => {
   } catch (error) {
     console.error("Erro ao buscar transações:", error);
     return [];
-  }
-};
-
-export const postSaldo = async (userId: string, novoSaldo: number) => {
-  try {
-    const docRef = doc(db, "users", userId);
-
-    await updateDoc(docRef, {
-      saldo: novoSaldo,
-    });
-
-    console.log(`Saldo atualizado para ${novoSaldo}`);
-    return true;
-  } catch (error) {
-    console.error("Erro ao atualizar saldo:", error);
-    return false;
   }
 };
 

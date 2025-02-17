@@ -1,13 +1,11 @@
-"use client";
-
 import { Image, Text, View } from "react-native";
 import FormNovaTransacao from "./FormNovaTransacao";
 
 export default function CardNovaTransacao() {
   return (
-    <View className="relative items-center w-full bg-fiap-light-gray rounded-[8px]">
+    <View className="relative items-center w-full bg-fiap-light-gray rounded-[8px] mb-10">
       <View className="w-full z-20 p-6">
-        <Text className="text-xl font-bold pb-3">Nova transação</Text>
+        <Text className="text-xl font-bold pb-4">Nova transação</Text>
         <FormNovaTransacao />
       </View>
 

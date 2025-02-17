@@ -1,11 +1,10 @@
 import {
   deleteTransacao,
-  getSaldo,
   getTransacoes,
-  postSaldo,
   postTransacao,
   putTransacao,
 } from "@/services/TransacoesServices";
+import { getSaldo, postSaldo } from "@/services/SaldoServices";
 import {
   createContext,
   ReactNode,
