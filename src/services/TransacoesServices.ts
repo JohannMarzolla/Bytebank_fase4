@@ -51,7 +51,15 @@ export const postTransacao = async (
 ) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
-    const newTransacao: Transacao = { ...transacao, userId };
+
+    // Criar um novo objeto sem a função validate()
+    const { validate, ...transacaoSemFuncao } = transacao;
+
+    const newTransacao: Transacao = { 
+      ...transacaoSemFuncao, 
+      date: transacao.date.toISOString() 
+    };
+
     const docRef = await addDoc(transacoesRef, newTransacao);
 
     console.log("Transação adicionada com sucesso:", docRef.id);
@@ -61,6 +69,7 @@ export const postTransacao = async (
     return null;
   }
 };
+
 
 export const putTransacao = async (
   userId: string,

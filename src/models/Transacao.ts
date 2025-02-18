@@ -7,3 +7,4 @@ export interface Transacao {
   valor: number;
   date: Date;
 }
+

@@ -25,7 +25,7 @@ interface TransacoesContextData {
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
   atualizarTransacao: any;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
-  atualizarSaldo: () => Promise<void | undefined>;
+  
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -85,6 +85,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const novaTransacao = async (transacao: TransacaoAdicionar) => {
+    console.log('transacao nova transacao', transacao)
     if (
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
       !verificaSaldo(transacao.valor)
@@ -136,16 +137,15 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deletarTransacao = async (transacao: Transacao) => {
-    if (!transacao?.transacaoId) {
+    if (!transacao.id) {
       throw new Error("Não especificado ID da transação.");
     }
-
     try {
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA
         ? await deposito(transacao.valor)
         : await transferencia(transacao.valor);
 
-      await deleteTransacao(userId, transacao.transacaoId);
+      await deleteTransacao(userId, transacao.id);
       await atualizaTransacoes();
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
@@ -155,7 +155,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   return (
     <TransacoesContext.Provider
       value={{
-        atualizarSaldo,
         deposito,
         transferencia,
         novaTransacao,

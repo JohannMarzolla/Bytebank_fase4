@@ -24,6 +24,7 @@ const FormNovaTransacao = () => {
 
   const processarTransacao = async () => {
     try {
+      console.log('form data procesar transacao', formData)
       await novaTransacao(formData);
     } catch (error: any) {
       ShowToast("error", error.message);
