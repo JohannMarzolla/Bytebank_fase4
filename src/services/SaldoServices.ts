@@ -26,7 +26,6 @@ export const postSaldo = async (userId: string, novoSaldo: number) => {
     await updateDoc(docRef, {
       saldo: novoSaldo,
     });
-
     console.log(`Saldo atualizado para ${novoSaldo}`);
     return true;
   } catch (error) {

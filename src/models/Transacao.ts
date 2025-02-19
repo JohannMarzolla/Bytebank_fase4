@@ -1,7 +1,7 @@
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 
 export interface Transacao {
-  transacaoId?: string;
+  id: string;
   userId?: string;
   tipoTransacao: TipoTransacao;
   valor: number;

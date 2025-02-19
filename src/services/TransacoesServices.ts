@@ -73,14 +73,14 @@ export const postTransacao = async (
 
 export const putTransacao = async (
   userId: string,
-  transacaoId: string,
+  id: string,
   novosDados: Partial<Transacao>
 ) => {
   try {
-    const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
+    const transacaoRef = doc(db, "users", userId, "transacoes", id);
     await updateDoc(transacaoRef, novosDados);
 
-    console.log(`Transação ${transacaoId} atualizada com sucesso!`);
+    console.log(`Transação ${id} atualizada com sucesso!`);
     return true;
   } catch (error) {
     console.error("Erro ao atualizar transação:", error);

@@ -85,7 +85,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const novaTransacao = async (transacao: TransacaoAdicionar) => {
-    console.log('transacao nova transacao', transacao)
     if (
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
       !verificaSaldo(transacao.valor)
@@ -114,7 +113,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const atualizarTransacao = async (
-    transacaoId: string,
+    id: string,
     tipoTransacao: TipoTransacao,
     valor: number,
     date: Date
@@ -123,12 +122,12 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       if (!userId) throw new Error("Usuário não autenticado.");
 
       const transacaoAtualizada: Transacao = {
-        transacaoId,
+        id,
         tipoTransacao,
         valor,
         date,
       };
-      await putTransacao(userId, transacaoId, transacaoAtualizada);
+      await putTransacao(userId,id, transacaoAtualizada);
       await atualizaTransacoes();
       await atualizarSaldo();
     } catch (error) {

@@ -9,36 +9,27 @@ export default function TransacoesPage() {
     const { transacoes } = useTransacoes();
 
     return (
-        <View className="bg-fiap-white shadow-md rounded-lg p-6 w-126">
-            <View className="flex flex-row items-center justify-between mb-4">
-                <Text className="font-bold text-lg">Transferências</Text>
-            </View>
+        <View className="flex-1 bg-fiap-white shadow-md rounded-lg p-6 w-126">
+            <Text className="font-bold text-lg mb-4">Transferências</Text>
 
-            <View className="flex flex-col bg-white border-[1px] rounded border-fiap-light-blue px-4 pt-3 pb-5">
+            {/* Seção de filtros */}
+            <View className="bg-white border border-fiap-light-blue rounded px-4 pt-3 pb-5 mb-4">
                 <Text className="pb-3">Filtros</Text>
 
-                <View className="flex flex-row max-sm:flex-col gap-2 mb-4">
-                    <Button text="Todos" color="blue" />
-                    <Button text="Depósitos" color="blue" />
-                    <Button text="Transferências" color="blue" />
+                <View className="flex-row max-sm:flex-col gap-2 mb-4">
+                    {["Todos", "Depósitos", "Transferências"].map((filtro) => (
+                        <Button key={filtro} text={filtro} color="blue" />
+                    ))}
                 </View>
 
-                <View className="flex flex-row max-sm:flex-col w-full gap-4">
-                    <Input
-                        type="date"
-                        label="Data início:"
-                        labelTextBold={false}
-                        name="dataInicio"
-                    />
-                    <Input
-                        type="date"
-                        label="Data fim:"
-                        labelTextBold={false}
-                        name="dataFim"
-                    />
+                <View className="flex-row max-sm:flex-col w-full gap-4">
+                    {["Data início:", "Data fim:"].map((label, i) => (
+                        <Input key={i} type="date" label={label} labelTextBold={false} name={label.toLowerCase().replace(" ", "")} />
+                    ))}
                 </View>
             </View>
 
+            {/* Lista de Transações */}
             <ListaTransacoes transacoes={transacoes} />
         </View>
     );
