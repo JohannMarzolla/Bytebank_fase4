@@ -2,7 +2,7 @@ import { useState } from "react";
 import { View, Text, TouchableOpacity, Platform } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import InputLabel from "./InputLabel";
-import { formatarData } from "@/app/utils/FormatarData";
+import { formatarData } from "@/app/utils/formatarData";
 
 export interface InputDateOptions {
   /** Texto do label */

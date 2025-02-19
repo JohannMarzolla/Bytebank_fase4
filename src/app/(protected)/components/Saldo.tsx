@@ -1,6 +1,4 @@
-"use client";
-
-import { formatarData } from "@/app/utils/FormatarData";
+import { formatarData } from "@/app/utils/formatarData";
 import { formatarMoeda } from "@/app/utils/formatarMoeda";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Image, Text, View } from "react-native";
