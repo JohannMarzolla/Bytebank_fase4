@@ -1,4 +1,7 @@
-import { createDrawerNavigator, DrawerNavigationOptions } from "@react-navigation/drawer";
+import {
+  createDrawerNavigator,
+  DrawerNavigationOptions,
+} from "@react-navigation/drawer";
 import { View, Text } from "react-native";
 import { Slot } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
@@ -11,21 +14,19 @@ export default function App() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return null; 
+    return null;
   }
 
-  const customScreenOptions :  DrawerNavigationOptions = { 
-    headerStyle: { backgroundColor: "#004D61" },  
-    headerTintColor: "white", 
-    headerTitleAlign: "center" 
+  const customScreenOptions: DrawerNavigationOptions = {
+    headerStyle: { backgroundColor: "#004D61" },
+    headerTintColor: "white",
+    headerTitleAlign: "center",
   };
 
   return (
-    <Drawer.Navigator
-      screenOptions={customScreenOptions}
-  >
+    <Drawer.Navigator screenOptions={customScreenOptions}>
       <Drawer.Screen name="Home" component={Home} />
-      <Drawer.Screen name="Investimentos" component={Transacoes} />
+      <Drawer.Screen name="Transações" component={Transacoes} />
       <Drawer.Screen name="Sair" component={Logout} />
     </Drawer.Navigator>
   );
