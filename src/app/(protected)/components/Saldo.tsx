@@ -1,5 +1,5 @@
 import { formatarData } from "@/app/utils/FormatarData";
-import { formatarMoeda } from "@/app/utils/formatarMoeda";
+import { formatarMoeda } from "@/app/utils/FormatarMoeda";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Image, Text, View } from "react-native";
 

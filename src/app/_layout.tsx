@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { AuthProvider } from "@/context/AuthContext";
 import { TransacoesProvider } from "@/context/TransacoesContext";
+import { GraficosProvider } from "@/context/GraficosContext";
 import Toast from "react-native-toast-message";
 import "react-native-reanimated";
 
@@ -34,6 +35,7 @@ export default function RootLayout() {
     <>
       <AuthProvider>
         <TransacoesProvider>
+          <GraficosProvider>
           <Stack>
             <Stack.Screen
               name="(auth)/login"
@@ -46,6 +48,7 @@ export default function RootLayout() {
             <Stack.Screen name="(protected)" options={{ headerShown: false }} />
             <Stack.Screen name="+not-found" />
           </Stack>
+          </GraficosProvider>
         </TransacoesProvider>
       </AuthProvider>
       <Toast />

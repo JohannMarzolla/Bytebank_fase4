@@ -9,17 +9,14 @@ export interface TransacaoItemOptions {
 
 export default function TransacaoItem({ transacao }: TransacaoItemOptions) {
   const { deletarTransacao } = useTransacoes();
-  const dataFormatada = formatarData(transacao.date);
-
+  const dataFormatada = formatarData(new Date(transacao.date));
+  
   function handleDelete(transacao: Transacao) {
     deletarTransacao(transacao);
   }
 
   return (
     <View className="bg-white p-4  ">
-      <Text className="text-xs font-semibold text-fiap-green uppercase mb-1">
-        mes
-      </Text>
       <View className="flex flex-row justify-between mb-2">
         <Text className="capitalize text-gray-800 font-medium">
           {transacao.tipoTransacao}

@@ -19,6 +19,8 @@ export default function CarouselGraficos() {
   const { width } = Dimensions.get("window");
   const scrollX = useRef(new Animated.Value(0)).current;
 
+  console.log("📌 Renderizando CarouselGraficos", data);
+
   return (
     <View className="flex-1 items-center justify-center pt-4">
       <Animated.FlatList
@@ -36,7 +38,7 @@ export default function CarouselGraficos() {
             <Text className="text-lg font-bold text-white mb-2">
               {item.title}
             </Text>
-            {item.component ? item.component() : null}
+            {item.component ? <item.component /> : null} 
           </View>
         )}
       />

@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { formatarMoeda } from "@/app/utils/formatarMoeda";
+import { formatarMoeda } from "@/app/utils/FormatarMoeda";
 import { useTransacoes } from "@/context/TransacoesContext";
 import CarouselGraficos from "./CarouselGraficos";
 
