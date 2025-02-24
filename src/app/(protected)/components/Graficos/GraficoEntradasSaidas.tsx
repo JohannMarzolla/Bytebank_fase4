@@ -3,24 +3,16 @@ import { View, Text } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { formatarMoeda } from "@/app/utils/FormatarMoeda";
-import { colors } from "@/constants/Colors";
 import { useGraficos } from "@/context/GraficosContext";
 
-// Precisa manter este formato porque é o formato que o PieChart entende
-const dados = [
-  { name: "Depósito", value: 20000, color: colors.fiap.green },
-  { name: "Transferência", value: 7000, color: colors.fiap.red },
-];
-
 export default function GraficoEntradasSaidas() {
-  const { transacoesGraficos} = useGraficos();
-  const dadosGraficos = Object.values(transacoesGraficos[0])
+  const { transacoesGraficos } = useGraficos();
   const screenWidth = Dimensions.get("window").width;
-  
+
   return (
     <View className="flex-row items-center justify-center overflow-hidden">
       <PieChart
-        data={dadosGraficos}
+        data={transacoesGraficos}
         width={screenWidth / 2 - 30}
         height={200}
         chartConfig={{
@@ -38,7 +30,7 @@ export default function GraficoEntradasSaidas() {
       />
 
       <View className="w-1/2 pl-2">
-        {dadosGraficos.map((item, index) => (
+        {transacoesGraficos.map((item, index) => (
           <View key={index} className="flex-row items-center pl-2 pb-2">
             <View
               className={`w-4 h-4 mr-3`}

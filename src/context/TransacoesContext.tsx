@@ -25,7 +25,6 @@ interface TransacoesContextData {
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
   atualizarTransacao: any;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
-  
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -127,7 +126,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         valor,
         date,
       };
-      await putTransacao(userId,id, transacaoAtualizada);
+      await putTransacao(userId, id, transacaoAtualizada);
       await atualizaTransacoes();
       await atualizarSaldo();
     } catch (error) {

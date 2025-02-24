@@ -1,15 +1,22 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useAuth } from "./AuthContext";
-import { getAllTransacoesForTipoDepostio, getAllTransacoesForTipoTransferencia } from "@/services/GraficosServices";
+import { getAllTransacoesPorTipo } from "@/services/GraficosServices";
 import { colors } from "@/constants/Colors";
 import { useTransacoes } from "./TransacoesContext";
+import { TipoTransacao } from "@/app/types/TipoTransacao";
+import { GraficoEntrasSaidasModel } from "@/models/GraficoEntrasSaidasModel";
 
-
-
-interface GraficosContextData{
-    getAllTransacoesForTipoTransacaoContext:any;
-    transacoesGraficos: any,
-    calcularValue: any
+interface GraficosContextData {
+  getAllTransacoesForTipoTransacaoContext: any;
+  transacoesGraficos: GraficoEntrasSaidasModel[];
+  calcularValue: any;
 }
 
 const GraficosContext = createContext<GraficosContextData | undefined>(
@@ -18,88 +25,66 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
 
 export const GraficosProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
-  const {transacoes} = useTransacoes();
+  const { transacoes } = useTransacoes();
 
-  const [transacoesGraficos, setTransacoeaGraficos] = useState([{
-
-    deposito:
-    {
-        name: "Depósito",
-        value: 0,
-        color: colors.fiap.green 
-
-    },
-    transferencias:
-    {
-        name: "Transferência",
-        value: 0,
-        color: colors.fiap.red
-
-    }
-  }])
+  const [transacoesGraficos, setTransacoesGraficos] = useState<
+    GraficoEntrasSaidasModel[]
+  >([
+    { name: "Depósito", value: 0, color: colors.fiap.green },
+    { name: "Transferência", value: 0, color: colors.fiap.red },
+  ]);
 
   useEffect(() => {
-    calcularValue()
+    calcularValue();
+  }, [transacoes]);
 
-  },[transacoes])
-
-
- const getAllTransacoesForTipoTransacaoContext  = async () => {
+  const getAllTransacoesForTipoTransacaoContext = async () => {
     try {
-        if(!userId) return;
-        const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-            getAllTransacoesForTipoDepostio(userId),
-            getAllTransacoesForTipoTransferencia(userId),
-          ]);
-          return {
-            depositos: transacoesDeposito,
-            transferencia : transacoesTransferencia
-          }
+      if (!userId) return;
+
+      const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
+        getAllTransacoesPorTipo(userId, TipoTransacao.DEPOSITO),
+        getAllTransacoesPorTipo(userId, TipoTransacao.TRANSFERENCIA),
+      ]);
+      return {
+        depositos: transacoesDeposito,
+        transferencia: transacoesTransferencia,
+      };
     } catch (error) {
-        console.log("Erro ao atualizar as transações", error);
-        return{
-            depositos: [],
-            transferencia: [],
-        }
+      console.log("Erro ao atualizar as transações", error);
+      return { depositos: [], transferencia: [] };
     }
-  }
+  };
 
   const calcularValue = async () => {
     try {
       const transacoes = await getAllTransacoesForTipoTransacaoContext();
-      
       if (!transacoes) return;
-  
-      const depositoValue = transacoes.depositos.reduce((acc, deposito) => acc + deposito.valor, 0);
-      const transferenciaValue = transacoes.transferencia.reduce((acc, transferencia) => acc + transferencia.valor, 0);
 
-      setTransacoeaGraficos(prev => prev.map(item =>({
-        deposito:{
-            ...item.deposito,
-            value: depositoValue
+      const depositoValue = transacoes.depositos.reduce(
+        (acc, deposito) => acc + deposito.valor,
+        0
+      );
+      const transferenciaValue = transacoes.transferencia.reduce(
+        (acc, transferencia) => acc + transferencia.valor,
+        0
+      );
 
-        },
-        transferencias:{
-            ...item.transferencias,
-            value: transferenciaValue
-
-        }
-      })));
-  
+      const newValues = transacoesGraficos;
+      newValues[0].value = depositoValue;
+      newValues[1].value = transferenciaValue;
+      setTransacoesGraficos(newValues);
     } catch (error) {
       console.log("Erro ao calcular valores:", error);
     }
   };
-  
 
-  
   return (
     <GraficosContext.Provider
       value={{
         getAllTransacoesForTipoTransacaoContext,
         calcularValue,
         transacoesGraficos,
-       
       }}
     >
       {children}
