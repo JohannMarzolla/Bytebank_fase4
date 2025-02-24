@@ -35,7 +35,8 @@ export default function Input(options: InputOptions) {
     let formatedValue: string | number = value;
 
     if (options.type === "number") {
-      formatedValue = Number.parseInt(value);
+      const number = Number.parseInt(value);
+      formatedValue = isNaN(number) ? 0 : number;
     }
 
     setInputValue(formatedValue);

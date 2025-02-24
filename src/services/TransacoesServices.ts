@@ -55,9 +55,9 @@ export const postTransacao = async (
     // Criar um novo objeto sem a função validate()
     const { validate, ...transacaoSemFuncao } = transacao;
 
-    const newTransacao: Transacao = { 
-      ...transacaoSemFuncao, 
-      date: transacao.date.toISOString() 
+    const newTransacao = {
+      ...transacaoSemFuncao,
+      date: transacao.date.toISOString(),
     };
 
     const docRef = await addDoc(transacoesRef, newTransacao);
@@ -69,7 +69,6 @@ export const postTransacao = async (
     return null;
   }
 };
-
 
 export const putTransacao = async (
   userId: string,

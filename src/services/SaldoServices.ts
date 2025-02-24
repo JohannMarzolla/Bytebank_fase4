@@ -10,7 +10,7 @@ export const getSaldo = async (userId: string) => {
       const data = docSnap.data();
       return data.saldo;
     } else {
-      console.log("No such document!");
+      console.log("getSaldo - No such document!");
       return null;
     }
   } catch (error) {
