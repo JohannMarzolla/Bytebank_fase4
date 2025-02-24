@@ -10,7 +10,7 @@ import {
   TransacaoAdicionar,
   TransacaoAdicionarErrors,
 } from "@/models/TransacaoAdicionar";
-import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
+import { ListaTiposTransacao, TipoTransacao } from "@/app/types/TipoTransacao";
 
 const FormNovaTransacao = () => {
   const { novaTransacao } = useTransacoes();
@@ -24,24 +24,21 @@ const FormNovaTransacao = () => {
 
   const processarTransacao = async () => {
     try {
-      console.log('form data procesar transacao', formData)
       await novaTransacao(formData);
+      setFormData(new TransacaoAdicionar());
     } catch (error: any) {
       ShowToast("error", error.message);
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!addRunning) {
       setAddRunning(true);
 
       const { isValid, errors } = formData.validate();
       setErrors(errors);
 
-      if (isValid) {
-        processarTransacao();
-        setFormData(new TransacaoAdicionar());
-      }
+      if (isValid) await processarTransacao();
       setAddRunning(false);
     }
   };

@@ -22,18 +22,12 @@ export interface InputDateOptions {
 }
 
 export default function InputDate(options: InputDateOptions) {
-  const [date, setDate] = useState(options.value ?? new Date());
   const [showPicker, setShowPicker] = useState(false);
-  const [formattedDate, setFormattedDate] = useState(formatarData(date));
   const style = options.style ?? "ligth";
 
   function onChange(event: any, selectedDate: any) {
-    if (selectedDate) {
-      setDate(selectedDate);
-      setFormattedDate(formatarData(selectedDate));
-    }
-    setShowPicker(false);
     if (options.onValueChanged) options.onValueChanged(selectedDate);
+    setShowPicker(false);
   }
 
   return (
@@ -46,18 +40,14 @@ export default function InputDate(options: InputDateOptions) {
         }`}
         onPress={() => setShowPicker(true)}
       >
-        <Text
-          className={
-            formattedDate === "Selecionar data" ? "text-gray-400" : "text-black"
-          }
-        >
-          {formattedDate}
+        <Text className={options.value ? "text-black" : "text-gray-400"}>
+          {options.value ? formatarData(options.value) : "Selecionar data"}
         </Text>
       </TouchableOpacity>
 
       {showPicker && (
         <DateTimePicker
-          value={date}
+          value={options.value ?? new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
           onChange={onChange}

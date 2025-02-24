@@ -26,9 +26,6 @@ export interface InputOptions {
 }
 
 export default function Input(options: InputOptions) {
-  const [inputValue, setInputValue] = useState<string | number>(
-    options.value ?? ""
-  );
   const style = options.style ?? "ligth";
 
   function handleValueChange(value: string) {
@@ -39,7 +36,6 @@ export default function Input(options: InputOptions) {
       formatedValue = isNaN(number) ? 0 : number;
     }
 
-    setInputValue(formatedValue);
     if (options.onValueChanged) options.onValueChanged(formatedValue);
   }
 
@@ -63,7 +59,7 @@ export default function Input(options: InputOptions) {
         }`}
         keyboardType={getKeyboardType()}
         secureTextEntry={options.type === "password"}
-        value={String(inputValue)}
+        value={String(options.value ?? "")}
         placeholder={options.placeholder}
         onChangeText={handleValueChange}
       />
