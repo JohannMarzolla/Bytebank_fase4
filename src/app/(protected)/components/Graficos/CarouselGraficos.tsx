@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { View, Text, Dimensions, Animated } from "react-native";
 import GraficoEntradasSaidas from "./GraficoEntradasSaidas";
+import GraficoEvolucaoSaldo from "./GraficoEvolucaoSaldo";
 
 const data = [
   {
@@ -10,16 +11,14 @@ const data = [
   },
   {
     type: "bar",
-    title: "Gráfico de Barras",
-    component: null,
+    title: "Evolução do saldo por mês 💰",
+    component: GraficoEvolucaoSaldo,
   },
 ];
 
 export default function CarouselGraficos() {
   const { width } = Dimensions.get("window");
   const scrollX = useRef(new Animated.Value(0)).current;
-
-  console.log("📌 Renderizando CarouselGraficos", data);
 
   return (
     <View className="flex-1 items-center justify-center pt-4">
@@ -38,7 +37,7 @@ export default function CarouselGraficos() {
             <Text className="text-lg font-bold text-white mb-2">
               {item.title}
             </Text>
-            {item.component ? <item.component /> : null} 
+            <View>{item.component ? <item.component /> : null}</View>
           </View>
         )}
       />

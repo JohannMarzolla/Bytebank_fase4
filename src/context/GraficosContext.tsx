@@ -7,15 +7,20 @@ import {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-import { getAllTransacoesPorTipo } from "@/services/GraficosServices";
+import {
+  getAllTransacoesByMes,
+  getAllTransacoesPorTipo,
+} from "@/services/GraficosServices";
 import { colors } from "@/constants/Colors";
 import { useTransacoes } from "./TransacoesContext";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 import { GraficoEntrasSaidasModel } from "@/models/GraficoEntrasSaidasModel";
+import { GraficoPorMesModel } from "@/models/GraficoPorMesModel";
 
 interface GraficosContextData {
   getAllTransacoesForTipoTransacaoContext: any;
   transacoesGraficos: GraficoEntrasSaidasModel[];
+  transacoesByMes: GraficoPorMesModel[];
   calcularValue: any;
 }
 
@@ -33,6 +38,9 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
     { name: "Depósito", value: 0, color: colors.fiap.green },
     { name: "Transferência", value: 0, color: colors.fiap.red },
   ]);
+  const [transacoesByMes, setTransacoesByMes] = useState<GraficoPorMesModel[]>(
+    []
+  );
 
   useEffect(() => {
     calcularValue();
@@ -58,6 +66,23 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
 
   const calcularValue = async () => {
     try {
+      await Promise.all([calcularValuePorTipo(), calcularValuePorMes()]);
+    } catch (error) {
+      console.log("Erro ao calcular valores calcularValue:", error);
+    }
+  };
+
+  const calcularValuePorMes = async () => {
+    try {
+      const transacoes = await getAllTransacoesByMes(userId);
+      setTransacoesByMes(transacoes ?? []);
+    } catch (error) {
+      console.log("Erro ao calcular valores calcularValuePorMes:", error);
+    }
+  };
+
+  const calcularValuePorTipo = async () => {
+    try {
       const transacoes = await getAllTransacoesForTipoTransacaoContext();
       if (!transacoes) return;
 
@@ -75,7 +100,7 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
       newValues[1].value = transferenciaValue;
       setTransacoesGraficos(newValues);
     } catch (error) {
-      console.log("Erro ao calcular valores:", error);
+      console.log("Erro ao calcular valores calcularValuePorTipo:", error);
     }
   };
 
@@ -85,6 +110,7 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
         getAllTransacoesForTipoTransacaoContext,
         calcularValue,
         transacoesGraficos,
+        transacoesByMes,
       }}
     >
       {children}
