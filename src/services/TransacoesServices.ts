@@ -7,9 +7,10 @@ import {
   getDocs,
   updateDoc,
 } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db, storage } from "../../firebase/config";
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export const getTransacoes = async (userId: string) => {
   try {
@@ -52,12 +53,18 @@ export const postTransacao = async (
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
 
-    // Criar um novo objeto sem a função validate()
-    const { validate, ...transacaoSemFuncao } = transacao;
+    let fileUrl = null;
+    if (transacao.file) {
+      fileUrl = await uploadFile(transacao.file);
+    }
 
     const newTransacao = {
-      ...transacaoSemFuncao,
+      userId,
+      tipoTransacao: transacao.tipoTransacao,
+      valor: transacao.valor,
       date: transacao.date.toISOString(),
+      file: fileUrl,
+      fileName: fileUrl ? transacao.file?.name : null,
     };
 
     const docRef = await addDoc(transacoesRef, newTransacao);
@@ -99,3 +106,15 @@ export const deleteTransacao = async (userId: string, transacaoId: string) => {
     return false;
   }
 };
+
+async function uploadFile(file: any) {
+  if (!file) return null;
+
+  const response = await fetch(file.uri);
+  const blob = await response.blob();
+
+  const fileRef = ref(storage, `transacoes/${file.name}`);
+  await uploadBytes(fileRef, blob);
+
+  return await getDownloadURL(fileRef);
+}

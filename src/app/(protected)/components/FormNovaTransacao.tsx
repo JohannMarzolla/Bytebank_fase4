@@ -11,6 +11,7 @@ import {
   TransacaoAdicionarErrors,
 } from "@/models/TransacaoAdicionar";
 import { ListaTiposTransacao, TipoTransacao } from "@/app/types/TipoTransacao";
+import FilePicker from "@/components/forms/FilePicker";
 
 const FormNovaTransacao = () => {
   const { novaTransacao } = useTransacoes();
@@ -69,6 +70,13 @@ const FormNovaTransacao = () => {
         value={formData.date}
         error={errors.date}
         onValueChanged={(value) => handleChange("date", value)}
+      />
+
+      <FilePicker
+        label="Anexo"
+        style="dark"
+        accept="image/*,application/pdf,.docx,.xlsx"
+        onValueChanged={(value) => handleChange("file", value)}
       />
 
       <Button text="Adicionar" color="blue" onPress={handleSubmit} />

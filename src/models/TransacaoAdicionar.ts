@@ -10,11 +10,13 @@ export class TransacaoAdicionar {
   tipoTransacao: TipoTransacao;
   valor: number;
   date: Date;
+  file?: any;
 
   constructor(obj?: TransacaoAdicionar) {
     this.tipoTransacao = obj?.tipoTransacao ?? TipoTransacao.TRANSFERENCIA;
     this.valor = obj?.valor ?? 0;
     this.date = obj?.date ?? new Date();
+    this.file = obj?.file;
   }
 
   validate = () => {

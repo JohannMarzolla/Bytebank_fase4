@@ -91,16 +91,18 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Saldo insuficiente para realizar a transferência.");
     }
 
-    await postTransacao(userId, transacao);
-    await atualizaTransacoes();
+    const newId = await postTransacao(userId, transacao);
+    if (newId) {
+      await atualizaTransacoes();
 
-    switch (transacao.tipoTransacao) {
-      case TipoTransacao.DEPOSITO:
-        await deposito(transacao.valor);
-        break;
-      case TipoTransacao.TRANSFERENCIA:
-        await transferencia(transacao.valor);
-        break;
+      switch (transacao.tipoTransacao) {
+        case TipoTransacao.DEPOSITO:
+          await deposito(transacao.valor);
+          break;
+        case TipoTransacao.TRANSFERENCIA:
+          await transferencia(transacao.valor);
+          break;
+      }
     }
   };
 
