@@ -83,13 +83,24 @@ export const putTransacao = async (
   novosDados: Partial<Transacao>
 ) => {
   try {
-    const transacaoRef = doc(db, "users", userId, "transacoes", id);
-    await updateDoc(transacaoRef, novosDados);
+    if (userId) console.log("Usuário = ", userId);
+    if (id) console.log("ID da transação  = ", id);
+    if (!Object.keys(novosDados).length) {
+      throw new Error("Nenhum dado fornecido para atualização.");
+    }
 
+    const transacaoRef = doc(db, "users", userId, "transacoes", id);
+    const docSnap = await getDoc(transacaoRef);
+    if (!docSnap.exists()) {
+      throw new Error(`A transação com ID ${id} não existe.`);
+    }
+
+    await updateDoc(transacaoRef, novosDados);
     console.log(`Transação ${id} atualizada com sucesso!`);
+    
     return true;
   } catch (error) {
-    console.error("Erro ao atualizar transação:", error);
+    console.error("Erro ao atualizar transação putTransacao:", error);
     return false;
   }
 };

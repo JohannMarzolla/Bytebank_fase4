@@ -1,13 +1,120 @@
-import { View, ScrollView } from "react-native";
-import TransacoesPage from "../components/TransacoesPage";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import InputDate from "@/components/forms/InputDate";
+import ListaTransacoes from "../components/ListaTransacoes";
+import InputSelect from "@/components/forms/InputSelect";
+import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
+import { useTransacoes } from "@/context/TransacoesContext";
+import { useAuth } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
+import { Transacao } from "@/models/Transacao";
+import { collection, getDocs, limit, query, startAfter } from "firebase/firestore";
+import { db } from "../../../../firebase/config";
 
 export default function Transacoes() {
-  
+  const { saldo } = useTransacoes();
+  console.log("saldo", saldo);
+
+  const { userId } = useAuth();
+  const [transacoes, setTransacoes] = useState<Transacao[]>([]);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false); 
+
+
+  const getTransacoes = async (userId: string, limite: number, lastDoc?: any) => {
+    if (!userId || loadingMore || !hasMoreData) return;
+
+    try {
+      setLoadingMore(true);
+      const transacoesRef = collection(db, "users", userId, "transacoes");
+      let q = lastDoc
+        ? query(transacoesRef, startAfter(lastDoc), limit(limite))
+        : query(transacoesRef, limit(limite));
+
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        setHasMoreData(false);
+        setLoadingMore(false);
+        return;
+      }
+
+      const novasTransacoes: Transacao[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        date: new Date(doc.data().date),
+        tipoTransacao: doc.data().tipoTransacao,
+        valor: doc.data().valor,
+      }));
+
+      setTransacoes((prev) => [...prev, ...novasTransacoes]);
+
+      const ultimoDoc = querySnapshot.docs[querySnapshot.docs.length - 1];
+      setLastDoc(ultimoDoc);
+    } catch (error) {
+      console.error("Erro ao buscar transações:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    getTransacoes(userId, 10);
+  }, [userId]);
+
   return (
-    <View className="flex-1 p-6 pb-8">
-    <View className="flex-1 gap-8">
-      <TransacoesPage />
+    <View style={styles.container}>
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterTitle}>Filtros</Text>
+
+        <InputSelect
+          label="Tipo"
+          options={ListaTiposTransacao}
+          style="dark"
+          value="Transferencia"
+          onValueChanged={(value) => console.log("Selecionado:", value)}
+        />
+
+        <View style={styles.dateContainer}>
+          {["Data início:", "Data fim:"].map((label, i) => (
+            <InputDate key={i} label={label} labelTextBold={false} />
+          ))}
+        </View>
+      </View>
+
+      <ListaTransacoes 
+        transacoes={transacoes}
+        onEndReached={() => getTransacoes(userId, 10, lastDoc)}
+        loadingMore={loadingMore}
+      />
     </View>
-  </View>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 24,
+    paddingHorizontal: 24,
+  },
+  filterContainer: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ADD8E6",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 20,
+    marginBottom: 16,
+  },
+  filterTitle: {
+    paddingBottom: 12,
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  dateContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "100%",
+    gap: 16,
+  },
+});

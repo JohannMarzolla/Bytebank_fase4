@@ -23,7 +23,7 @@ interface TransacoesContextData {
   deposito: (number: number) => Promise<void>;
   transferencia: (number: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
-  atualizarTransacao: any;
+  atualizarTransacao: (transacao : Transacao) => Promise<void>;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
 }
 
@@ -113,24 +113,18 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const atualizarTransacao = async (
-    id: string,
-    tipoTransacao: TipoTransacao,
-    valor: number,
-    date: Date
-  ) => {
+  const atualizarTransacao = async (transacao:Transacao) => {
+    if(!verificaSaldo(transacao.valor)) return
+
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
-
-      const transacaoAtualizada: Transacao = {
-        id,
-        tipoTransacao,
-        valor,
-        date,
-      };
-      await putTransacao(userId, id, transacaoAtualizada);
-      await atualizaTransacoes();
-      await atualizarSaldo();
+    
+      const atualizar  = await putTransacao(userId, transacao.id,transacao);
+      if (atualizar){
+        await atualizaTransacoes();
+        await atualizarSaldo();
+      }
+     
     } catch (error) {
       console.error("Erro ao atualizar a transação:", error);
     }
