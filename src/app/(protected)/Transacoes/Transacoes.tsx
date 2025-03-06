@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
+import { View, Text } from "react-native";
 import InputDate from "@/components/forms/InputDate";
 import ListaTransacoes from "../components/ListaTransacoes";
 import InputSelect from "@/components/forms/InputSelect";
@@ -19,7 +19,6 @@ export default function Transacoes() {
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false); 
-
 
   const getTransacoes = async (userId: string, limite: number, lastDoc?: any) => {
     if (!userId || loadingMore || !hasMoreData) return;
@@ -62,9 +61,9 @@ export default function Transacoes() {
   }, [userId]);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.filterContainer}>
-        <Text style={styles.filterTitle}>Filtros</Text>
+    <View className="flex-1 pt-6 px-6">
+      <View className="bg-white border border-[#ADD8E6] rounded-lg px-4 pt-3 pb-5 mb-4">
+        <Text className="pb-3 text-lg font-bold">Filtros</Text>
 
         <InputSelect
           label="Tipo"
@@ -74,7 +73,7 @@ export default function Transacoes() {
           onValueChanged={(value) => console.log("Selecionado:", value)}
         />
 
-        <View style={styles.dateContainer}>
+        <View className="flex flex-row flex-wrap w-full gap-4">
           {["Data início:", "Data fim:"].map((label, i) => (
             <InputDate key={i} label={label} labelTextBold={false} />
           ))}
@@ -89,32 +88,3 @@ export default function Transacoes() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 24,
-    paddingHorizontal: 24,
-  },
-  filterContainer: {
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#ADD8E6",
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    paddingBottom: 20,
-    marginBottom: 16,
-  },
-  filterTitle: {
-    paddingBottom: 12,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  dateContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    width: "100%",
-    gap: 16,
-  },
-});

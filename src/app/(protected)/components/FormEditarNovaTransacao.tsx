@@ -33,7 +33,7 @@ export default function FormEditarTransacao({ transacao }: FormEditarTransacaoPr
     console.log("form data formulario editar", formData)
     try {
       await atualizarTransacao(formData);
-      ShowToast("success", "Transação atualizada com sucesso!"); // Mensagem de sucesso
+      ShowToast("success", "Transação atualizada com sucesso!"); 
     } catch (error: any) {
       ShowToast("error", error.message);
     }
@@ -54,17 +54,17 @@ export default function FormEditarTransacao({ transacao }: FormEditarTransacaoPr
         type="number"
         label="Valor"
         style="dark"
-        value={formData.valor.toString()} // Convertendo valor para string para Input
+        value={formData.valor.toString()} 
         error={errors.valor}
-        onValueChanged={(value) => handleChange("valor", Number(value))} // Convertendo de volta para número
+        onValueChanged={(value) => handleChange("valor", Number(value))} 
       />
       
       <InputDate
         label="Data"
         style="dark"
-        value={formData.date} // A data deve ser um objeto Date
+        value={formData.date} 
         error={errors.date}
-        onValueChanged={(value) => handleChange("date", value)} // A data deve ser um objeto Date
+        onValueChanged={(value) => handleChange("date", value)} 
       />
 
       <TouchableOpacity onPress={handleSubmit}>
