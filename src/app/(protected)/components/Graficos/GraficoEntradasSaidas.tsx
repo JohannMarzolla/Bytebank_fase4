@@ -2,9 +2,11 @@ import React from "react";
 import { View, Text } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
-import { formatarMoeda } from "@/app/utils/FormatarMoeda";
+
 import { useGraficos } from "@/context/GraficosContext";
 import { useTransacoes } from "@/context/TransacoesContext";
+import { formatarMoeda } from "@/app/utils/FormatarMoeda";
+
 
 export default function GraficoEntradasSaidas() {
   const { transacoesGraficos } = useGraficos();

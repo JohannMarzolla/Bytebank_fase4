@@ -10,8 +10,10 @@ import {
   TransacaoAdicionar,
   TransacaoAdicionarErrors,
 } from "@/models/TransacaoAdicionar";
-import { ListaTiposTransacao, TipoTransacao } from "@/app/types/TipoTransacao";
+
 import FilePicker from "@/components/forms/FilePicker";
+import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
+
 
 const FormNovaTransacao = () => {
   const { novaTransacao } = useTransacoes();
@@ -27,6 +29,7 @@ const FormNovaTransacao = () => {
     try {
       await novaTransacao(formData);
       setFormData(new TransacaoAdicionar());
+      console.log("processar transacao")
     } catch (error: any) {
       ShowToast("error", error.message);
     }

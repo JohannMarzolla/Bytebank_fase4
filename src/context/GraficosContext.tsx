@@ -13,9 +13,10 @@ import {
 } from "@/services/GraficosServices";
 import { colors } from "@/constants/Colors";
 import { useTransacoes } from "./TransacoesContext";
-import { TipoTransacao } from "@/app/types/TipoTransacao";
+
 import { GraficoEntrasSaidasModel } from "@/models/GraficoEntrasSaidasModel";
 import { GraficoPorMesModel } from "@/models/GraficoPorMesModel";
+import { TipoTransacao } from "@/app/types/TipoTransacao";
 
 interface GraficosContextData {
   getAllTransacoesForTipoTransacaoContext: any;

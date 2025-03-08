@@ -5,6 +5,9 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
+  query,
+  startAfter,
   updateDoc,
 } from "firebase/firestore";
 import { db, storage } from "../../firebase/config";
@@ -28,7 +31,52 @@ export const getTransacoes = async (userId: string) => {
     return [];
   }
 };
+export const getTransacoesLimit = async (userId: string, limite: number, lastDoc?: any) => {
+  try {
+    const transacoesRef = collection(db, "users", userId, "transacoes");
+    let q = lastDoc ? query(transacoesRef, startAfter(lastDoc), limit(limite)) : query(transacoesRef, limit(limite));
 
+    const querySnapshot = await getDocs(q);
+
+    const transacoes = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      tipoTransacao: doc.data().tipoTransacao, 
+      valor: doc.data().valor,
+      date: new Date(doc.data().date), 
+    })) as Transacao[]; 
+
+    return {
+      transacoes,
+      lastVisible: querySnapshot.docs[querySnapshot.docs.length - 1],
+      hasMore: !querySnapshot.empty,
+    };
+  } catch (error) {
+    console.error("Erro ao buscar transações:", error);
+    return { transacoes: [], lastVisible: null, hasMore: false };
+  }
+};
+export const getTransacoesLength = async (userId: string, limite: number) => {
+  try {
+    const transacoesRef = collection(db, "users", userId, "transacoes");
+    const q = query(transacoesRef, limit(limite));
+    const querySnapshot = await getDocs(q);
+    
+    const transacoes = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        date: data.date ? new Date(data.date.seconds * 1000) : new Date()
+      } as Transacao;
+    });
+
+    return transacoes;
+
+  } catch (error) {
+    console.error("Erro ao buscar transações:", error);
+    return [];
+  }
+};
 export const getTransacao = async (userId: string, transacaoId: string) => {
   try {
     const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);

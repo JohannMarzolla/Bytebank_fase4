@@ -1,6 +1,8 @@
 import {
   deleteTransacao,
   getTransacoes,
+  getTransacoesLength,
+  getTransacoesLimit,
   postTransacao,
   putTransacao,
 } from "@/services/TransacoesServices";
@@ -13,9 +15,12 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { TipoTransacao } from "@/app/types/TipoTransacao";
+
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
+import { TipoTransacao } from "@/app/types/TipoTransacao";
+import { collection, getDocs, limit, query, startAfter } from "firebase/firestore";
+import { db } from "../../firebase/config";
 
 interface TransacoesContextData {
   transacoes: Transacao[];
@@ -25,6 +30,9 @@ interface TransacoesContextData {
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
   atualizarTransacao: (transacao : Transacao) => Promise<void>;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
+  transacoesLista: Transacao[];
+  carregarMaisTransacoes: any;
+  loading : boolean
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -35,11 +43,39 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const [transacoes, setTransacoes] = useState<any>([]);
   const [saldo, setSaldo] = useState<number>(0);
+  const [transacoesLista, setTransacoesLista] = useState<Transacao[]>([]);
+  const [lastDoc, setLastDoc] = useState<any>(null);
+  const [hasMoreData, setHasMoreData] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [listLenght, setListLenght] = useState(0)
+
+  console.log("tamanho transacoesLista em contexto", transacoesLista.length);
 
   useEffect(() => {
     atualizarSaldo();
     atualizaTransacoes();
+    carregarMaisTransacoes();
   }, [userId]);
+
+  const carregarMaisTransacoes = async () => {
+    if (!userId || loading || !hasMoreData) return;
+  
+    try {
+      setLoading(true);
+      const { transacoes: novasTransacoes, lastVisible } = await getTransacoesLimit(userId, 4, lastDoc);
+      setListLenght(prev => prev + novasTransacoes.length);
+      if (novasTransacoes.length === 0) {
+        setHasMoreData(false);
+        return;
+      }
+      setTransacoesLista((prev) => [...prev, ...novasTransacoes]);
+      setLastDoc(lastVisible);
+    } catch (error) {
+      console.error("Erro ao buscar transações:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const atualizarSaldo = async () => {
     try {
@@ -56,6 +92,17 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       if (!userId) return;
       const transacoesAtualizadas = await getTransacoes(userId);
       setTransacoes(transacoesAtualizadas);
+    } catch (error) {
+      console.log("Erro ao atualizar as transações", error);
+    }
+  };
+
+  const atualizaTransacoesLista = async () => {
+    try {
+      if (!userId) return;
+  
+       const transacoesAtualizadas = await getTransacoesLength(userId, listLenght) 
+       setTransacoesLista(transacoesAtualizadas)
     } catch (error) {
       console.log("Erro ao atualizar as transações", error);
     }
@@ -94,6 +141,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     const newId = await postTransacao(userId, transacao);
     if (newId) {
       await atualizaTransacoes();
+      await atualizaTransacoesLista();
 
       switch (transacao.tipoTransacao) {
         case TipoTransacao.DEPOSITO:
@@ -141,6 +189,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
       await deleteTransacao(userId, transacao.id);
       await atualizaTransacoes();
+      await atualizaTransacoesLista();
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
     }
@@ -156,6 +205,9 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         atualizarTransacao,
         saldo,
         transacoes,
+        transacoesLista,
+        carregarMaisTransacoes,
+        loading
       }}
     >
       {children}
