@@ -8,13 +8,13 @@ import { Svg, Text as TextSVG } from "react-native-svg";
 
 export default function GraficoEvolucaoSaldo() {
   const screenWidth = Dimensions.get("window").width;
-  const { transacoesByMes } = useGraficos();
+  const { evolucaoSaldoData } = useGraficos();
 
-  const labels = transacoesByMes.length
-    ? transacoesByMes.map((t) => t.mes)
+  const labels = evolucaoSaldoData.length
+    ? evolucaoSaldoData.map((t) => t.mes)
     : ["vazio"];
-  const valores = transacoesByMes.length
-    ? transacoesByMes.map((t) => t.saldo)
+  const valores = evolucaoSaldoData.length
+    ? evolucaoSaldoData.map((t) => t.saldo)
     : [0];
 
   return (

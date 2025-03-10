@@ -3,26 +3,23 @@ import {
   ReactNode,
   useContext,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
 import {
-  getAllTransacoesByMes,
-  getAllTransacoesPorTipo,
+  getTransacoesEvolucaoSaldo,
+  getTransacoesPorTipoEData,
 } from "@/services/GraficosServices";
 import { colors } from "@/constants/Colors";
-import { useTransacoes } from "./TransacoesContext";
-
 import { GraficoEntrasSaidasModel } from "@/models/GraficoEntrasSaidasModel";
 import { GraficoPorMesModel } from "@/models/GraficoPorMesModel";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 
 interface GraficosContextData {
-  getAllTransacoesForTipoTransacaoContext: any;
-  transacoesGraficos: GraficoEntrasSaidasModel[];
-  transacoesByMes: GraficoPorMesModel[];
-  calcularValue: any;
+  entradasSaidasData: GraficoEntrasSaidasModel[];
+  evolucaoSaldoData: GraficoPorMesModel[];
+  changeFiltro: { (mes: number, ano: number): void };
+  filtroData: { mes: number; ano: number };
 }
 
 const GraficosContext = createContext<GraficosContextData | undefined>(
@@ -31,29 +28,59 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
 
 export const GraficosProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
-  const { transacoes } = useTransacoes();
+  const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
 
-  const [transacoesGraficos, setTransacoesGraficos] = useState<
+  const [entradasSaidasData, setEntradasSaidasData] = useState<
     GraficoEntrasSaidasModel[]
   >([
     { name: "Depósito", value: 0, color: colors.fiap.green },
     { name: "Transferência", value: 0, color: colors.fiap.red },
   ]);
-  const [transacoesByMes, setTransacoesByMes] = useState<GraficoPorMesModel[]>(
-    []
-  );
+  const [evolucaoSaldoData, setEvolucaoSaldoData] = useState<
+    GraficoPorMesModel[]
+  >([]);
 
   useEffect(() => {
     calcularValue();
-  }, [transacoes]);
+  }, [filtroData, userId]);
 
-  const getAllTransacoesForTipoTransacaoContext = async () => {
+  function getFiltroDataValorInicial() {
+    const hoje = new Date();
+    return {
+      mes: hoje.getMonth(),
+      ano: hoje.getFullYear(),
+    };
+  }
+
+  function getFiltroDataInicioDate() {
+    return new Date(filtroData.ano, filtroData.mes, 1, 0, 0, 0);
+  }
+
+  function getFiltroDataFimDate() {
+    return new Date(filtroData.ano, filtroData.mes + 1, 0, 23, 59, 59);
+  }
+
+  const changeFiltro = (mes: number, ano: number) => {
+    setFiltroData({ mes, ano });
+  };
+
+  const searchEntradasESaidas = async () => {
     try {
       if (!userId) return;
 
       const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-        getAllTransacoesPorTipo(userId, TipoTransacao.DEPOSITO),
-        getAllTransacoesPorTipo(userId, TipoTransacao.TRANSFERENCIA),
+        getTransacoesPorTipoEData(
+          userId,
+          TipoTransacao.DEPOSITO,
+          getFiltroDataInicioDate(),
+          getFiltroDataFimDate()
+        ),
+        getTransacoesPorTipoEData(
+          userId,
+          TipoTransacao.TRANSFERENCIA,
+          getFiltroDataInicioDate(),
+          getFiltroDataFimDate()
+        ),
       ]);
       return {
         depositos: transacoesDeposito,
@@ -67,24 +94,26 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
 
   const calcularValue = async () => {
     try {
-      await Promise.all([calcularValuePorTipo(), calcularValuePorMes()]);
+      if (!userId) return null;
+
+      await Promise.all([calcularEntradasESaidas(), calcularEvolucaoSaldo()]);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValue:", error);
     }
   };
 
-  const calcularValuePorMes = async () => {
+  const calcularEvolucaoSaldo = async () => {
     try {
-      const transacoes = await getAllTransacoesByMes(userId);
-      setTransacoesByMes(transacoes ?? []);
+      const transacoes = await getTransacoesEvolucaoSaldo(userId);
+      setEvolucaoSaldoData(transacoes ?? []);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValuePorMes:", error);
     }
   };
 
-  const calcularValuePorTipo = async () => {
+  const calcularEntradasESaidas = async () => {
     try {
-      const transacoes = await getAllTransacoesForTipoTransacaoContext();
+      const transacoes = await searchEntradasESaidas();
       if (!transacoes) return;
 
       const depositoValue = transacoes.depositos.reduce(
@@ -96,10 +125,10 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
         0
       );
 
-      const newValues = transacoesGraficos;
+      const newValues = entradasSaidasData;
       newValues[0].value = depositoValue;
       newValues[1].value = transferenciaValue;
-      setTransacoesGraficos(newValues);
+      setEntradasSaidasData(newValues);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValuePorTipo:", error);
     }
@@ -108,10 +137,11 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
   return (
     <GraficosContext.Provider
       value={{
-        getAllTransacoesForTipoTransacaoContext,
-        calcularValue,
-        transacoesGraficos,
-        transacoesByMes,
+        // calcularValue,
+        changeFiltro,
+        filtroData,
+        entradasSaidasData,
+        evolucaoSaldoData,
       }}
     >
       {children}

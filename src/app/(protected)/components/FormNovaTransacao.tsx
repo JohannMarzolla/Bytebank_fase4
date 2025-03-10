@@ -14,7 +14,6 @@ import {
 import FilePicker from "@/components/forms/FilePicker";
 import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 
-
 const FormNovaTransacao = () => {
   const { novaTransacao } = useTransacoes();
   const [addRunning, setAddRunning] = useState(false);
@@ -29,7 +28,7 @@ const FormNovaTransacao = () => {
     try {
       await novaTransacao(formData);
       setFormData(new TransacaoAdicionar());
-      console.log("processar transacao")
+      console.log("processar transacao");
     } catch (error: any) {
       ShowToast("error", error.message);
     }
@@ -72,6 +71,7 @@ const FormNovaTransacao = () => {
         style="dark"
         value={formData.date}
         error={errors.date}
+        maximumDate={new Date()}
         onValueChanged={(value) => handleChange("date", value)}
       />
 

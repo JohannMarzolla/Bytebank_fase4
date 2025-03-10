@@ -1,10 +1,12 @@
+import CarouselGraficos from "./CarouselGraficos";
 import React from "react";
 import { View } from "react-native";
-import CarouselGraficos from "./CarouselGraficos";
+import Saldo from "../Saldo";
 
-export default function CardGraficos2() {
+export default function CardGraficos() {
   return (
     <View className="w-full bg-fiap-navy-blue rounded-[8px] mb-8">
+      <Saldo />
       <CarouselGraficos />
     </View>
   );

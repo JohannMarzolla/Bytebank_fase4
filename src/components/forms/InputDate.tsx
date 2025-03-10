@@ -15,6 +15,8 @@ export interface InputDateOptions {
   error?: string;
   /** Classes css */
   className?: string;
+  /** Data Máxima */
+  maximumDate?: Date;
   /** Especifica se o texto do label deve ficar em negrito(bold). */
   labelTextBold?: boolean;
   /** Evento de alteração do valor. */
@@ -50,6 +52,7 @@ export default function InputDate(options: InputDateOptions) {
           value={options.value ?? new Date()}
           mode="date"
           display={Platform.OS === "ios" ? "spinner" : "default"}
+          maximumDate={options.maximumDate}
           onChange={onChange}
         />
       )}

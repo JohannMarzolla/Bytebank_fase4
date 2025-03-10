@@ -15,12 +15,9 @@ import {
   useState,
 } from "react";
 import { useAuth } from "@/context/AuthContext";
-
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
-import { collection, getDocs, limit, query, startAfter } from "firebase/firestore";
-import { db } from "../../firebase/config";
 
 interface TransacoesContextData {
   transacoes: Transacao[];
@@ -28,11 +25,11 @@ interface TransacoesContextData {
   deposito: (number: number) => Promise<void>;
   transferencia: (number: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
-  atualizarTransacao: (transacao : Transacao) => Promise<void>;
+  atualizarTransacao: (transacao: Transacao) => Promise<void>;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
   transacoesLista: Transacao[];
   carregarMaisTransacoes: any;
-  loading : boolean
+  loading: boolean;
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -47,7 +44,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [listLenght, setListLenght] = useState(0)
+  const [listLenght, setListLenght] = useState(0);
 
   console.log("tamanho transacoesLista em contexto", transacoesLista.length);
 
@@ -59,15 +56,20 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
   const carregarMaisTransacoes = async () => {
     if (!userId || loading || !hasMoreData) return;
-  
+
     try {
       setLoading(true);
-      const { transacoes: novasTransacoes, lastVisible } = await getTransacoesLimit(userId, 4, lastDoc);
-      setListLenght(prev => prev + novasTransacoes.length);
+
+      const { transacoes: novasTransacoes, lastVisible } =
+        await getTransacoesLimit(userId, 4, lastDoc);
+
+      setListLenght((prev) => prev + novasTransacoes.length);
+
       if (novasTransacoes.length === 0) {
         setHasMoreData(false);
         return;
       }
+
       setTransacoesLista((prev) => [...prev, ...novasTransacoes]);
       setLastDoc(lastVisible);
     } catch (error) {
@@ -100,9 +102,12 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const atualizaTransacoesLista = async () => {
     try {
       if (!userId) return;
-  
-       const transacoesAtualizadas = await getTransacoesLength(userId, listLenght) 
-       setTransacoesLista(transacoesAtualizadas)
+
+      const transacoesAtualizadas = await getTransacoesLength(
+        userId,
+        listLenght
+      );
+      setTransacoesLista(transacoesAtualizadas);
     } catch (error) {
       console.log("Erro ao atualizar as transações", error);
     }
@@ -161,18 +166,17 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const atualizarTransacao = async (transacao:Transacao) => {
-    if(!verificaSaldo(transacao.valor)) return
+  const atualizarTransacao = async (transacao: Transacao) => {
+    if (!verificaSaldo(transacao.valor)) return;
 
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
-    
-      const atualizar  = await putTransacao(userId, transacao.id,transacao);
-      if (atualizar){
+
+      const atualizar = await putTransacao(userId, transacao.id, transacao);
+      if (atualizar) {
         await atualizaTransacoes();
         await atualizarSaldo();
       }
-     
     } catch (error) {
       console.error("Erro ao atualizar a transação:", error);
     }
@@ -207,7 +211,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         transacoes,
         transacoesLista,
         carregarMaisTransacoes,
-        loading
+        loading,
       }}
     >
       {children}

@@ -31,19 +31,25 @@ export const getTransacoes = async (userId: string) => {
     return [];
   }
 };
-export const getTransacoesLimit = async (userId: string, limite: number, lastDoc?: any) => {
+export const getTransacoesLimit = async (
+  userId: string,
+  limite: number,
+  lastDoc?: any
+) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
-    let q = lastDoc ? query(transacoesRef, startAfter(lastDoc), limit(limite)) : query(transacoesRef, limit(limite));
+    let q = lastDoc
+      ? query(transacoesRef, startAfter(lastDoc), limit(limite))
+      : query(transacoesRef, limit(limite));
 
     const querySnapshot = await getDocs(q);
 
     const transacoes = querySnapshot.docs.map((doc) => ({
       id: doc.id,
-      tipoTransacao: doc.data().tipoTransacao, 
+      tipoTransacao: doc.data().tipoTransacao,
       valor: doc.data().valor,
-      date: new Date(doc.data().date), 
-    })) as Transacao[]; 
+      date: new Date(doc.data().date),
+    })) as Transacao[];
 
     return {
       transacoes,
@@ -60,18 +66,17 @@ export const getTransacoesLength = async (userId: string, limite: number) => {
     const transacoesRef = collection(db, "users", userId, "transacoes");
     const q = query(transacoesRef, limit(limite));
     const querySnapshot = await getDocs(q);
-    
+
     const transacoes = querySnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
         id: doc.id,
         ...data,
-        date: data.date ? new Date(data.date.seconds * 1000) : new Date()
+        date: data.date ? new Date(data.date.seconds * 1000) : new Date(),
       } as Transacao;
     });
 
     return transacoes;
-
   } catch (error) {
     console.error("Erro ao buscar transações:", error);
     return [];
@@ -145,7 +150,7 @@ export const putTransacao = async (
 
     await updateDoc(transacaoRef, novosDados);
     console.log(`Transação ${id} atualizada com sucesso!`);
-    
+
     return true;
   } catch (error) {
     console.error("Erro ao atualizar transação putTransacao:", error);

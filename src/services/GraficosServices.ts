@@ -1,16 +1,30 @@
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { Transacao } from "@/models/Transacao";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 import { GraficoPorMesModel } from "@/models/GraficoPorMesModel";
 
-export const getAllTransacoesPorTipo = async (
+export const getTransacoesPorTipoEData = async (
   userId: string,
-  tipo: TipoTransacao
+  tipo: TipoTransacao,
+  dataInicio: Date,
+  dataFim: Date
 ): Promise<Transacao[]> => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
-    const q = query(transacoesRef, where("tipoTransacao", "==", tipo));
+
+    const q = query(
+      transacoesRef,
+      where("tipoTransacao", "==", tipo),
+      where("date", ">=", dataInicio.toISOString()),
+      where("date", "<=", dataFim.toISOString())
+    );
     const querySnapshot = await getDocs(q);
 
     const transacoes = querySnapshot.docs.map(
@@ -24,12 +38,13 @@ export const getAllTransacoesPorTipo = async (
   }
 };
 
-export const getAllTransacoesByMes = async (
+export const getTransacoesEvolucaoSaldo = async (
   userId: string
 ): Promise<GraficoPorMesModel[]> => {
   const transacoesRef = collection(db, "users", userId, "transacoes");
   const querySnapshot = await getDocs(transacoesRef);
   const transacoes = querySnapshot.docs.map((doc) => doc.data()) as Transacao[];
+  if (!transacoes) [];
 
   const dadosAgrupados = transacoes.reduce((acc, transacao) => {
     const date = new Date(transacao.date);
