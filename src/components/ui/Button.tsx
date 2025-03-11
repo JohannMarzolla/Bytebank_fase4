@@ -92,7 +92,7 @@ export default function Button(options: ButtonOptions) {
 
   return (
     <TouchableOpacity
-      className={`px-7 py-3 rounded-lg ${
+      className={`px-7 py-3 rounded-lg items-center ${
         options.outlined ? getOutlinedColorClass() : getColorClass()
       } ${options.className || ""}`}
       onPress={handlePress}
