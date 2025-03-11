@@ -18,6 +18,7 @@ import { TipoTransacao } from "@/app/types/TipoTransacao";
 interface GraficosContextData {
   entradasSaidasData: GraficoEntrasSaidasModel[];
   evolucaoSaldoData: GraficoPorMesModel[];
+  calcularValue: { (): void };
   changeFiltro: { (mes: number, ano: number): void };
   filtroData: { mes: number; ano: number };
 }
@@ -137,7 +138,7 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
   return (
     <GraficosContext.Provider
       value={{
-        // calcularValue,
+        calcularValue,
         changeFiltro,
         filtroData,
         entradasSaidasData,

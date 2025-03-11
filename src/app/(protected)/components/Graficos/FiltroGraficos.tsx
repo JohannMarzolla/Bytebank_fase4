@@ -7,7 +7,7 @@ import { colors } from "@/constants/Colors";
 
 export default function FiltroGraficos() {
   const { filtroData, changeFiltro } = useGraficos();
-  const [mes, setMes] = useState(filtroData.mes);
+  const [mes, setMes] = useState(filtroData.mes + 1);
   const [ano, setAno] = useState(filtroData.ano);
 
   const onBuscar = () => {

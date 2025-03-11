@@ -34,22 +34,25 @@ export default function RootLayout() {
   return (
     <>
       <AuthProvider>
-        <TransacoesProvider>
-          <GraficosProvider>
-          <Stack>
-            <Stack.Screen
-              name="(auth)/login"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="(auth)/signup"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          </GraficosProvider>
-        </TransacoesProvider>
+        <GraficosProvider>
+          <TransacoesProvider>
+            <Stack>
+              <Stack.Screen
+                name="(auth)/login"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="(auth)/signup"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="(protected)"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="+not-found" />
+            </Stack>
+          </TransacoesProvider>
+        </GraficosProvider>
       </AuthProvider>
       <Toast />
     </>

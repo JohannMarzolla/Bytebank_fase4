@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
+import { useGraficos } from "./GraficosContext";
 
 interface TransacoesContextData {
   transacoes: Transacao[];
@@ -38,6 +39,7 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
 
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
+  const { calcularValue, filtroData } = useGraficos();
   const [transacoes, setTransacoes] = useState<any>([]);
   const [saldo, setSaldo] = useState<number>(0);
   const [transacoesLista, setTransacoesLista] = useState<Transacao[]>([]);
@@ -145,6 +147,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
     const newId = await postTransacao(userId, transacao);
     if (newId) {
+      atualizarGrafico(transacao.date);
       await atualizaTransacoes();
       await atualizaTransacoesLista();
 
@@ -156,6 +159,15 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
           await transferencia(transacao.valor);
           break;
       }
+    }
+  };
+
+  const atualizarGrafico = (date: Date) => {
+    if (
+      date.getMonth() === filtroData.mes &&
+      date.getFullYear() === filtroData.ano
+    ) {
+      calcularValue();
     }
   };
 
@@ -174,6 +186,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
       const atualizar = await putTransacao(userId, transacao.id, transacao);
       if (atualizar) {
+        atualizarGrafico(transacao.date);
         await atualizaTransacoes();
         await atualizarSaldo();
       }
