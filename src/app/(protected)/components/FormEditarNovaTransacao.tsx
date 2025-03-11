@@ -1,30 +1,34 @@
-
-
 import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 import Input from "@/components/forms/Input";
 import InputDate from "@/components/forms/InputDate";
 import InputSelect from "@/components/forms/InputSelect";
+import Button from "@/components/ui/Button";
 import { ShowToast } from "@/components/ui/Toast";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Transacao } from "@/models/Transacao";
-import { TransacaoAdicionar, TransacaoAdicionarErrors } from "@/models/TransacaoAdicionar";
+import {
+  TransacaoAdicionar,
+  TransacaoAdicionarErrors,
+} from "@/models/TransacaoAdicionar";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 
 interface FormEditarTransacaoProps {
   transacao: Transacao;
 }
 
-export default function FormEditarTransacao({ transacao }: FormEditarTransacaoProps) {
+export default function FormEditarTransacao({
+  transacao,
+}: FormEditarTransacaoProps) {
   const { atualizarTransacao } = useTransacoes();
-  
+
   const [formData, setFormData] = useState({
     id: transacao.id,
     tipoTransacao: transacao.tipoTransacao,
     valor: transacao.valor,
-    date: new Date(transacao.date), 
+    date: new Date(transacao.date),
   });
- 
+
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
   const handleChange = (name: string, value: any) => {
@@ -32,17 +36,17 @@ export default function FormEditarTransacao({ transacao }: FormEditarTransacaoPr
   };
 
   const handleSubmit = async () => {
-    console.log("form data formulario editar", formData)
+    console.log("form data formulario editar", formData);
     try {
       await atualizarTransacao(formData);
-      ShowToast("success", "Transação atualizada com sucesso!"); 
+      ShowToast("success", "Transação atualizada com sucesso!");
     } catch (error: any) {
       ShowToast("error", error.message);
     }
   };
 
   return (
-    <View className="gap-4 items-center">
+    <View className="gap-4">
       <InputSelect
         label="Tipo"
         options={ListaTiposTransacao}
@@ -51,27 +55,25 @@ export default function FormEditarTransacao({ transacao }: FormEditarTransacaoPr
         error={errors.tipoTransacao}
         onValueChanged={(value) => handleChange("tipoTransacao", value)}
       />
-      
+
       <Input
         type="number"
         label="Valor"
         style="dark"
-        value={formData.valor.toString()} 
+        value={formData.valor.toString()}
         error={errors.valor}
-        onValueChanged={(value) => handleChange("valor", Number(value))} 
+        onValueChanged={(value) => handleChange("valor", Number(value))}
       />
-      
+
       <InputDate
         label="Data"
         style="dark"
-        value={formData.date} 
+        value={formData.date}
         error={errors.date}
-        onValueChanged={(value) => handleChange("date", value)} 
+        onValueChanged={(value) => handleChange("date", value)}
       />
 
-      <TouchableOpacity onPress={handleSubmit}>
-        <Text>Confirmar Alteração</Text>
-      </TouchableOpacity>
+      <Button text="Confirmar" color="green" onPress={handleSubmit} />
     </View>
   );
 }
