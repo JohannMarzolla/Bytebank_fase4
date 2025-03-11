@@ -189,6 +189,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         atualizarGrafico(transacao.date);
         await atualizaTransacoes();
         await atualizarSaldo();
+        await atualizaTransacoesLista();
       }
     } catch (error) {
       console.error("Erro ao atualizar a transação:", error);

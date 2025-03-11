@@ -13,7 +13,7 @@ import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 
 
 export default function Transacoes() {
-  const { saldo , transacoesLista,carregarMaisTransacoes, loading,} = useTransacoes();
+  const { saldo , transacoesLista,carregarMaisTransacoes, loading,transacoes} = useTransacoes();
 
   console.log("tamanho transacoesLista em transacoes", transacoesLista.length);
 
@@ -85,7 +85,7 @@ export default function Transacoes() {
       </View>
 
       <ListaTransacoes 
-        transacoes={transacoesLista}
+        transacoes={transacoes}
         onEndReached={() => carregarMaisTransacoes()}
         loadingMore={loading}
       />

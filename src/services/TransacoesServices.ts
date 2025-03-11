@@ -14,6 +14,7 @@ import { db, storage } from "../../firebase/config";
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getSaldo, postSaldo } from "./SaldoServices";
 
 export const getTransacoes = async (userId: string) => {
   try {
@@ -136,20 +137,43 @@ export const putTransacao = async (
   novosDados: Partial<Transacao>
 ) => {
   try {
-    if (userId) console.log("Usuário = ", userId);
-    if (id) console.log("ID da transação  = ", id);
+    if (!userId || !id) {
+      throw new Error("Usuário ou ID da transação inválido.");
+    }
     if (!Object.keys(novosDados).length) {
       throw new Error("Nenhum dado fornecido para atualização.");
     }
 
     const transacaoRef = doc(db, "users", userId, "transacoes", id);
     const docSnap = await getDoc(transacaoRef);
+
     if (!docSnap.exists()) {
       throw new Error(`A transação com ID ${id} não existe.`);
     }
 
+    const transacaoAntiga = docSnap.data() as Transacao;
     await updateDoc(transacaoRef, novosDados);
     console.log(`Transação ${id} atualizada com sucesso!`);
+
+    const saldoAtual = await getSaldo(userId);
+    if (saldoAtual === null) {
+      throw new Error("Não foi possível obter o saldo atual.");
+    }
+
+    let novoSaldo = saldoAtual;
+
+    transacaoAntiga.tipoTransacao === "deposito"
+      ? novoSaldo -= transacaoAntiga.valor ?? 0
+      : novoSaldo += transacaoAntiga.valor ?? 0; 
+    
+
+    novosDados.tipoTransacao === "deposito" 
+      ? novoSaldo += novosDados.valor ?? 0
+      : novoSaldo -= novosDados.valor ?? 0; 
+    
+
+    await postSaldo(userId, novoSaldo);
+    console.log("Saldo atualizado:", novoSaldo);
 
     return true;
   } catch (error) {
