@@ -1,8 +1,7 @@
-import { colors } from "@/constants/Colors";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Transacao } from "@/models/Transacao";
 import React from "react";
-import { Modal, View, Text, StyleSheet } from "react-native";
+import { Modal, View, Text } from "react-native";
 import FormEditarTransacao from "../FormEditarNovaTransacao";
 import Button from "@/components/ui/Button";
 import { formatarMoeda } from "@/app/utils/FormatarMoeda";
@@ -35,17 +34,20 @@ export default function CustomModal({
       visible={visible}
       onRequestClose={onClose}
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+      <View className="flex-1 justify-center items-center bg-black/50">
+        <View className="bg-white p-5 rounded-lg elevation-md w-[90%]">
           {type === "edit" ? (
             <>
-              <Text style={styles.title}>Editar Transação</Text>
+              <Text className="text-xl font-bold mb-4">Editar Transação</Text>
               <FormEditarTransacao transacao={transacao} />
             </>
           ) : (
             <>
-              <Text style={styles.title}>Deseja excluir esta transação?</Text>
-              <Text style={styles.texto}>
+              <Text className="text-xl font-bold mb-4">
+                Deseja excluir esta transação?
+              </Text>
+
+              <Text className="text-lg mb-5">
                 Valor: {formatarMoeda(transacao.valor)}
               </Text>
               <Button
@@ -64,49 +66,3 @@ export default function CustomModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  modalContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  modalContent: {
-    backgroundColor: "#fff",
-    padding: 20,
-    borderRadius: 10,
-    elevation: 5,
-    width: `${90}%`,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  texto: {
-    fontSize: 16,
-    marginBottom: 20,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    marginBottom: 10,
-  },
-  closeButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: colors.fiap.red,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  confirmButton: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: colors.fiap.green,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-});
