@@ -69,13 +69,11 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [userId, tipoFiltro]); 
 
-  
   const carregarMaisTransacoes = async (reset = false) => {
     if (!userId || loading || (!reset && !hasMoreData)) return;
   
     try {
       setLoading(true);
-  
   
       if (reset) {
         setTransacoesLista([]);
@@ -86,18 +84,15 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       const { transacoes: novasTransacoes, lastVisible } = await getTransacoesLimitId(
         userId,
         4,
-        reset ? null : lastDoc, 
+        reset ? null : lastDoc,
         tipoFiltro
       );
   
- 
       setTransacoesLista(prev => {
-        const ids = new Set(prev.map(t => t.id));
-        const transacoesFiltradas = novasTransacoes.filter(t => !ids.has(t.id));
-        return reset ? transacoesFiltradas : [...prev, ...transacoesFiltradas];
+        // Remove a filtragem por IDs existentes quando reset=true
+        return reset ? novasTransacoes : [...prev, ...novasTransacoes];
       });
   
-    
       setLastDoc(lastVisible);
       setHasMoreData(novasTransacoes.length === 4);
     } catch (error) {
@@ -171,19 +166,11 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   
     try {
-      const newId = await postTransacao(userId, transacao);
-      
-     
-      setTransacoesLista([]);
-      setLastDoc(null);
-      setHasMoreData(true);
-      
-   
-      await carregarMaisTransacoes();
+      await postTransacao(userId, transacao);
+      await carregarMaisTransacoes(true);
       await atualizarSaldo();
-      await atualizaTransacoes()
+      atualizarGrafico(transacao.date);
       
-   
       switch (transacao.tipoTransacao) {
         case TipoTransacao.DEPOSITO:
           await deposito(transacao.valor);
@@ -192,7 +179,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
           await transferencia(transacao.valor);
           break;
       }
-      
     } catch (error: any) {
       ShowToast("error", error.message);
     }
@@ -215,18 +201,12 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const atualizarTransacao = async (transacao: Transacao) => {
-    if (!verificaSaldo(transacao.valor)) return;
-
     try {
-      if (!userId) throw new Error("Usuário não autenticado.");
-
-      const atualizar = await putTransacao(userId, transacao.id, transacao);
-      if (atualizar) {
-        atualizarGrafico(transacao.date);
-        await atualizarSaldo();
-        await atualizaTransacoesLista();
-        await atualizaTransacoes()
-      }
+      await putTransacao(userId, transacao.id, transacao);
+     
+      await carregarMaisTransacoes(true); 
+      await atualizarSaldo();
+      atualizarGrafico(transacao.date);
     } catch (error) {
       console.error("Erro ao atualizar a transação:", error);
     }
@@ -251,8 +231,9 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         : await transferencia(transacao.valor);
 
       await deleteTransacao(userId, transacao.id);
-      await atualizaTransacoesLista();
+      await carregarMaisTransacoes(true)
       await atualizaTransacoes()
+      atualizarGrafico(transacao.date);
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
     }

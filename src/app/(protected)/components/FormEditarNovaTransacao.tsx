@@ -25,17 +25,16 @@ export default function FormEditarTransacao({
     id: transacao.id,
     tipoTransacao: transacao.tipoTransacao,
     valor: transacao.valor,
-    date: new Date(transacao.date),
+    date: transacao.date ? new Date(transacao.date) : new Date(),
   });
 
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
   const handleChange = (name: string, value: any) => {
-    setFormData({ ...formData, [name]: value });
+    setFormData({ ...formData, [name]: name === "date" ? new Date(value) : value });
   };
 
   const handleSubmit = async () => {
-    console.log("form data formulario editar", formData);
     try {
       await atualizarTransacao(formData);
       ShowToast("success", "Transação atualizada com sucesso!");
