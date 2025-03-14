@@ -7,7 +7,6 @@ import { ShowToast } from "@/components/ui/Toast";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Transacao } from "@/models/Transacao";
 import {
-  TransacaoAdicionar,
   TransacaoAdicionarErrors,
 } from "@/models/TransacaoAdicionar";
 import { useState } from "react";

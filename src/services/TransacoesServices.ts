@@ -6,15 +6,18 @@ import {
   getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   startAfter,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db, storage } from "../../firebase/config";
 import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getSaldo, postSaldo } from "./SaldoServices";
+import { TipoTransacao } from "@/app/types/TipoTransacao";
 
 export const getTransacoes = async (userId: string) => {
   try {
@@ -32,18 +35,46 @@ export const getTransacoes = async (userId: string) => {
     return [];
   }
 };
-export const getTransacoesLimit = async (
+export const getTransacoesLimitId = async (
   userId: string,
   limite: number,
-  lastDoc?: any
+  lastDoc?: any,
+  tipoFiltro?: string
 ) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
-    let q = lastDoc
-      ? query(transacoesRef, startAfter(lastDoc), limit(limite))
-      : query(transacoesRef, limit(limite));
+  
+
+    if (tipoFiltro === undefined) {
+      console.warn("⚠️ tipoFiltro está indefinido, retornando lista vazia.");
+      return { transacoes: [], lastVisible: null };
+    }
+
+    let q;
+    if (tipoFiltro === "Todos") {
+      q = query(
+        transacoesRef,
+        orderBy("date", "desc"), 
+        limit(limite)
+      );
+    } else {
+      q = query(
+        transacoesRef,
+        where("tipoTransacao", "==", tipoFiltro),
+        orderBy("date", "desc"), 
+        limit(limite)
+      );
+    }
+
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
 
     const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return { transacoes: [], lastVisible: null };
+    }
 
     const transacoes = querySnapshot.docs.map((doc) => ({
       id: doc.id,
@@ -52,35 +83,14 @@ export const getTransacoesLimit = async (
       date: new Date(doc.data().date),
     })) as Transacao[];
 
-    return {
-      transacoes,
-      lastVisible: querySnapshot.docs[querySnapshot.docs.length - 1],
-      hasMore: !querySnapshot.empty,
-    };
+    const lastVisible = querySnapshot.docs.length >= limite 
+      ? querySnapshot.docs[limite - 1] 
+      : null;
+
+    return { transacoes, lastVisible };
   } catch (error) {
     console.error("Erro ao buscar transações:", error);
-    return { transacoes: [], lastVisible: null, hasMore: false };
-  }
-};
-export const getTransacoesLength = async (userId: string, limite: number) => {
-  try {
-    const transacoesRef = collection(db, "users", userId, "transacoes");
-    const q = query(transacoesRef, limit(limite));
-    const querySnapshot = await getDocs(q);
-
-    const transacoes = querySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        date: data.date ? new Date(data.date.seconds * 1000) : new Date(),
-      } as Transacao;
-    });
-
-    return transacoes;
-  } catch (error) {
-    console.error("Erro ao buscar transações:", error);
-    return [];
+    return { transacoes: [], lastVisible: null };
   }
 };
 export const getTransacao = async (userId: string, transacaoId: string) => {

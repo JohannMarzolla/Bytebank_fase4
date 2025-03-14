@@ -1,8 +1,7 @@
 import {
   deleteTransacao,
   getTransacoes,
-  getTransacoesLength,
-  getTransacoesLimit,
+  getTransacoesLimitId,
   postTransacao,
   putTransacao,
 } from "@/services/TransacoesServices";
@@ -19,10 +18,11 @@ import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 import { useGraficos } from "./GraficosContext";
+import { ShowToast } from "@/components/ui/Toast";
 
 interface TransacoesContextData {
-  transacoes: Transacao[];
   saldo: number;
+  transacoes: Transacao[];
   deposito: (number: number) => Promise<void>;
   transferencia: (number: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
@@ -31,6 +31,11 @@ interface TransacoesContextData {
   transacoesLista: Transacao[];
   carregarMaisTransacoes: any;
   loading: boolean;
+  tipoFiltro: string;
+  setTipoFiltro: (filtro: "Todos" | "deposito" | "transferencia") => void;
+  setTransacoesLista: any ;
+  setLastDoc: any;
+  setHasMoreData :any;
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -40,47 +45,68 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const { calcularValue, filtroData } = useGraficos();
-  const [transacoes, setTransacoes] = useState<any>([]);
   const [saldo, setSaldo] = useState<number>(0);
+  const [transacoes, setTransacoes] = useState<any>([]);
   const [transacoesLista, setTransacoesLista] = useState<Transacao[]>([]);
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [listLenght, setListLenght] = useState(0);
-
-  console.log("tamanho transacoesLista em contexto", transacoesLista.length);
+  const [tipoFiltro, setTipoFiltro] = useState<"Todos" | "deposito" | "transferencia">("Todos");
 
   useEffect(() => {
-    atualizarSaldo();
-    atualizaTransacoes();
-    carregarMaisTransacoes();
-  }, [userId]);
+    const resetAndFetch = async () => {
+   
+      setTransacoesLista([]);
+      setLastDoc(null);
+      setHasMoreData(true);
+      
+      await atualizarSaldo();
+      await carregarMaisTransacoes(true); 
+    };
+  
+    if (userId) {
+      resetAndFetch();
+    }
+  }, [userId, tipoFiltro]); 
 
-  const carregarMaisTransacoes = async () => {
-    if (!userId || loading || !hasMoreData) return;
-
+  
+  const carregarMaisTransacoes = async (reset = false) => {
+    if (!userId || loading || (!reset && !hasMoreData)) return;
+  
     try {
       setLoading(true);
-
-      const { transacoes: novasTransacoes, lastVisible } =
-        await getTransacoesLimit(userId, 4, lastDoc);
-
-      setListLenght((prev) => prev + novasTransacoes.length);
-
-      if (novasTransacoes.length === 0) {
-        setHasMoreData(false);
-        return;
+  
+  
+      if (reset) {
+        setTransacoesLista([]);
+        setLastDoc(null);
+        setHasMoreData(true);
       }
-
-      setTransacoesLista((prev) => [...prev, ...novasTransacoes]);
+  
+      const { transacoes: novasTransacoes, lastVisible } = await getTransacoesLimitId(
+        userId,
+        4,
+        reset ? null : lastDoc, 
+        tipoFiltro
+      );
+  
+ 
+      setTransacoesLista(prev => {
+        const ids = new Set(prev.map(t => t.id));
+        const transacoesFiltradas = novasTransacoes.filter(t => !ids.has(t.id));
+        return reset ? transacoesFiltradas : [...prev, ...transacoesFiltradas];
+      });
+  
+    
       setLastDoc(lastVisible);
+      setHasMoreData(novasTransacoes.length === 4);
     } catch (error) {
-      console.error("Erro ao buscar transações:", error);
+      console.error("Erro ao carregar transações:", error);
+      setHasMoreData(false);
     } finally {
       setLoading(false);
     }
   };
-
   const atualizarSaldo = async () => {
     try {
       if (!userId) return;
@@ -90,31 +116,30 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       console.error("Erro ao atualizar saldo:", error);
     }
   };
-
-  const atualizaTransacoes = async () => {
-    try {
-      if (!userId) return;
-      const transacoesAtualizadas = await getTransacoes(userId);
-      setTransacoes(transacoesAtualizadas);
-    } catch (error) {
-      console.log("Erro ao atualizar as transações", error);
-    }
-  };
-
   const atualizaTransacoesLista = async () => {
     try {
       if (!userId) return;
-
-      const transacoesAtualizadas = await getTransacoesLength(
-        userId,
-        listLenght
-      );
-      setTransacoesLista(transacoesAtualizadas);
+      
+      setLoading(true);
+      setLastDoc(null);
+      setHasMoreData(true);  
+  
+      const { transacoes: transacoesAtualizadas, lastVisible } = await getTransacoesLimitId(userId, 4, null, tipoFiltro);
+      
+      setTransacoesLista(transacoesAtualizadas); 
+      setLastDoc(lastVisible);
+      
+      if (!lastVisible || transacoesAtualizadas.length < 4) {
+        setHasMoreData(false);
+      }
     } catch (error) {
-      console.log("Erro ao atualizar as transações", error);
+      console.error("Erro ao atualizar as transações", error);
+    } finally {
+      setLoading(false);
     }
   };
-
+  
+ 
   const deposito = async (valor: number) => {
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
@@ -144,13 +169,21 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     ) {
       throw new Error("Saldo insuficiente para realizar a transferência.");
     }
-
-    const newId = await postTransacao(userId, transacao);
-    if (newId) {
-      atualizarGrafico(transacao.date);
-      await atualizaTransacoes();
-      await atualizaTransacoesLista();
-
+  
+    try {
+      const newId = await postTransacao(userId, transacao);
+      
+     
+      setTransacoesLista([]);
+      setLastDoc(null);
+      setHasMoreData(true);
+      
+   
+      await carregarMaisTransacoes();
+      await atualizarSaldo();
+      await atualizaTransacoes()
+      
+   
       switch (transacao.tipoTransacao) {
         case TipoTransacao.DEPOSITO:
           await deposito(transacao.valor);
@@ -159,6 +192,9 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
           await transferencia(transacao.valor);
           break;
       }
+      
+    } catch (error: any) {
+      ShowToast("error", error.message);
     }
   };
 
@@ -187,12 +223,21 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       const atualizar = await putTransacao(userId, transacao.id, transacao);
       if (atualizar) {
         atualizarGrafico(transacao.date);
-        await atualizaTransacoes();
         await atualizarSaldo();
         await atualizaTransacoesLista();
+        await atualizaTransacoes()
       }
     } catch (error) {
       console.error("Erro ao atualizar a transação:", error);
+    }
+  };
+  const atualizaTransacoes = async () => {
+    try {
+      if (!userId) return;
+      const transacoesAtualizadas = await getTransacoes(userId);
+      setTransacoes(transacoesAtualizadas);
+    } catch (error) {
+      console.log("Erro ao atualizar as transações", error);
     }
   };
 
@@ -206,8 +251,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         : await transferencia(transacao.valor);
 
       await deleteTransacao(userId, transacao.id);
-      await atualizaTransacoes();
       await atualizaTransacoesLista();
+      await atualizaTransacoes()
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
     }
@@ -222,10 +267,15 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         deletarTransacao,
         atualizarTransacao,
         saldo,
-        transacoes,
         transacoesLista,
         carregarMaisTransacoes,
         loading,
+        tipoFiltro,
+        setTipoFiltro,
+        setTransacoesLista,
+        setHasMoreData,
+        setLastDoc,
+        transacoes
       }}
     >
       {children}
