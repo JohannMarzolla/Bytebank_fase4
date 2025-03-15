@@ -43,7 +43,6 @@ export const getTransacoesLimitId = async (
 ) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
-  
 
     if (tipoFiltro === undefined) {
       console.warn("⚠️ tipoFiltro está indefinido, retornando lista vazia.");
@@ -153,6 +152,12 @@ export const putTransacao = async (
     if (!Object.keys(novosDados).length) {
       throw new Error("Nenhum dado fornecido para atualização.");
     }
+    const dadosAtualizados = {
+      ...novosDados,
+      date: novosDados.date instanceof Date 
+        ? novosDados.date.toISOString() 
+        : novosDados.date,
+    };
 
     const transacaoRef = doc(db, "users", userId, "transacoes", id);
     const docSnap = await getDoc(transacaoRef);
@@ -162,7 +167,7 @@ export const putTransacao = async (
     }
 
     const transacaoAntiga = docSnap.data() as Transacao;
-    await updateDoc(transacaoRef, novosDados);
+    await updateDoc(transacaoRef, dadosAtualizados);
     console.log(`Transação ${id} atualizada com sucesso!`);
 
     const saldoAtual = await getSaldo(userId);
@@ -191,7 +196,6 @@ export const putTransacao = async (
     return false;
   }
 };
-
 export const deleteTransacao = async (userId: string, transacaoId: string) => {
   try {
     const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);

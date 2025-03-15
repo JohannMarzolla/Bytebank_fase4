@@ -28,7 +28,6 @@ const FormNovaTransacao = () => {
     try {
       await novaTransacao(formData);
       setFormData(new TransacaoAdicionar());
-      console.log("processar transacao");
     } catch (error: any) {
       ShowToast("error", error.message);
     }

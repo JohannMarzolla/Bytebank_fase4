@@ -89,7 +89,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       );
   
       setTransacoesLista(prev => {
-        // Remove a filtragem por IDs existentes quando reset=true
         return reset ? novasTransacoes : [...prev, ...novasTransacoes];
       });
   

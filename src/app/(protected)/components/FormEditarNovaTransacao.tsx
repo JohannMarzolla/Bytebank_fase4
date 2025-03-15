@@ -25,14 +25,18 @@ export default function FormEditarTransacao({
     id: transacao.id,
     tipoTransacao: transacao.tipoTransacao,
     valor: transacao.valor,
-    date: transacao.date ? new Date(transacao.date) : new Date(),
+    date: transacao.date ? transacao.date : new Date(),
   });
+
+console.log("transacao date tipo  ", typeof transacao.date)
 
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
   const handleChange = (name: string, value: any) => {
     setFormData({ ...formData, [name]: name === "date" ? new Date(value) : value });
   };
+
+  console.log("form data editar transacao", formData)
 
   const handleSubmit = async () => {
     try {
@@ -68,6 +72,7 @@ export default function FormEditarTransacao({
         style="dark"
         value={formData.date}
         error={errors.date}
+        maximumDate={new Date()}
         onValueChanged={(value) => handleChange("date", value)}
       />
 
