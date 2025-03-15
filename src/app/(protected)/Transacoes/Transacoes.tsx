@@ -8,7 +8,16 @@ import { ListaTiposTransacaoInputSelect } from "@/app/types/TipoTransacao";
 import React, { useCallback } from "react";
 
 export default function Transacoes() {
-  const { transacoesLista, carregarMaisTransacoes, loading, setTipoFiltro, tipoFiltro ,setTransacoesLista,   setLastDoc,setHasMoreData} = useTransacoes();
+  const { 
+    transacoesLista, 
+    carregarMaisTransacoes, 
+    loading, 
+    setTipoFiltro, 
+    tipoFiltro , 
+    dataInicio,
+    dataFim,
+    setDataInicio,
+    setDataFim } = useTransacoes();
 
   const handleEndReached = useCallback(() => {
     carregarMaisTransacoes();
@@ -34,9 +43,18 @@ export default function Transacoes() {
         />
 
         <View className="flex flex-row flex-wrap w-full gap-4">
-          {["Data início:", "Data fim:"].map((label, i) => (
-            <InputDate key={i} label={label} labelTextBold={false} />
-          ))}
+            <InputDate 
+            label="Data inicio:" 
+            labelTextBold={false}
+            value={dataInicio}
+            onValueChanged={(date) => setDataInicio(date)}
+            />
+            <InputDate 
+            label="Data fim:" 
+            labelTextBold={false}
+            value={dataFim}
+            onValueChanged={(date) => setDataFim(date)}
+            />
         </View>
       </View>
 

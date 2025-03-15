@@ -8,7 +8,7 @@ export interface InputDateOptions {
   /** Texto do label */
   label: string;
   /** Valor do input */
-  value?: Date;
+  value?: Date | null;
   /** Estilo */
   style?: "ligth" | "dark";
   /** Erro */
@@ -20,7 +20,7 @@ export interface InputDateOptions {
   /** Especifica se o texto do label deve ficar em negrito(bold). */
   labelTextBold?: boolean;
   /** Evento de alteração do valor. */
-  onValueChanged?: (value: Date) => void;
+  onValueChanged?: (value: Date | null) => void;
 }
 
 export default function InputDate(options: InputDateOptions) {

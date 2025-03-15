@@ -17,7 +17,7 @@ import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getSaldo, postSaldo } from "./SaldoServices";
-import { TipoTransacao } from "@/app/types/TipoTransacao";
+
 
 export const getTransacoes = async (userId: string) => {
   try {
@@ -39,7 +39,9 @@ export const getTransacoesLimitId = async (
   userId: string,
   limite: number,
   lastDoc?: any,
-  tipoFiltro?: string
+  tipoFiltro?: string,
+  dataInicio?: Date | null,
+  dataFim?: Date | null
 ) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
@@ -49,26 +51,24 @@ export const getTransacoesLimitId = async (
       return { transacoes: [], lastVisible: null };
     }
 
-    let q;
-    if (tipoFiltro === "Todos") {
-      q = query(
-        transacoesRef,
-        orderBy("date", "desc"), 
-        limit(limite)
-      );
-    } else {
-      q = query(
-        transacoesRef,
-        where("tipoTransacao", "==", tipoFiltro),
-        orderBy("date", "desc"), 
-        limit(limite)
-      );
+    let filtros: any[] = [orderBy("date", "desc"), limit(limite)];
+
+    if (tipoFiltro !== "Todos") {
+      filtros.push(where("tipoTransacao", "==", tipoFiltro));
+    }
+
+    if (dataInicio) {
+      filtros.push(where("date", ">=", dataInicio.toISOString()));
+    }
+    if (dataFim) {
+      filtros.push(where("date", "<=", dataFim.toISOString()));
     }
 
     if (lastDoc) {
-      q = query(q, startAfter(lastDoc));
+      filtros.push(startAfter(lastDoc));
     }
 
+    const q = query(transacoesRef, ...filtros);
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {

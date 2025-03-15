@@ -22,7 +22,6 @@ import { ShowToast } from "@/components/ui/Toast";
 
 interface TransacoesContextData {
   saldo: number;
-  transacoes: Transacao[];
   deposito: (number: number) => Promise<void>;
   transferencia: (number: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
@@ -36,6 +35,10 @@ interface TransacoesContextData {
   setTransacoesLista: any ;
   setLastDoc: any;
   setHasMoreData :any;
+  dataInicio: Date | null;
+  dataFim: Date | null;
+  setDataInicio: (date: Date | null) => void;
+  setDataFim: (date: Date | null) => void;
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(
@@ -52,6 +55,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
   const [tipoFiltro, setTipoFiltro] = useState<"Todos" | "deposito" | "transferencia">("Todos");
+  const [dataInicio, setDataInicio] = useState<Date | null>(null);
+  const [dataFim, setDataFim] = useState<Date | null>(null);
 
   useEffect(() => {
     const resetAndFetch = async () => {
@@ -67,7 +72,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     if (userId) {
       resetAndFetch();
     }
-  }, [userId, tipoFiltro]); 
+  }, [userId, tipoFiltro, dataInicio,dataFim]); 
 
   const carregarMaisTransacoes = async (reset = false) => {
     if (!userId || loading || (!reset && !hasMoreData)) return;
@@ -85,7 +90,9 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         userId,
         4,
         reset ? null : lastDoc,
-        tipoFiltro
+        tipoFiltro,
+        dataInicio,
+        dataFim
       );
   
       setTransacoesLista(prev => {
@@ -110,30 +117,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       console.error("Erro ao atualizar saldo:", error);
     }
   };
-  const atualizaTransacoesLista = async () => {
-    try {
-      if (!userId) return;
-      
-      setLoading(true);
-      setLastDoc(null);
-      setHasMoreData(true);  
   
-      const { transacoes: transacoesAtualizadas, lastVisible } = await getTransacoesLimitId(userId, 4, null, tipoFiltro);
-      
-      setTransacoesLista(transacoesAtualizadas); 
-      setLastDoc(lastVisible);
-      
-      if (!lastVisible || transacoesAtualizadas.length < 4) {
-        setHasMoreData(false);
-      }
-    } catch (error) {
-      console.error("Erro ao atualizar as transações", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
- 
   const deposito = async (valor: number) => {
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
@@ -210,15 +194,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       console.error("Erro ao atualizar a transação:", error);
     }
   };
-  const atualizaTransacoes = async () => {
-    try {
-      if (!userId) return;
-      const transacoesAtualizadas = await getTransacoes(userId);
-      setTransacoes(transacoesAtualizadas);
-    } catch (error) {
-      console.log("Erro ao atualizar as transações", error);
-    }
-  };
+ 
 
   const deletarTransacao = async (transacao: Transacao) => {
     if (!transacao.id) {
@@ -231,7 +207,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
       await deleteTransacao(userId, transacao.id);
       await carregarMaisTransacoes(true)
-      await atualizaTransacoes()
       atualizarGrafico(transacao.date);
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
@@ -255,7 +230,10 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         setTransacoesLista,
         setHasMoreData,
         setLastDoc,
-        transacoes
+        setDataFim,
+        dataFim,
+        setDataInicio,
+        dataInicio
       }}
     >
       {children}
