@@ -17,6 +17,7 @@ import { Transacao } from "@/models/Transacao";
 import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getSaldo, postSaldo } from "./SaldoServices";
+import { ShowToast } from "@/components/ui/Toast";
 
 
 export const getTransacoes = async (userId: string) => {
@@ -167,8 +168,6 @@ export const putTransacao = async (
     }
 
     const transacaoAntiga = docSnap.data() as Transacao;
-    await updateDoc(transacaoRef, dadosAtualizados);
-    console.log(`Transação ${id} atualizada com sucesso!`);
 
     const saldoAtual = await getSaldo(userId);
     if (saldoAtual === null) {
@@ -176,7 +175,6 @@ export const putTransacao = async (
     }
 
     let novoSaldo = saldoAtual;
-
     transacaoAntiga.tipoTransacao === "deposito"
       ? novoSaldo -= transacaoAntiga.valor ?? 0
       : novoSaldo += transacaoAntiga.valor ?? 0; 
@@ -185,10 +183,14 @@ export const putTransacao = async (
     novosDados.tipoTransacao === "deposito" 
       ? novoSaldo += novosDados.valor ?? 0
       : novoSaldo -= novosDados.valor ?? 0; 
-    
 
+      if (novoSaldo < 0) {
+        ShowToast("error","Saldo insuficiente")
+        return
+      }
     await postSaldo(userId, novoSaldo);
-    console.log("Saldo atualizado:", novoSaldo);
+    await updateDoc(transacaoRef, dadosAtualizados);
+    
 
     return true;
   } catch (error) {

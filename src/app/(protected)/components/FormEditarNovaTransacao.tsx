@@ -28,7 +28,6 @@ export default function FormEditarTransacao({
     date: transacao.date ? transacao.date : new Date(),
   });
 
-console.log("transacao date tipo  ", typeof transacao.date)
 
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
@@ -36,12 +35,9 @@ console.log("transacao date tipo  ", typeof transacao.date)
     setFormData({ ...formData, [name]: name === "date" ? new Date(value) : value });
   };
 
-  console.log("form data editar transacao", formData)
-
   const handleSubmit = async () => {
     try {
       await atualizarTransacao(formData);
-      ShowToast("success", "Transação atualizada com sucesso!");
     } catch (error: any) {
       ShowToast("error", error.message);
     }

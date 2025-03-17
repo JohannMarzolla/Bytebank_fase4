@@ -23,7 +23,6 @@ export default function CustomModal({
 
   function handleDelete(transacao: Transacao) {
     deletarTransacao(transacao);
-    console.log("handle delete modal");
     onClose();
   }
 
