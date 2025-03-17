@@ -19,7 +19,6 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getSaldo, postSaldo } from "./SaldoServices";
 import { ShowToast } from "@/components/ui/Toast";
 
-
 export const getTransacoes = async (userId: string) => {
   try {
     const transacoesRef = collection(db, "users", userId, "transacoes");
@@ -81,11 +80,13 @@ export const getTransacoesLimitId = async (
       tipoTransacao: doc.data().tipoTransacao,
       valor: doc.data().valor,
       date: new Date(doc.data().date),
+      fileName: doc.data().fileName,
     })) as Transacao[];
 
-    const lastVisible = querySnapshot.docs.length >= limite 
-      ? querySnapshot.docs[limite - 1] 
-      : null;
+    const lastVisible =
+      querySnapshot.docs.length >= limite
+        ? querySnapshot.docs[limite - 1]
+        : null;
 
     return { transacoes, lastVisible };
   } catch (error) {
@@ -155,9 +156,10 @@ export const putTransacao = async (
     }
     const dadosAtualizados = {
       ...novosDados,
-      date: novosDados.date instanceof Date 
-        ? novosDados.date.toISOString() 
-        : novosDados.date,
+      date:
+        novosDados.date instanceof Date
+          ? novosDados.date.toISOString()
+          : novosDados.date,
     };
 
     const transacaoRef = doc(db, "users", userId, "transacoes", id);
@@ -176,21 +178,19 @@ export const putTransacao = async (
 
     let novoSaldo = saldoAtual;
     transacaoAntiga.tipoTransacao === "deposito"
-      ? novoSaldo -= transacaoAntiga.valor ?? 0
-      : novoSaldo += transacaoAntiga.valor ?? 0; 
-    
+      ? (novoSaldo -= transacaoAntiga.valor ?? 0)
+      : (novoSaldo += transacaoAntiga.valor ?? 0);
 
-    novosDados.tipoTransacao === "deposito" 
-      ? novoSaldo += novosDados.valor ?? 0
-      : novoSaldo -= novosDados.valor ?? 0; 
+    novosDados.tipoTransacao === "deposito"
+      ? (novoSaldo += novosDados.valor ?? 0)
+      : (novoSaldo -= novosDados.valor ?? 0);
 
-      if (novoSaldo < 0) {
-        ShowToast("error","Saldo insuficiente")
-        return
-      }
+    if (novoSaldo < 0) {
+      ShowToast("error", "Saldo insuficiente");
+      return;
+    }
     await postSaldo(userId, novoSaldo);
     await updateDoc(transacaoRef, dadosAtualizados);
-    
 
     return true;
   } catch (error) {

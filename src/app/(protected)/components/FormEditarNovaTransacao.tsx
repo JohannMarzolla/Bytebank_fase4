@@ -1,16 +1,15 @@
 import { ListaTiposTransacao } from "@/app/types/TipoTransacao";
 import Input from "@/components/forms/Input";
 import InputDate from "@/components/forms/InputDate";
+import InputLabel from "@/components/forms/InputLabel";
 import InputSelect from "@/components/forms/InputSelect";
 import Button from "@/components/ui/Button";
 import { ShowToast } from "@/components/ui/Toast";
 import { useTransacoes } from "@/context/TransacoesContext";
 import { Transacao } from "@/models/Transacao";
-import {
-  TransacaoAdicionarErrors,
-} from "@/models/TransacaoAdicionar";
+import { TransacaoAdicionarErrors } from "@/models/TransacaoAdicionar";
 import { useState } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 
 interface FormEditarTransacaoProps {
   transacao: Transacao;
@@ -21,18 +20,21 @@ export default function FormEditarTransacao({
 }: FormEditarTransacaoProps) {
   const { atualizarTransacao } = useTransacoes();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Transacao>({
     id: transacao.id,
     tipoTransacao: transacao.tipoTransacao,
     valor: transacao.valor,
     date: transacao.date ? transacao.date : new Date(),
-   
+    fileName: transacao.fileName,
   });
 
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
   const handleChange = (name: string, value: any) => {
-    setFormData({ ...formData, [name]: name === "date" ? new Date(value) : value });
+    setFormData({
+      ...formData,
+      [name]: name === "date" ? new Date(value) : value,
+    });
   };
 
   const handleSubmit = async () => {
@@ -71,6 +73,13 @@ export default function FormEditarTransacao({
         maximumDate={new Date()}
         onValueChanged={(value) => handleChange("date", value)}
       />
+
+      <View>
+        <InputLabel text="Arquivo" />
+        <Text className="text-gray-500 ">
+          {transacao.fileName ?? "Sem arquivo"}
+        </Text>
+      </View>
 
       <Button text="Confirmar" color="green" onPress={handleSubmit} />
     </View>

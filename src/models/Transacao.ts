@@ -6,5 +6,5 @@ export interface Transacao {
   tipoTransacao: TipoTransacao;
   valor: number;
   date: Date;
+  fileName?: string;
 }
-

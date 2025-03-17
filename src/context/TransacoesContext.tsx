@@ -47,9 +47,8 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
 
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
-  const { calcularValue, filtroData } = useGraficos();
+  const { calcularValue } = useGraficos();
   const [saldo, setSaldo] = useState<number>(0);
-  const [transacoes, setTransacoes] = useState<any>([]);
   const [transacoesLista, setTransacoesLista] = useState<Transacao[]>([]);
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMoreData, setHasMoreData] = useState(true);
