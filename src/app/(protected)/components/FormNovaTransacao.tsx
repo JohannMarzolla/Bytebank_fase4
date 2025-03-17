@@ -19,14 +19,21 @@ const FormNovaTransacao = () => {
   const [addRunning, setAddRunning] = useState(false);
   const [formData, setFormData] = useState(new TransacaoAdicionar());
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
+  const [fileName, setFileName] = useState<string | null>(null);
 
   const handleChange = (name: string, value: any) => {
     setFormData(new TransacaoAdicionar({ ...formData, [name]: value }));
   };
 
+  const handleChangeFile = (value: any) => {
+    setFileName(value?.name ?? "");
+    setFormData(new TransacaoAdicionar({ ...formData, file: value }));
+  };
+
   const processarTransacao = async () => {
     try {
       await novaTransacao(formData);
+      setFileName("");
       setFormData(new TransacaoAdicionar());
     } catch (error: any) {
       ShowToast("error", error.message);
@@ -77,8 +84,9 @@ const FormNovaTransacao = () => {
       <FilePicker
         label="Anexo"
         style="dark"
+        value={fileName}
         accept="image/*,application/pdf,.docx,.xlsx"
-        onValueChanged={(value) => handleChange("file", value)}
+        onValueChanged={(value) => handleChangeFile(value)}
       />
 
       <Button text="Adicionar" color="blue" onPress={handleSubmit} />

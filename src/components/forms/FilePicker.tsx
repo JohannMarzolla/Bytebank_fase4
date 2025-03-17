@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import InputLabel from "./InputLabel";
@@ -21,7 +21,6 @@ export interface FilePickerOptions {
 }
 
 export default function FilePicker(options: FilePickerOptions) {
-  const [fileName, setFileName] = useState<string | null>(null);
   const style = options.style ?? "ligth";
 
   const pickDocument = async () => {
@@ -29,7 +28,6 @@ export default function FilePicker(options: FilePickerOptions) {
       const result = await DocumentPicker.getDocumentAsync({});
       if (result.canceled) return;
 
-      setFileName(result.assets[0].name);
       if (options.onValueChanged) options.onValueChanged(result.assets[0]);
     } catch (error) {
       console.error("Erro ao selecionar arquivo:", error);
@@ -45,7 +43,7 @@ export default function FilePicker(options: FilePickerOptions) {
           style === "ligth" ? "border-fiap-light-blue" : "border-fiap-navy-blue"
         }`}
       >
-        {fileName ?? "Selecionar arquivo"}
+        {options.value ?? "Selecionar arquivo"}
       </Text>
 
       {options.error && <span className="text-red-500">{options.error}</span>}
