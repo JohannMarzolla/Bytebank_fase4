@@ -26,8 +26,8 @@ export default function FormEditarTransacao({
     tipoTransacao: transacao.tipoTransacao,
     valor: transacao.valor,
     date: transacao.date ? transacao.date : new Date(),
+   
   });
-
 
   const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
 
