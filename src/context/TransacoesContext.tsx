@@ -1,6 +1,5 @@
 import {
   deleteTransacao,
-  getTransacoes,
   getTransacoesLimitId,
   postTransacao,
   putTransacao,
@@ -8,7 +7,9 @@ import {
 import { getSaldo, postSaldo } from "@/services/SaldoServices";
 import {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useState,
@@ -19,26 +20,27 @@ import { TransacaoAdicionar } from "@/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/app/types/TipoTransacao";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/components/ui/Toast";
+import { DocumentData } from "firebase/firestore";
 
 interface TransacoesContextData {
   saldo: number;
-  deposito: (number: number) => Promise<void>;
-  transferencia: (number: number) => Promise<void>;
+  deposito: (valor: number) => Promise<void>;
+  transferencia: (valor: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
   atualizarTransacao: (transacao: Transacao) => Promise<void>;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
   transacoesLista: Transacao[];
-  carregarMaisTransacoes: any;
+  carregarMaisTransacoes: (reset?: boolean) => Promise<void>;
   loading: boolean;
-  tipoFiltro: string;
-  setTipoFiltro: (filtro: "Todos" | "deposito" | "transferencia") => void;
-  setTransacoesLista: any;
-  setLastDoc: any;
-  setHasMoreData: any;
+  tipoFiltro: 'Todos' | 'deposito' | 'transferencia';
+  setTipoFiltro: Dispatch<SetStateAction<'Todos' | 'deposito' | 'transferencia'>>;
+  setTransacoesLista: Dispatch<SetStateAction<Transacao[]>>;
+  setLastDoc: Dispatch<SetStateAction<DocumentData | null>>; 
+  setHasMoreData: Dispatch<SetStateAction<boolean>>;
   dataInicio: Date | null;
   dataFim: Date | null;
-  setDataInicio: (date: Date | null) => void;
-  setDataFim: (date: Date | null) => void;
+  setDataInicio: Dispatch<SetStateAction<Date | null>>;
+  setDataFim: Dispatch<SetStateAction<Date | null>>;
 }
 
 const TransacoesContext = createContext<TransacoesContextData | undefined>(

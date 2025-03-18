@@ -50,7 +50,7 @@ Para integrar o Firebase ao seu projeto Expo, siga estes passos:
    - Registre um novo aplicativo Web e obtenha seu objeto de configuração do Firebase  
 
 3. Configure o Firebase no seu projeto:  
-   - Crie um novo arquivo `firebaseConfig.js` dentro do diretório `firebase/`   
+   - Dentro do diretório `firebase/config`   
    - Adicione a seguinte configuração:  
 
    ```javascript
