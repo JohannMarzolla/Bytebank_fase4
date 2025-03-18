@@ -1,94 +1,96 @@
-# Welcome to your Expo app 👋
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Bem-vindo ao seu app Expo 👋  
 
-## Get started
+Este é um projeto [Expo](https://expo.dev) criado com [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).  
 
-1. Install dependencies
+## Começando  
+
+1. Instale as dependências  
 
    ```bash
    npm install
    ```
 
-2. Start the app
+2. Inicie o aplicativo  
 
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a:
+No output, você encontrará opções para abrir o app em um:  
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- [build de desenvolvimento](https://docs.expo.dev/develop/development-builds/introduction/)  
+- [emulador Android](https://docs.expo.dev/workflow/android-studio-emulator/)  
+- [simulador iOS](https://docs.expo.dev/workflow/ios-simulator/)  
+- [Expo Go](https://expo.dev/go), um ambiente limitado para testar o desenvolvimento de apps com Expo  
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction/).
+Você pode começar a desenvolver editando os arquivos dentro do diretório **app**. Este projeto utiliza [roteamento baseado em arquivos](https://docs.expo.dev/router/introduction/).  
 
-## Get a fresh project
+## Obter um novo projeto  
 
-When you're ready, run:
+Quando estiver pronto, execute:  
 
 ```bash
 npm run reset-project
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Esse comando moverá o código inicial para o diretório **app-example** e criará um diretório **app** em branco, onde você pode começar a desenvolver.  
 
-## Firebase Integration
+## Integração com Firebase  
 
-To integrate Firebase into your Expo project, follow these steps:
+Para integrar o Firebase ao seu projeto Expo, siga estes passos:  
 
-1. Install Firebase SDK:
+1. Instale o SDK do Firebase:  
    ```bash
    npm install firebase
    ```
 
-2. Create a Firebase project:
-   - Go to [Firebase Console](https://console.firebase.google.com/)
-   - Click **Add Project** and follow the setup instructions
-   - Register a new Web App and obtain your Firebase config object
+2. Crie um projeto no Firebase:  
+   - Acesse o [Firebase Console](https://console.firebase.google.com/)  
+   - Clique em **Adicionar Projeto** e siga as instruções de configuração  
+   - Registre um novo aplicativo Web e obtenha seu objeto de configuração do Firebase  
 
-3. Configure Firebase in your project:
-   - Create a new file `firebaseConfig.js` inside the `app/services/` directory
-   - Add the following configuration:
-   
+3. Configure o Firebase no seu projeto:  
+   - Crie um novo arquivo `firebaseConfig.js` dentro do diretório `firebase/`   
+   - Adicione a seguinte configuração:  
+
    ```javascript
    import { initializeApp } from 'firebase/app';
    import { getAuth } from 'firebase/auth';
    import { getFirestore } from 'firebase/firestore';
 
    const firebaseConfig = {
-     apiKey: 'YOUR_API_KEY',
-     authDomain: 'YOUR_AUTH_DOMAIN',
-     projectId: 'YOUR_PROJECT_ID',
-     storageBucket: 'YOUR_STORAGE_BUCKET',
-     messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-     appId: 'YOUR_APP_ID',
+     apiKey: 'SUA_API_KEY',
+     authDomain: 'SEU_AUTH_DOMAIN',
+     projectId: 'SEU_PROJECT_ID',
+     storageBucket: 'SEU_STORAGE_BUCKET',
+     messagingSenderId: 'SEU_MESSAGING_SENDER_ID',
+     appId: 'SEU_APP_ID',
    };
+   ```
 
-## Available Scripts
+## Scripts disponíveis  
 
-In the project directory, you can run:
+No diretório do projeto, você pode executar:  
 
-- `npm start` - Starts the development server.
-- `npm run android` - Runs the app on an Android emulator or device.
+- `npm start` - Inicia o servidor de desenvolvimento.  
+- `npm run android` - Executa o app em um emulador ou dispositivo Android.  
 
-## Learn more
+## Saiba mais  
 
-To learn more about developing your project with Expo, check out the following resources:
+Para aprender mais sobre o desenvolvimento do seu projeto com Expo, confira os seguintes recursos:  
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- [Documentação do Expo](https://docs.expo.dev/): Aprenda desde os fundamentos até tópicos avançados com nossos [guias](https://docs.expo.dev/guides).  
+- [Tutorial do Expo](https://docs.expo.dev/tutorial/introduction/): Siga um tutorial passo a passo para criar um projeto que roda no Android, iOS e Web.  
 
-## Join the community
+## Junte-se à comunidade  
 
-Join our community of developers creating universal apps.
+Junte-se à nossa comunidade de desenvolvedores criando aplicativos universais.  
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open-source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-- [Expo Forums](https://forums.expo.dev): Discuss and find answers from the community.
+- [Expo no GitHub](https://github.com/expo/expo): Veja nossa plataforma open-source e contribua.  
+- [Comunidade no Discord](https://chat.expo.dev): Converse com usuários do Expo e tire dúvidas.  
+- [Fóruns do Expo](https://forums.expo.dev): Discuta e encontre respostas da comunidade.  
 
-## License
+## Licença  
 
-This project is licensed under the [MIT License](LICENSE).
+Este projeto está licenciado sob a [Licença MIT](LICENSE).
 
