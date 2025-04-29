@@ -4,7 +4,7 @@ import {
 } from "@react-navigation/drawer";
 import { View, Text } from "react-native";
 import { Slot } from "expo-router";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 import Transacoes from "./Transacoes/Transacoes";
 import Home from "./Home/Home";
 

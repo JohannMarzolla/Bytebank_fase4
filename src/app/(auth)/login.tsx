@@ -1,14 +1,17 @@
 import { View, Text, Image } from "react-native";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import Button from "@/components/ui/Button";
-import Input from "@/components/forms/Input";
-import { LoginFormErrors, LoginFormModel } from "@/models/LoginFormModel";
-import { ShowToast } from "@/components/ui/Toast";
+import { useAuth } from "@/presentation/contexts/AuthContext";
+import Button from "@/presentation/components/ui/Button";
+import Input from "@/presentation/components/ui/Input";
+import {
+  LoginFormErrors,
+  LoginFormModel,
+} from "@/domain/models/LoginFormModel";
+import { ShowToast } from "@/presentation/components/ui/Toast";
+import { FirebaseAuthService } from "@/infrastructure/services/FirebaseAuthService";
 
 export default function Login() {
-  const { login } = useAuth();
   const [values, setValues] = useState<LoginFormModel>(new LoginFormModel());
   const [errors, setErrors] = useState<LoginFormErrors>({});
   const [loginRunning, setLoginRunning] = useState(false);
@@ -25,11 +28,23 @@ export default function Login() {
       setErrors(errors);
 
       if (isValid) {
-        const isAuthenticated = await login(values.email, values.password);
-        if (isAuthenticated) {
-          router.replace("/(protected)/profile");
-        } else {
-          ShowToast("error", "O usuário informado está incorreto.");
+        try {
+          const isAuthenticated = await FirebaseAuthService.signIn(
+            values.email,
+            values.password
+          );
+          if (isAuthenticated) {
+            router.replace("/(protected)/profile");
+          } else {
+            ShowToast("error", "O usuário informado está incorreto.");
+          }
+        } catch (error) {
+          if (error instanceof Error) {
+            ShowToast(
+              "error",
+              error.message || "Erro desconhecido ao fazer login."
+            );
+          }
         }
       }
       setLoginRunning(false);

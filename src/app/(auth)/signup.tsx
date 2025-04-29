@@ -1,11 +1,14 @@
 import { View, Image, Text, ScrollView } from "react-native";
 import { Link } from "expo-router";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
-import { SignupFormErrors, SignupFormModel } from "@/models/SignupFormModel";
-import InputCheckbox from "@/components/forms/InputCheckbox";
-import Input from "@/components/forms/Input";
-import Button from "@/components/ui/Button";
+import { useAuth } from "@/presentation/contexts/AuthContext";
+import {
+  SignupFormErrors,
+  SignupFormModel,
+} from "@/domain/models/SignupFormModel";
+import InputCheckbox from "@/presentation/components/ui/InputCheckbox";
+import Input from "@/presentation/components/ui/Input";
+import Button from "@/presentation/components/ui/Button";
 
 export default function Signup() {
   const { signUp } = useAuth();
