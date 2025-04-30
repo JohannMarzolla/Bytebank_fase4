@@ -1,4 +1,4 @@
-import validaEmail from "@/app/utils/validaEmail";
+import validaEmail from "@/shared/utils/validaEmail";
 
 export interface LoginFormErrors {
   email?: string;

@@ -3,8 +3,8 @@ import {
   getTransacoesLimitId,
   postTransacao,
   putTransacao,
-} from "@/services/TransacoesServices";
-import { getSaldo, postSaldo } from "@/services/SaldoServices";
+} from "@/domain/services/TransacoesServices";
+import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
 import {
   createContext,
   Dispatch,

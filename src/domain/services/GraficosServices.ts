@@ -1,11 +1,5 @@
-import {
-  collection,
-  getDocs,
-  query,
-  Timestamp,
-  where,
-} from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "@/infrastructure/services/FirebaseConfig";
 import { Transacao } from "@/domain/models/Transacao";
 import { TipoTransacao } from "@/shared/types/TipoTransacao";
 import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";

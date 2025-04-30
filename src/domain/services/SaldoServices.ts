@@ -1,5 +1,5 @@
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase/config";
+import { db } from "@/infrastructure/services/FirebaseConfig";
 
 export const getSaldo = async (userId: string) => {
   try {

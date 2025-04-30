@@ -1,4 +1,3 @@
-import validaEmail from "@/app/utils/validaEmail";
 import { LoginFormErrors, LoginFormModel } from "./LoginFormModel";
 
 export interface SignupFormErrors extends LoginFormErrors {

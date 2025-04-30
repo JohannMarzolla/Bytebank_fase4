@@ -12,7 +12,7 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db, storage } from "../../firebase/config";
+import { db, storage } from "@/infrastructure/services/FirebaseConfig";
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
