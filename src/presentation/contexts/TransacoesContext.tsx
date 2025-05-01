@@ -21,6 +21,8 @@ import { TipoTransacao } from "@/shared/types/TipoTransacao";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { DocumentData } from "firebase/firestore";
+import { SaldoService } from "@/application/services/SaldoService";
+import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
 
 interface TransacoesContextData {
   saldo: number;
@@ -62,6 +64,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
+ const saldoService = SaldoService(new SaldoRepositoryFirestore());
+ 
 
   useEffect(() => {
     const resetAndFetch = async () => {
@@ -116,7 +120,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const atualizarSaldo = async () => {
     try {
       if (!userId) return;
-      const saldoAtualizado = await getSaldo(userId);
+      const saldoAtualizado = await saldoService.obterSaldo(userId);
       setSaldo(saldoAtualizado);
     } catch (error) {
       console.error("Erro ao atualizar saldo:", error);
@@ -127,7 +131,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
       const novoSaldo = saldo + valor;
-      await postSaldo(userId, novoSaldo);
+      await saldoService.atualizarSaldo(userId, novoSaldo);
       await atualizarSaldo();
     } catch (error) {
       console.error("Erro ao realizar depósito:", error);
