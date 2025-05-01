@@ -42,7 +42,7 @@ export default function RootLayout() {
                 options={{ headerShown: false }}
               />
               <Stack.Screen
-                name="(auth)/cadastro-user"
+                name="(auth)/cadastro-usuario"
                 options={{ headerShown: false }}
               />
               <Stack.Screen

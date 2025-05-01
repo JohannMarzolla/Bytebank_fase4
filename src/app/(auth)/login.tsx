@@ -80,7 +80,7 @@ export default function Login() {
 
       <Button color="orange" text="Acessar" onPress={onConfirm} />
 
-      <Link href="/cadastro-user" className="mt-4 text-fiap-gray">
+      <Link href="/cadastro-usuario" className="mt-4 text-fiap-gray">
         Não possui uma conta? Crie clicando aqui
       </Link>
     </View>

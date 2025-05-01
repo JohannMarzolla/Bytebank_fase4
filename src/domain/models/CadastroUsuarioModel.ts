@@ -1,21 +1,23 @@
 import validaEmail from "@/shared/utils/validaEmail";
 
-export type UserCadastroFields = "email" | "password" | "termoAceito";
-export type UserCadastroErrors = Partial<Record<UserCadastroFields, string>>;
+export type CadastroUsuarioFields = "email" | "password" | "termoAceito";
+export type CadastroUsuarioErrors = Partial<
+  Record<CadastroUsuarioFields, string>
+>;
 
-export class UserCadastroModel {
+export class CadastroUsuarioModel {
   email: string;
   password: string;
   termoAceito: boolean;
 
-  constructor(obj?: UserCadastroModel) {
+  constructor(obj?: CadastroUsuarioModel) {
     this.email = obj?.email ?? "";
     this.password = obj?.password ?? "";
     this.termoAceito = obj?.termoAceito ?? false;
   }
 
   validate = () => {
-    const errors: UserCadastroErrors = {};
+    const errors: CadastroUsuarioErrors = {};
 
     if (!this.password) {
       errors.password = "Campo obrigatório";
