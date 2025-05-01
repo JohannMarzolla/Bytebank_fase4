@@ -2,8 +2,7 @@ import { FirebaseAuthService } from "@/infrastructure/services/FirebaseAuthServi
 
 export class AuthService {
   static async login(email: string, password: string) {
-    const user = await FirebaseAuthService.signIn(email, password);
-    return user;
+    return FirebaseAuthService.signIn(email, password);
   }
 
   static async createUser(email: string, password: string) {

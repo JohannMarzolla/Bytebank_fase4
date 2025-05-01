@@ -1,36 +1,30 @@
 import validaEmail from "@/shared/utils/validaEmail";
 
-export interface LoginFormErrors {
-  email?: string;
-  password?: string;
-}
+export type LoginFields = "email" | "password";
+export type LoginErrors = Partial<Record<LoginFields, string>>;
 
-export class LoginFormModel {
+export class LoginModel {
   email: string;
   password: string;
 
-  constructor(obj?: LoginFormModel) {
+  constructor(obj?: LoginModel) {
     this.email = obj?.email ?? "";
     this.password = obj?.password ?? "";
   }
 
   validate = () => {
-    const errors: LoginFormErrors = {};
-    let isValid = true;
+    const errors: LoginErrors = {};
 
     if (!this.email) {
       errors.email = "Campo obrigatório";
-      isValid = false;
     } else if (!validaEmail(this.email)) {
       errors.email = "Formato inválido";
-      isValid = false;
     }
 
     if (!this.password) {
       errors.password = "Campo obrigatório";
-      isValid = false;
     }
 
-    return { isValid, errors };
+    return { isValid: Object.keys(errors).length === 0, errors };
   };
 }

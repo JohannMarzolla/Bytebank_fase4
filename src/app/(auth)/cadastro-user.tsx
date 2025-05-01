@@ -1,37 +1,55 @@
 import { View, Image, Text, ScrollView } from "react-native";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
-import { useAuth } from "@/presentation/contexts/AuthContext";
 import {
-  SignupFormErrors,
-  SignupFormModel,
-} from "@/domain/models/SignupFormModel";
+  UserCadastroErrors,
+  UserCadastroModel,
+} from "@/domain/models/UserCadastroModel";
 import InputCheckbox from "@/presentation/components/ui/InputCheckbox";
 import Input from "@/presentation/components/ui/Input";
 import Button from "@/presentation/components/ui/Button";
+import { AuthService } from "@/application/services/AuthService";
+import { ShowToast } from "@/presentation/components/ui/Toast";
 
-export default function Signup() {
-  const { signUp } = useAuth();
-  const [values, setValues] = useState<SignupFormModel>(new SignupFormModel());
-  const [errors, setErrors] = useState<SignupFormErrors>({});
-  const [signupRunning, setSignupRunning] = useState(false);
+export default function CadastroUser() {
+  const [values, setValues] = useState<UserCadastroModel>(
+    new UserCadastroModel()
+  );
+  const [errors, setErrors] = useState<UserCadastroErrors>({});
+  const [saveRunning, setSaveRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
-    setValues(new SignupFormModel({ ...values, [field]: value }));
+    setValues(new UserCadastroModel({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {
-    if (!signupRunning) {
-      setSignupRunning(true);
+    if (!saveRunning) {
+      setSaveRunning(true);
 
       const { isValid, errors } = values.validate();
       setErrors(errors);
 
       if (isValid) {
-        await signUp(values.email, values.password);
+        await cadastrar(values.email, values.password);
       }
 
-      setSignupRunning(false);
+      setSaveRunning(false);
+    }
+  };
+
+  const cadastrar = async (email: string, password: string) => {
+    try {
+      await AuthService.createUser(email, password);
+      ShowToast(
+        "success",
+        "Conta cadastrada com sucesso.",
+        "Efetue o login para acessar a conta."
+      );
+      router.replace("/login");
+    } catch (error) {
+      if (error instanceof Error) {
+        ShowToast("error", error.message || "Erro ao cadastrar a conta.");
+      }
     }
   };
 

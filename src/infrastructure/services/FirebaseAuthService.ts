@@ -35,7 +35,6 @@ export class FirebaseAuthService {
     }
   }
 
-  // Método de cadastro
   static async signUp(email: string, password: string): Promise<void> {
     try {
       const userCredential = await createUserWithEmailAndPassword(

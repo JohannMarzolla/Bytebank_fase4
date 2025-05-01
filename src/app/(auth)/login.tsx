@@ -4,20 +4,17 @@ import { useState } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
-import {
-  LoginFormErrors,
-  LoginFormModel,
-} from "@/domain/models/LoginFormModel";
+import { LoginErrors, LoginModel } from "@/domain/models/LoginModel";
 import { ShowToast } from "@/presentation/components/ui/Toast";
-import { FirebaseAuthService } from "@/infrastructure/services/FirebaseAuthService";
 
 export default function Login() {
-  const [values, setValues] = useState<LoginFormModel>(new LoginFormModel());
-  const [errors, setErrors] = useState<LoginFormErrors>({});
+  const { login } = useAuth();
+  const [values, setValues] = useState<LoginModel>(new LoginModel());
+  const [errors, setErrors] = useState<LoginErrors>({});
   const [loginRunning, setLoginRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
-    setValues(new LoginFormModel({ ...values, [field]: value }));
+    setValues(new LoginModel({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {
@@ -29,10 +26,7 @@ export default function Login() {
 
       if (isValid) {
         try {
-          const isAuthenticated = await FirebaseAuthService.signIn(
-            values.email,
-            values.password
-          );
+          const isAuthenticated = await login(values.email, values.password);
           if (isAuthenticated) {
             router.replace("/(protected)/profile");
           } else {
@@ -86,7 +80,7 @@ export default function Login() {
 
       <Button color="orange" text="Acessar" onPress={onConfirm} />
 
-      <Link href="/signup" className="mt-4 text-fiap-gray">
+      <Link href="/cadastro-user" className="mt-4 text-fiap-gray">
         Não possui uma conta? Crie clicando aqui
       </Link>
     </View>
