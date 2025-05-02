@@ -60,6 +60,7 @@ export class TransacaoRepository implements ITransacaoRepository{
     try {
       const transacoesRef = collection(db, "users", userId, "transacoes");
       const docRef = await addDoc(transacoesRef, transacao);
+      console.log("Transação adicionada com sucesso:", docRef.id);
       return docRef.id;
     } catch (error) {
       console.error("Erro ao adicionar transação:", error);

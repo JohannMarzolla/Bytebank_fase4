@@ -39,7 +39,9 @@
 
 //  async function adicionarTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
 //   let fileUrl = null;
-//   if (transacao.file) fileUrl = await repository.uploadFile(transacao.file);
+//   if (transacao.file){
+//      fileUrl = await repository.uploadFile(transacao.file);
+//   }
 //   const novaTransacao = {
 //     userId,
 //     tipoTransacao: transacao.tipoTransacao,
@@ -48,19 +50,25 @@
 //     file: fileUrl,
 //     fileName: fileUrl ? transacao.file?.name : null,
 //   };
-//   const saldoAtual = await getSaldo(userId);
-//   let novoSaldo = saldoAtual ?? 0;
-//   if (transacao.tipoTransacao === "deposito") novoSaldo += transacao.valor ?? 0;
-//   else novoSaldo -= transacao.valor ?? 0;
-//   if (novoSaldo < 0) {
-//     ShowToast("error", "Saldo insuficiente para essa operação.");
-//     return null;
-//   }
-//   await postSaldo(userId, novoSaldo);
 //   return await repository.postTransacao(userId, novaTransacao);
 // }
 
 //  async function atualizarTransacao(userId: string, id: string, novosDados: Partial<Transacao>): Promise<boolean> {
+
+//     if (!userId || !id) {
+//         throw new Error("Usuário ou ID da transação inválido.");
+//       }
+//       if (!Object.keys(novosDados).length) {
+//         throw new Error("Nenhum dado fornecido para atualização.");
+//       }
+//       const dadosAtualizados = {
+//         ...novosDados,
+//         date:
+//           novosDados.date instanceof Date
+//             ? novosDados.date.toISOString()
+//             : novosDados.date,
+//       };
+
 //   const transacaoAntiga = await repository.getTransacao(userId, id);
 //   if (!transacaoAntiga) {
 //     ShowToast("error", "Transação não encontrada.");
@@ -71,18 +79,23 @@
 //     ShowToast("error", "Erro ao obter saldo atual.");
 //     return false;
 //   }
+
 //   let novoSaldo = saldoAtual;
-//   transacaoAntiga.tipoTransacao === "deposito" ? (novoSaldo -= transacaoAntiga.valor ?? 0) : (novoSaldo += transacaoAntiga.valor ?? 0);
-//   novosDados.tipoTransacao === "deposito" ? (novoSaldo += novosDados.valor ?? 0) : (novoSaldo -= novosDados.valor ?? 0);
+
+//   transacaoAntiga.tipoTransacao === "deposito" 
+//   ? (novoSaldo -= transacaoAntiga.valor ?? 0) 
+//   : (novoSaldo += transacaoAntiga.valor ?? 0);
+
+//   novosDados.tipoTransacao === "deposito" 
+//   ? (novoSaldo += novosDados.valor ?? 0) 
+//   : (novoSaldo -= novosDados.valor ?? 0);
+
 //   if (novoSaldo < 0) {
 //     ShowToast("error", "Saldo insuficiente.");
 //     return false;
 //   }
 //   await postSaldo(userId, novoSaldo);
-//   return await repository.putTransacao(userId, id, {
-//     ...novosDados,
-//     date: novosDados.date instanceof Date ? novosDados.date.toISOString() : novosDados.date,
-//   });
+//   return await repository.putTransacao(userId, id, novosDados);
 // }
 
 //  async function deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {
