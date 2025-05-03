@@ -10,6 +10,14 @@ export interface Transacao {
   fileName?: string;
 }
 
+export interface TransacaoDTO {
+  tipoTransacao: TipoTransacao;
+  valor: number;
+  date: string;           // ISO
+  file?: string | null;   // URL
+  fileName?: string | null;
+}
+
 export interface ITransacaoRepository {
   getTransacoes(userId: string): Promise<Transacao[] >;
   getTransacoesLimitId (
@@ -21,6 +29,6 @@ export interface ITransacaoRepository {
     dataFim?: Date | null
   ): Promise<{ transacoes: Transacao[]; lastVisible: any  }>;
   getTransacao(userId: string, transacaoId: string): Promise<Transacao | null>;
-  postTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null>;
+  postTransacao(userId: string, transacao: TransacaoDTO): Promise<string | null>;
   putTransacao(userId: string, id: string, novosDados: Partial<Transacao>): Promise<boolean>;
 }

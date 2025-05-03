@@ -1,9 +1,6 @@
-import { ITransacaoRepository, Transacao } from "@/domain/models/Transacao";
+import { ITransacaoRepository, Transacao, TransacaoDTO } from "@/domain/models/Transacao";
 import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, limit, orderBy, query, startAfter, updateDoc, where } from "firebase/firestore";
 import { db, storage } from "../services/FirebaseConfig";
-import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
-import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
-import { ShowToast } from "@/presentation/components/ui/Toast";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 export class TransacaoRepository implements ITransacaoRepository{
@@ -47,7 +44,10 @@ export class TransacaoRepository implements ITransacaoRepository{
     try {
       const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
       const transacaoSnap = await getDoc(transacaoRef);
-      if (transacaoSnap.exists()) return { id: transacaoSnap.id, ...transacaoSnap.data() } as Transacao;
+      if (transacaoSnap.exists())
+         return {
+         id: transacaoSnap.id, ...transacaoSnap.data() 
+        } as Transacao;
       console.log("Transação não encontrada!");
       return null;
     } catch (error) {
@@ -56,7 +56,7 @@ export class TransacaoRepository implements ITransacaoRepository{
     }
   }
 
-  async postTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
+  async postTransacao(userId: string, transacao: TransacaoDTO): Promise<string | null> {
     try {
       const transacoesRef = collection(db, "users", userId, "transacoes");
       const docRef = await addDoc(transacoesRef, transacao);

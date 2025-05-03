@@ -1,103 +1,99 @@
 
-// // export function SaldoService(repo: SaldoRepositoryFirestore) {
-// //     return {
-// //       async obterSaldo(userId: string) {
-// //         return await repo.getSaldo(userId);
-// //       },
-// //       async atualizarSaldo(userId: string, novoSaldo: number) {
-// //         return await repo.updateSaldo(userId, novoSaldo);
-// //       }
-// //     };
-// //   }
+import { Transacao } from "@/domain/models/Transacao";
+import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
+import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
+import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
+import { ShowToast } from "@/presentation/components/ui/Toast";
 
-// import { Transacao } from "@/domain/models/Transacao";
-// import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
-// import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
-// import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
-// import { ShowToast } from "@/presentation/components/ui/Toast";
 
-// const repository = new TransacaoRepository();
+export function TransacaoService(repository: TransacaoRepository){ 
+    return{
 
-// async function buscarTransacoes(userId: string): Promise<Transacao[]> {
-//   return await repository.getTransacoes(userId);
-// }
+async buscarTransacoes(userId: string): Promise<Transacao[]> {
+  return await repository.getTransacoes(userId);
+},
 
-//  async function buscarTransacaoPorId(userId: string, transacaoId: string): Promise<Transacao | null> {
-//   return await repository.getTransacao(userId, transacaoId);
-// }
+ async  buscarTransacaoPorId(userId: string, transacaoId: string): Promise<Transacao | null> {
+  return await repository.getTransacao(userId, transacaoId);
+},
 
-//  async function buscarTransacoesPaginadas(
-//     userId: string,
-//      limite: number, 
-//      lastDoc?: any, 
-//      tipoFiltro?: string, 
-//      dataInicio?: Date | null, 
-//      dataFim?: Date | null
-//     ) {
-//   return await repository.getTransacoesLimitId(userId, limite, lastDoc, tipoFiltro, dataInicio, dataFim);
-// }
+ async  buscarTransacoesPaginadas(
+    userId: string,
+     limite: number, 
+     lastDoc?: any, 
+     tipoFiltro?: string, 
+     dataInicio?: Date | null, 
+     dataFim?: Date | null
+    ) {
+  return await repository.getTransacoesLimitId(userId, limite, lastDoc, tipoFiltro, dataInicio, dataFim);
+},
 
-//  async function adicionarTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
-//   let fileUrl = null;
-//   if (transacao.file){
-//      fileUrl = await repository.uploadFile(transacao.file);
-//   }
-//   const novaTransacao = {
-//     userId,
-//     tipoTransacao: transacao.tipoTransacao,
-//     valor: transacao.valor,
-//     date: transacao.date.toISOString(),
-//     file: fileUrl,
-//     fileName: fileUrl ? transacao.file?.name : null,
-//   };
-//   return await repository.postTransacao(userId, novaTransacao);
-// }
+ async  adicionarTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
+    console.log("Inicio do metodo adicionar transacao")
+  let fileUrl = null;
+  if (transacao.file){
+     fileUrl = await repository.uploadFile(transacao.file);
+  }
+  const novaTransacao = {
+    userId,
+    tipoTransacao: transacao.tipoTransacao,
+    valor: transacao.valor,
+    date: transacao.date.toISOString(),
+    file: fileUrl,
+    fileName: fileUrl ? transacao.file?.name : null,
+  };
+  return await repository.postTransacao(userId, novaTransacao);
+},
 
-//  async function atualizarTransacao(userId: string, id: string, novosDados: Partial<Transacao>): Promise<boolean> {
+ async atualizarTransacao(userId: string, id: string, novosDados: Partial<Transacao>): Promise<boolean> {
 
-//     if (!userId || !id) {
-//         throw new Error("Usuário ou ID da transação inválido.");
-//       }
-//       if (!Object.keys(novosDados).length) {
-//         throw new Error("Nenhum dado fornecido para atualização.");
-//       }
-//       const dadosAtualizados = {
-//         ...novosDados,
-//         date:
-//           novosDados.date instanceof Date
-//             ? novosDados.date.toISOString()
-//             : novosDados.date,
-//       };
+    if (!userId || !id) {
+        throw new Error("Usuário ou ID da transação inválido.");
+      }
+      if (!Object.keys(novosDados).length) {
+        throw new Error("Nenhum dado fornecido para atualização.");
+      }
+      const dadosAtualizados = {
+        ...novosDados,
+        date:
+          novosDados.date instanceof Date
+            ? novosDados.date.toISOString()
+            : novosDados.date,
+      };
 
-//   const transacaoAntiga = await repository.getTransacao(userId, id);
-//   if (!transacaoAntiga) {
-//     ShowToast("error", "Transação não encontrada.");
-//     return false;
-//   }
-//   const saldoAtual = await getSaldo(userId);
-//   if (saldoAtual === null) {
-//     ShowToast("error", "Erro ao obter saldo atual.");
-//     return false;
-//   }
+  const transacaoAntiga = await repository.getTransacao(userId, id) as Transacao;
+  if (!transacaoAntiga) {
+    ShowToast("error", "Transação não encontrada.");
+    return false;
+  }
+  const saldoAtual = await getSaldo(userId);
+  if (saldoAtual === null) {
+    ShowToast("error", "Erro ao obter saldo atual.");
+    return false;
+  }
 
-//   let novoSaldo = saldoAtual;
+  let novoSaldo = saldoAtual;
 
-//   transacaoAntiga.tipoTransacao === "deposito" 
-//   ? (novoSaldo -= transacaoAntiga.valor ?? 0) 
-//   : (novoSaldo += transacaoAntiga.valor ?? 0);
+  transacaoAntiga.tipoTransacao === "deposito" 
+  ? (novoSaldo -= transacaoAntiga.valor ?? 0) 
+  : (novoSaldo += transacaoAntiga.valor ?? 0);
 
-//   novosDados.tipoTransacao === "deposito" 
-//   ? (novoSaldo += novosDados.valor ?? 0) 
-//   : (novoSaldo -= novosDados.valor ?? 0);
+  novosDados.tipoTransacao === "deposito" 
+  ? (novoSaldo += novosDados.valor ?? 0) 
+  : (novoSaldo -= novosDados.valor ?? 0);
 
-//   if (novoSaldo < 0) {
-//     ShowToast("error", "Saldo insuficiente.");
-//     return false;
-//   }
-//   await postSaldo(userId, novoSaldo);
-//   return await repository.putTransacao(userId, id, novosDados);
-// }
+  if (novoSaldo < 0) {
+    ShowToast("error", "Saldo insuficiente.");
+    return false;
+  }
+  await postSaldo(userId, novoSaldo);
+  console.log("novos dados : " ,novosDados)
+  console.log("dados atualizados" , dadosAtualizados)
+  return await repository.putTransacao(userId, id, novosDados);
+},
 
-//  async function deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {
-//   return await repository.deleteTransacao(userId, transacaoId);
-// }
+ async  deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {
+  return await repository.deleteTransacao(userId, transacaoId);
+},
+};
+}

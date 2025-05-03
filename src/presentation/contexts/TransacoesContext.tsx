@@ -23,6 +23,8 @@ import { ShowToast } from "@/presentation/components/ui/Toast";
 import { DocumentData } from "firebase/firestore";
 import { SaldoService } from "@/application/services/SaldoService";
 import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
+import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
+import { TransacaoService } from "@/application/services/TransacaoService";
 
 interface TransacoesContextData {
   saldo: number;
@@ -65,6 +67,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
  const saldoService = SaldoService(new SaldoRepositoryFirestore());
+ const trasacaoService = TransacaoService(new TransacaoRepository());
+
  
 
   useEffect(() => {
@@ -95,7 +99,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const { transacoes: novasTransacoes, lastVisible } =
-        await getTransacoesLimitId(
+        await trasacaoService.buscarTransacoesPaginadas(
           userId,
           4,
           reset ? null : lastDoc,
@@ -142,7 +146,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!userId) throw new Error("Usuário não autenticado.");
       const novoSaldo = saldo - valor;
-      await postSaldo(userId, novoSaldo);
+      await saldoService.atualizarSaldo(userId, novoSaldo);
       await atualizarSaldo();
     } catch (error) {
       console.error("Erro ao realizar transferência:", error);
@@ -158,7 +162,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      await postTransacao(userId, transacao);
+      await trasacaoService.adicionarTransacao(userId, transacao);
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
       calcularValue();
@@ -185,7 +189,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
   const atualizarTransacao = async (transacao: Transacao) => {
     try {
-      await putTransacao(userId, transacao.id, transacao);
+      await trasacaoService.atualizarTransacao(userId, transacao.id, transacao);
 
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
