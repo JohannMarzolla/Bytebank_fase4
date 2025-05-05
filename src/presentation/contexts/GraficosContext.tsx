@@ -14,6 +14,8 @@ import { colors } from "@/shared/constants/colors";
 import { GraficoEntrasSaidasModel } from "@/domain/models/GraficoEntrasSaidasModel";
 import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";
 import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { GraficoService } from "@/application/services/GraficoService";
+import { GraficoRepository } from "@/infrastructure/repositories/GraficoRepository";
 
 interface GraficosContextData {
   entradasSaidasData: GraficoEntrasSaidasModel[];
@@ -30,7 +32,7 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
 export const GraficosProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
-
+  const graficoService = GraficoService(new GraficoRepository());
   const [entradasSaidasData, setEntradasSaidasData] = useState<
     GraficoEntrasSaidasModel[]
   >([
@@ -70,13 +72,13 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
       if (!userId) return;
 
       const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-        getTransacoesPorTipoEData(
+        graficoService.getTransacoesPorTipoEData(
           userId,
           TipoTransacao.DEPOSITO,
           getFiltroDataInicioDate(),
           getFiltroDataFimDate()
         ),
-        getTransacoesPorTipoEData(
+        graficoService.getTransacoesPorTipoEData(
           userId,
           TipoTransacao.TRANSFERENCIA,
           getFiltroDataInicioDate(),
@@ -105,7 +107,7 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
 
   const calcularEvolucaoSaldo = async () => {
     try {
-      const transacoes = await getTransacoesEvolucaoSaldo(userId);
+      const transacoes = await graficoService.getTransacoesEvolucaoSaldo(userId);
       setEvolucaoSaldoData(transacoes ?? []);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValuePorMes:", error);
