@@ -89,7 +89,8 @@ async buscarTransacoes(userId: string): Promise<Transacao[]> {
   await postSaldo(userId, novoSaldo);
   console.log("novos dados : " ,novosDados)
   console.log("dados atualizados" , dadosAtualizados)
-  return await repository.putTransacao(userId, id, novosDados);
+  // editar transacao esta funcionando porem esta dando esse erro de tipagem 
+  return await repository.putTransacao(userId, id, dadosAtualizados);
 },
 
  async  deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {

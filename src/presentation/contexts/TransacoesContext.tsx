@@ -208,7 +208,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         ? await deposito(transacao.valor)
         : await transferencia(transacao.valor);
 
-      await deleteTransacao(userId, transacao.id);
+      await trasacaoService.deletarTransacao(userId, transacao.id);
       await carregarMaisTransacoes(true);
       calcularValue();
     } catch (error) {
