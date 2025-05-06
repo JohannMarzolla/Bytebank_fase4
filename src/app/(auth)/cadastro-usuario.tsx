@@ -10,6 +10,7 @@ import Input from "@/presentation/components/ui/Input";
 import Button from "@/presentation/components/ui/Button";
 import { AuthService } from "@/application/services/AuthService";
 import { ShowToast } from "@/presentation/components/ui/Toast";
+import { Loading } from "@/presentation/components/ui/Loading";
 
 export default function CadastroUser() {
   const [values, setValues] = useState<CadastroUsuarioModel>(
@@ -24,6 +25,7 @@ export default function CadastroUser() {
 
   const onConfirm = async () => {
     if (!saveRunning) {
+      Loading.show();
       setSaveRunning(true);
 
       const { isValid, errors } = values.validate();
@@ -34,6 +36,7 @@ export default function CadastroUser() {
       }
 
       setSaveRunning(false);
+      Loading.hide();
     }
   };
 

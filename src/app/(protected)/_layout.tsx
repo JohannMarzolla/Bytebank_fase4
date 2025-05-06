@@ -2,16 +2,15 @@ import {
   createDrawerNavigator,
   DrawerNavigationOptions,
 } from "@react-navigation/drawer";
-import { View, Text } from "react-native";
-import { Slot } from "expo-router";
 import { useAuth } from "@/presentation/contexts/AuthContext";
-import Transacoes from "./Transacoes/Transacoes";
-import Home from "./Home/Home";
+import Transacoes from "./Transacoes";
+import Home from "./Home";
+import { router } from "expo-router";
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { logout, isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return null;
@@ -27,16 +26,16 @@ export default function App() {
     <Drawer.Navigator screenOptions={customScreenOptions}>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Transações" component={Transacoes} />
-      <Drawer.Screen name="Sair" component={Logout} />
+      <Drawer.Screen
+        name="Sair"
+        component={() => null}
+        listeners={{
+          focus: () => {
+            logout();
+            router.replace("/(auth)/login");
+          },
+        }}
+      />
     </Drawer.Navigator>
-  );
-}
-
-function Logout() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", padding: 16 }}>
-      <Text style={{ fontSize: 18, marginBottom: 16 }}>Protected Layout</Text>
-      <Slot />
-    </View>
   );
 }

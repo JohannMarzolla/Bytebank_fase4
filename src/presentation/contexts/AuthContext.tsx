@@ -40,7 +40,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await AuthService.logout();
       setUserId(null);
       setIsAuthenticated(false);
-      ShowToast("success", "Você foi desconectado.");
     } catch (error) {
       if (error instanceof Error) {
         ShowToast("error", error.message);

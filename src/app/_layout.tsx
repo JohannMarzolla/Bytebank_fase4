@@ -10,11 +10,11 @@ import "react-native-reanimated";
 
 // Import your global CSS file
 import "./global.css";
+import GlobalLoading from "@/presentation/components/ui/Loading";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const router = useRouter();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -22,8 +22,6 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
-      // Redireciona para a página de login
-      // router.replace("/login"); // Rota baseada na estrutura de arquivos
     }
   }, [loaded]);
 
@@ -55,6 +53,7 @@ export default function RootLayout() {
         </GraficosProvider>
       </AuthProvider>
       <Toast />
+      <GlobalLoading />
     </>
   );
 }

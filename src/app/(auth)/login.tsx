@@ -6,6 +6,7 @@ import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
 import { LoginErrors, LoginModel } from "@/domain/models/LoginModel";
 import { ShowToast } from "@/presentation/components/ui/Toast";
+import { Loading } from "@/presentation/components/ui/Loading";
 
 export default function Login() {
   const { login } = useAuth();
@@ -19,6 +20,7 @@ export default function Login() {
 
   const onConfirm = async () => {
     if (!loginRunning) {
+      Loading.show();
       setLoginRunning(true);
 
       const { isValid, errors } = values.validate();
@@ -28,7 +30,7 @@ export default function Login() {
         try {
           const isAuthenticated = await login(values.email, values.password);
           if (isAuthenticated) {
-            router.replace("/(protected)/profile");
+            router.replace("/(protected)/Home");
           } else {
             ShowToast("error", "O usuário informado está incorreto.");
           }
@@ -42,6 +44,7 @@ export default function Login() {
         }
       }
       setLoginRunning(false);
+      Loading.hide();
     }
   };
 
