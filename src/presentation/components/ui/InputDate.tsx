@@ -13,6 +13,8 @@ export interface InputDateOptions {
   style?: "ligth" | "dark";
   /** Erro */
   error?: string;
+  /** Especifica se o valor deve ser apenas leitura. */
+  readOnly?: boolean;
   /** Classes css */
   className?: string;
   /** Data Máxima */
@@ -32,17 +34,29 @@ export default function InputDate(options: InputDateOptions) {
     setShowPicker(false);
   }
 
+  function getBorderStyle() {
+    if (options.readOnly) return "border-fiap-gray";
+    return style === "ligth"
+      ? "border-fiap-light-blue"
+      : "border-fiap-navy-blue";
+  }
+
+  function getTextStyle() {
+    if (options.readOnly) return "text-fiap-gray";
+    return options.value ? "text-black" : "text-gray-400";
+  }
+
   return (
     <View className={`gap-1 w-full ${options.className ?? ""}`}>
       <InputLabel text={options.label} textBold={options.labelTextBold} />
 
       <TouchableOpacity
-        className={`w-full bg-white rounded-lg border-[1px] p-3 ${
-          style === "ligth" ? "border-fiap-light-blue" : "border-fiap-navy-blue"
-        }`}
-        onPress={() => setShowPicker(true)}
+        className={`w-full bg-white rounded-lg border-[1px] p-3 ${getBorderStyle()}`}
+        onPress={() => {
+          if (!options.readOnly) setShowPicker(true);
+        }}
       >
-        <Text className={options.value ? "text-black" : "text-gray-400"}>
+        <Text className={getTextStyle()}>
           {options.value ? formatarData(options.value) : "Selecionar data"}
         </Text>
       </TouchableOpacity>

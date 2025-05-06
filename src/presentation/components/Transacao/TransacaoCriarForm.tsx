@@ -11,9 +11,9 @@ import {
   TransacaoAdicionarErrors,
 } from "@/domain/models/TransacaoAdicionar";
 import FilePicker from "@/presentation/components/ui/FilePicker";
-import { ListaTiposTransacao } from "@/shared/types/TipoTransacao";
+import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
 
-const FormNovaTransacao = () => {
+export default function TransacaoCriarForm() {
   const { novaTransacao } = useTransacoes();
   const [addRunning, setAddRunning] = useState(false);
   const [formData, setFormData] = useState(new TransacaoAdicionar());
@@ -91,6 +91,4 @@ const FormNovaTransacao = () => {
       <Button text="Adicionar" color="blue" onPress={handleSubmit} />
     </View>
   );
-};
-
-export default FormNovaTransacao;
+}

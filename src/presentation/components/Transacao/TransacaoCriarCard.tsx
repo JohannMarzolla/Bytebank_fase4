@@ -1,12 +1,12 @@
 import { Image, Text, View } from "react-native";
-import FormNovaTransacao from "./FormNovaTransacao";
+import TransacaoCriarForm from "./TransacaoCriarForm";
 
-export default function CardNovaTransacao() {
+export default function TransacaoCriarCard() {
   return (
     <View className="relative items-center w-full bg-fiap-light-gray rounded-[8px] mb-10">
       <View className="w-full z-20 p-6">
         <Text className="text-xl font-bold pb-4">Nova transação</Text>
-        <FormNovaTransacao />
+        <TransacaoCriarForm />
       </View>
 
       <Image

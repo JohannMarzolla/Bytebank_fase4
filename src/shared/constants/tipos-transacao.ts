@@ -1,9 +1,5 @@
 import { InputSelectOption } from "@/presentation/components/ui/InputSelect";
-
-export enum TipoTransacao {
-  DEPOSITO = "deposito",
-  TRANSFERENCIA = "transferencia",
-}
+import { TipoTransacao } from "../types/TipoTransacaoEnum";
 
 export const ListaTiposTransacao: InputSelectOption[] = [
   { value: TipoTransacao.TRANSFERENCIA, label: "Transferência" },

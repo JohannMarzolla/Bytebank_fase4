@@ -17,7 +17,7 @@ import {
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
-import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { DocumentData } from "firebase/firestore";
@@ -66,10 +66,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
- const saldoService = SaldoService(new SaldoRepositoryFirestore());
- const trasacaoService = TransacaoService(new TransacaoRepository());
-
- 
+  const saldoService = SaldoService(new SaldoRepositoryFirestore());
+  const trasacaoService = TransacaoService(new TransacaoRepository());
 
   useEffect(() => {
     const resetAndFetch = async () => {

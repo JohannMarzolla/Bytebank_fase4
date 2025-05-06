@@ -13,7 +13,7 @@ import {
 import { colors } from "@/shared/constants/colors";
 import { GraficoEntrasSaidasModel } from "@/domain/models/GraficoEntrasSaidasModel";
 import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";
-import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoService } from "@/application/services/GraficoService";
 import { GraficoRepository } from "@/infrastructure/repositories/GraficoRepository";
 
@@ -107,7 +107,9 @@ export const GraficosProvider = ({ children }: { children: ReactNode }) => {
 
   const calcularEvolucaoSaldo = async () => {
     try {
-      const transacoes = await graficoService.getTransacoesEvolucaoSaldo(userId);
+      const transacoes = await graficoService.getTransacoesEvolucaoSaldo(
+        userId
+      );
       setEvolucaoSaldoData(transacoes ?? []);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValuePorMes:", error);

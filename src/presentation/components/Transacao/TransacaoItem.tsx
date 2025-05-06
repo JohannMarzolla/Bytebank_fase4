@@ -3,8 +3,9 @@ import { colors } from "@/shared/constants/colors";
 import { Transacao } from "@/domain/models/Transacao";
 import { useState } from "react";
 import { Text, View } from "react-native";
-import CustomModal from "@/presentation/components/Transacao/Modal";
 import { formatarData } from "@/shared/utils/formatarData";
+import TransacaoDeletarModal from "./TransacaoDeletarModal";
+import TransacaoEditarModal from "./TransacaoEditarModal";
 
 export interface TransacaoItemOptions {
   transacao: Transacao;
@@ -12,12 +13,18 @@ export interface TransacaoItemOptions {
 
 export default function TransacaoItem({ transacao }: TransacaoItemOptions) {
   const dataFormatada = formatarData(new Date(transacao.date));
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [modalType, setModalType] = useState<string>("edit");
+  const [openConfirmarDeletarModal, setOpenConfirmarDeletarModal] =
+    useState<boolean>(false);
+  const [openEditModal, setOpenEditModal] = useState<boolean>(false);
 
-  function abrirModal(type: string) {
-    setModalType(type);
-    setOpenModal(true);
+  function abrirModal(type: "edit" | "delete") {
+    setOpenEditModal(type === "edit");
+    setOpenConfirmarDeletarModal(type === "delete");
+  }
+
+  function fecharModal() {
+    setOpenEditModal(false);
+    setOpenConfirmarDeletarModal(false);
   }
 
   return (
@@ -49,11 +56,15 @@ export default function TransacaoItem({ transacao }: TransacaoItemOptions) {
         <Text className="text-gray-500 text-sm">{transacao.fileName}</Text>
       )}
 
-      <CustomModal
-        onClose={() => setOpenModal(false)}
-        visible={openModal}
+      <TransacaoDeletarModal
+        onClose={() => fecharModal()}
+        visible={openConfirmarDeletarModal}
         transacao={transacao}
-        type={modalType}
+      />
+      <TransacaoEditarModal
+        onClose={() => fecharModal()}
+        visible={openEditModal}
+        transacao={transacao}
       />
     </View>
   );

@@ -3,9 +3,8 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/infrastructure/services/FirebaseConfig";
 import { Transacao } from "@/domain/models/Transacao";
-import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { IGraficoRepository } from "@/domain/models/Graficos";
-
 
 export class GraficoRepository implements IGraficoRepository {
   async getTransacoesPorTipoEData(

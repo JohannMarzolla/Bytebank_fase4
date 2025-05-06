@@ -1,4 +1,4 @@
-import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
 export interface TransacaoAdicionarErrors {
   tipoTransacao?: string;

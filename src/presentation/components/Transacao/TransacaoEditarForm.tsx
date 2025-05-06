@@ -1,4 +1,3 @@
-import { ListaTiposTransacao } from "@/shared/types/TipoTransacao";
 import Input from "@/presentation/components/ui/Input";
 import InputDate from "@/presentation/components/ui/InputDate";
 import InputLabel from "@/presentation/components/ui/InputLabel";
@@ -10,14 +9,17 @@ import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionarErrors } from "@/domain/models/TransacaoAdicionar";
 import { useState } from "react";
 import { Text, View } from "react-native";
+import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
 
-interface FormEditarTransacaoProps {
+interface TransacaoEditarFormProps {
   transacao: Transacao;
+  readOnly?: boolean;
 }
 
-export default function FormEditarTransacao({
+export default function TransacaoEditarForm({
   transacao,
-}: FormEditarTransacaoProps) {
+  readOnly,
+}: TransacaoEditarFormProps) {
   const { atualizarTransacao } = useTransacoes();
 
   const [formData, setFormData] = useState<Transacao>({
@@ -51,6 +53,7 @@ export default function FormEditarTransacao({
         label="Tipo"
         options={ListaTiposTransacao}
         style="dark"
+        readOnly={readOnly}
         value={formData.tipoTransacao}
         error={errors.tipoTransacao}
         onValueChanged={(value) => handleChange("tipoTransacao", value)}
@@ -60,6 +63,7 @@ export default function FormEditarTransacao({
         type="number"
         label="Valor"
         style="dark"
+        readOnly={readOnly}
         value={formData.valor.toString()}
         error={errors.valor}
         onValueChanged={(value) => handleChange("valor", Number(value))}
@@ -68,6 +72,7 @@ export default function FormEditarTransacao({
       <InputDate
         label="Data"
         style="dark"
+        readOnly={readOnly}
         value={formData.date}
         error={errors.date}
         maximumDate={new Date()}
@@ -81,7 +86,11 @@ export default function FormEditarTransacao({
         </Text>
       </View>
 
-      <Button text="Confirmar" color="green" onPress={handleSubmit} />
+      {!readOnly && (
+        <View className="pt-3">
+          <Button text="Confirmar" color="green" onPress={handleSubmit} />
+        </View>
+      )}
     </View>
   );
 }

@@ -1,7 +1,7 @@
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/infrastructure/services/FirebaseConfig";
 import { Transacao } from "@/domain/models/Transacao";
-import { TipoTransacao } from "@/shared/types/TipoTransacao";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";
 
 export const getTransacoesPorTipoEData = async (
