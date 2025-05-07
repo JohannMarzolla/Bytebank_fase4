@@ -1,6 +1,6 @@
-import { colors } from "@/shared/constants/colors";
 import React, { useState, useEffect } from "react";
-import { View, Text, ActivityIndicator, Modal } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import { colors } from "@/shared/constants/colors";
 
 type LoadingConfig = {
   visible: boolean;
@@ -16,28 +16,21 @@ const GlobalLoading = () => {
     setLoadingState = setLoading;
   }, []);
 
+  if (!loading.visible) return null;
+
   return (
-    <Modal
-      visible={loading.visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-    >
-      <View className="flex-1 items-center justify-center bg-black/50">
-        <View className="bg-white rounded-2xl px-8 py-6 items-center shadow-lg">
-          <ActivityIndicator size="large" color={colors.fiap.green} />
-          <Text className="text-lg text-gray-800 mt-4 font-semibold">
-            {loading.message || "Carregando..."}
-          </Text>
-        </View>
+    <View style={styles.overlay}>
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={colors.fiap.green} />
+        <Text style={styles.message}>{loading.message || "Carregando..."}</Text>
       </View>
-    </Modal>
+    </View>
   );
 };
 
 export default GlobalLoading;
 
-// A API global:
+// API global
 export const Loading = {
   show: (message?: string) => {
     setLoadingState?.({ visible: true, message });
@@ -46,3 +39,31 @@ export const Loading = {
     setLoadingState?.({ visible: false });
   },
 };
+
+const styles = StyleSheet.create({
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 9999,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 10,
+  },
+  message: {
+    marginTop: 16,
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "600",
+  },
+});

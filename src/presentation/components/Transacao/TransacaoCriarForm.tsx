@@ -12,6 +12,7 @@ import {
 } from "@/domain/models/TransacaoAdicionar";
 import FilePicker from "@/presentation/components/ui/FilePicker";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
+import { Loading } from "@/presentation/components/ui/Loading";
 
 export default function TransacaoCriarForm() {
   const { novaTransacao } = useTransacoes();
@@ -31,11 +32,14 @@ export default function TransacaoCriarForm() {
 
   const processarTransacao = async () => {
     try {
+      Loading.show();
       await novaTransacao(formData);
       setFileName("");
       setFormData(new TransacaoAdicionar());
+      Loading.hide();
     } catch (error: any) {
       ShowToast("error", error.message);
+      Loading.hide();
     }
   };
 

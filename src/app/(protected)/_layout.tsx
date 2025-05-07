@@ -5,12 +5,12 @@ import {
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import Transacoes from "./Transacoes";
 import Home from "./Home";
-import { router } from "expo-router";
+import Logout from "./Logout";
 
 const Drawer = createDrawerNavigator();
 
 export default function App() {
-  const { logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
     return null;
@@ -26,16 +26,7 @@ export default function App() {
     <Drawer.Navigator screenOptions={customScreenOptions}>
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Transações" component={Transacoes} />
-      <Drawer.Screen
-        name="Sair"
-        component={() => null}
-        listeners={{
-          focus: () => {
-            logout();
-            router.replace("/(auth)/login");
-          },
-        }}
-      />
+      <Drawer.Screen name="Sair" component={Logout} />
     </Drawer.Navigator>
   );
 }

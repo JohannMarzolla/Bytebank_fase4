@@ -3,8 +3,8 @@ import { Transacao } from "@/domain/models/Transacao";
 import React from "react";
 import { Modal, View, Text } from "react-native";
 import Button from "@/presentation/components/ui/Button";
-import { formatarMoeda } from "@/shared/utils/formatarMoeda";
 import TransacaoEditarForm from "./TransacaoEditarForm";
+import { Loading } from "@/presentation/components/ui/Loading";
 
 interface TransacaoConfirmarDeletarModalProps {
   visible: boolean;
@@ -20,8 +20,10 @@ export default function TransacaoDeletarModal({
   const { deletarTransacao } = useTransacoes();
 
   async function handleDelete(transacao: Transacao) {
+    Loading.show();
     await deletarTransacao(transacao);
     onClose();
+    Loading.hide();
   }
 
   return (

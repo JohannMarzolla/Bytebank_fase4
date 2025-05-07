@@ -10,6 +10,7 @@ import { TransacaoAdicionarErrors } from "@/domain/models/TransacaoAdicionar";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
+import { Loading } from "@/presentation/components/ui/Loading";
 
 interface TransacaoEditarFormProps {
   transacao: Transacao;
@@ -41,9 +42,12 @@ export default function TransacaoEditarForm({
 
   const handleSubmit = async () => {
     try {
+      Loading.show();
       await atualizarTransacao(formData);
+      Loading.hide();
     } catch (error: any) {
       ShowToast("error", error.message);
+      Loading.hide();
     }
   };
 
