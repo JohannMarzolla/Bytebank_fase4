@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
-import { useGraficos } from "@/application/contexts/GraficosContext";
+import { useGraficos } from "@/presentation/contexts/GraficosContext";
 import FiltroGraficos from "./FiltroGraficos";
 
 export default function GraficoEntradasSaidas() {

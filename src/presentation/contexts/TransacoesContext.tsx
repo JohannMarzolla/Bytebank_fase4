@@ -15,7 +15,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useAuth } from "@/application/contexts/AuthContext";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
@@ -54,7 +54,6 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
   undefined
 );
 
-
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const { calcularValue } = useGraficos();
@@ -68,7 +67,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
-  
+
   const saldoService = SaldoService(new SaldoRepositoryFirestore());
   const trasacaoService = TransacaoService(new TransacaoRepository());
 

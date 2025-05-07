@@ -1,10 +1,10 @@
 import { View, Text, Image } from "react-native";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { useAuth } from "@/application/contexts/AuthContext";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
-import { LoginErrors, LoginModel } from "@/domain/models/LoginModel";
+import { LoginErrors, LoginModel } from "@/presentation/models/LoginModel";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { Loading } from "@/presentation/components/ui/Loading";
 

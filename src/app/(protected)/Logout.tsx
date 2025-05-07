@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { router } from "expo-router";
-import { useAuth } from "@/application/contexts/AuthContext";
+import { useAuth } from "@/presentation/contexts/AuthContext";
 
 export default function Logout() {
   const { logout } = useAuth();

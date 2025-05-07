@@ -2,9 +2,9 @@ import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { AuthProvider } from "@/application/contexts/AuthContext";
-import { TransacoesProvider } from "@/application/contexts/TransacoesContext";
-import { GraficosProvider } from "@/application/contexts/GraficosContext";
+import { AuthProvider } from "@/presentation/contexts/AuthContext";
+import { TransacoesProvider } from "@/presentation/contexts/TransacoesContext";
+import { GraficosProvider } from "@/presentation/contexts/GraficosContext";
 import Toast from "react-native-toast-message";
 import "react-native-reanimated";
 

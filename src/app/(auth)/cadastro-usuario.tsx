@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   CadastroUsuarioErrors,
   CadastroUsuarioModel,
-} from "@/domain/models/CadastroUsuarioModel";
+} from "@/presentation/models/CadastroUsuarioModel";
 import InputCheckbox from "@/presentation/components/ui/InputCheckbox";
 import Input from "@/presentation/components/ui/Input";
 import Button from "@/presentation/components/ui/Button";
