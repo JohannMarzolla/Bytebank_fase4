@@ -12,3 +12,4 @@ export interface IGraficoRepository {
 
   getTransacoes(userId: string): Promise<Transacao[]>;
 }
+

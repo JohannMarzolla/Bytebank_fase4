@@ -26,10 +26,18 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
   undefined
 );
 
-export const GraficosProvider = ({ children }: { children: ReactNode }) => {
+interface GraficosProviderProps {
+  children: ReactNode;
+  graficoService?: ReturnType<typeof GraficoService>;
+}
+
+export const GraficosProvider = ({
+  children,
+  graficoService = GraficoService(new GraficoRepository()),
+}: GraficosProviderProps)  => {
+
   const { userId } = useAuth();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
-  const graficoService = GraficoService(new GraficoRepository());
   const [entradasSaidasData, setEntradasSaidasData] = useState<
     GraficoEntrasSaidasModel[]
   >([

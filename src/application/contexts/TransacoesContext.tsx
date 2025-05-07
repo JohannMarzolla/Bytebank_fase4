@@ -6,6 +6,7 @@ import {
 } from "@/domain/services/TransacoesServices";
 import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
 import {
+  Children,
   createContext,
   Dispatch,
   ReactNode,
@@ -53,6 +54,7 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
   undefined
 );
 
+
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const { calcularValue } = useGraficos();
@@ -66,6 +68,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
+  
   const saldoService = SaldoService(new SaldoRepositoryFirestore());
   const trasacaoService = TransacaoService(new TransacaoRepository());
 
@@ -119,6 +122,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
+
   const atualizarSaldo = async () => {
     try {
       if (!userId) return;
