@@ -1,7 +1,7 @@
 import { View, Text, Image } from "react-native";
 import { Link, router } from "expo-router";
 import { useState } from "react";
-import { useAuth } from "@/presentation/contexts/AuthContext";
+import { useAuth } from "@/application/contexts/AuthContext";
 import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
 import { LoginErrors, LoginModel } from "@/domain/models/LoginModel";

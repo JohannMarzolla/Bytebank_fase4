@@ -2,7 +2,7 @@ import {
   createDrawerNavigator,
   DrawerNavigationOptions,
 } from "@react-navigation/drawer";
-import { useAuth } from "@/presentation/contexts/AuthContext";
+import { useAuth } from "@/application/contexts/AuthContext";
 import Transacoes from "./Transacoes";
 import Home from "./Home";
 import Logout from "./Logout";

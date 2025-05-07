@@ -14,7 +14,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useAuth } from "@/presentation/contexts/AuthContext";
+import { useAuth } from "@/application/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";

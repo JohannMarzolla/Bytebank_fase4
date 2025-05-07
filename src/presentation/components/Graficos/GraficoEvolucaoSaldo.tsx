@@ -1,6 +1,6 @@
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
 import { colors } from "@/shared/constants/colors";
-import { useGraficos } from "@/presentation/contexts/GraficosContext";
+import { useGraficos } from "@/application/contexts/GraficosContext";
 import React from "react";
 import { View, ScrollView, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";

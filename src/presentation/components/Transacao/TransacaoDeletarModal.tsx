@@ -1,4 +1,4 @@
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
+import { useTransacoes } from "@/application/contexts/TransacoesContext";
 import { Transacao } from "@/domain/models/Transacao";
 import React from "react";
 import { Modal, View, Text } from "react-native";

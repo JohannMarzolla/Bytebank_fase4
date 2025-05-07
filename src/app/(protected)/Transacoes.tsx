@@ -2,7 +2,7 @@
 import { View, Text } from "react-native";
 import InputDate from "@/presentation/components/ui/InputDate";
 import InputSelect from "@/presentation/components/ui/InputSelect";
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
+import { useTransacoes } from "@/application/contexts/TransacoesContext";
 import React, { useCallback } from "react";
 import ListaTransacoes from "@/presentation/components/Transacao/ListaTransacoes";
 import { ListaTiposTransacaoInputSelect } from "@/shared/constants/tipos-transacao";

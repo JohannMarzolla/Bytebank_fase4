@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { useGraficos } from "@/presentation/contexts/GraficosContext";
+import { useGraficos } from "@/application/contexts/GraficosContext";
 import Button from "@/presentation/components/ui/Button";
 import InputSelect, {
   InputSelectOption,

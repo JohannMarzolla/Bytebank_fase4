@@ -6,10 +6,7 @@ import {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-import {
-  getTransacoesEvolucaoSaldo,
-  getTransacoesPorTipoEData,
-} from "@/domain/services/GraficosServices";
+
 import { colors } from "@/shared/constants/colors";
 import { GraficoEntrasSaidasModel } from "@/domain/models/GraficoEntrasSaidasModel";
 import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";

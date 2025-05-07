@@ -1,5 +1,5 @@
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
+import { useTransacoes } from "@/application/contexts/TransacoesContext";
 import { Text, View } from "react-native";
 
 export default function Saldo() {
