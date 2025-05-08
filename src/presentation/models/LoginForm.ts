@@ -1,19 +1,19 @@
 import validaEmail from "@/shared/utils/validaEmail";
 
-export type LoginFields = "email" | "password";
-export type LoginErrors = Partial<Record<LoginFields, string>>;
+export type LoginFormFields = "email" | "password";
+export type LoginFormErrors = Partial<Record<LoginFormFields, string>>;
 
-export class LoginModel {
+export class LoginForm {
   email: string;
   password: string;
 
-  constructor(obj?: LoginModel) {
+  constructor(obj?: LoginForm) {
     this.email = obj?.email ?? "";
     this.password = obj?.password ?? "";
   }
 
   validate = () => {
-    const errors: LoginErrors = {};
+    const errors: LoginFormErrors = {};
 
     if (!this.email) {
       errors.email = "Campo obrigatório";

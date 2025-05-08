@@ -7,9 +7,9 @@ import InputDate from "@/presentation/components/ui/InputDate";
 import InputSelect from "@/presentation/components/ui/InputSelect";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import {
-  TransacaoAdicionar,
-  TransacaoAdicionarErrors,
-} from "@/domain/models/TransacaoAdicionar";
+  TransacaoAdicionarForm,
+  TransacaoAdicionarFormErrors,
+} from "@/presentation/models/TransacaoAdicionarForm";
 import FilePicker from "@/presentation/components/ui/FilePicker";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
 import { Loading } from "@/presentation/components/ui/Loading";
@@ -17,17 +17,17 @@ import { Loading } from "@/presentation/components/ui/Loading";
 export default function TransacaoCriarForm() {
   const { novaTransacao } = useTransacoes();
   const [addRunning, setAddRunning] = useState(false);
-  const [formData, setFormData] = useState(new TransacaoAdicionar());
-  const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
+  const [formData, setFormData] = useState(new TransacaoAdicionarForm());
+  const [errors, setErrors] = useState<TransacaoAdicionarFormErrors>({});
   const [fileName, setFileName] = useState<string | null>(null);
 
   const handleChange = (name: string, value: any) => {
-    setFormData(new TransacaoAdicionar({ ...formData, [name]: value }));
+    setFormData(new TransacaoAdicionarForm({ ...formData, [name]: value }));
   };
 
   const handleChangeFile = (value: any) => {
     setFileName(value?.name ?? "");
-    setFormData(new TransacaoAdicionar({ ...formData, file: value }));
+    setFormData(new TransacaoAdicionarForm({ ...formData, file: value }));
   };
 
   const processarTransacao = async () => {
@@ -35,7 +35,7 @@ export default function TransacaoCriarForm() {
       Loading.show();
       await novaTransacao(formData);
       setFileName("");
-      setFormData(new TransacaoAdicionar());
+      setFormData(new TransacaoAdicionarForm());
       Loading.hide();
     } catch (error: any) {
       ShowToast("error", error.message);

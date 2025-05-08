@@ -1,10 +1,8 @@
-// TransacaoRepository.ts
-
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/infrastructure/services/FirebaseConfig";
 import { Transacao } from "@/domain/models/Transacao";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
-import { IGraficoRepository } from "@/domain/models/Graficos";
+import { IGraficoRepository } from "@/domain/repositories/IGraficoRepository";
 
 export class GraficoRepository implements IGraficoRepository {
   async getTransacoesPorTipoEData(

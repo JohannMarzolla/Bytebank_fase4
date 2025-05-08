@@ -1,10 +1,9 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
-export interface Transacao {
-  id: string;
-  userId?: string;
+export interface TransacaoDTO {
   tipoTransacao: TipoTransacao;
   valor: number;
-  date: Date;
-  fileName?: string;
+  date: string; // ISO
+  file?: string | null; // URL
+  fileName?: string | null;
 }

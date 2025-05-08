@@ -1,7 +1,7 @@
-import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";
-import { IGraficoRepository } from "@/domain/models/Graficos";
+import { IGraficoRepository } from "@/domain/repositories/IGraficoRepository";
 import { Transacao } from "@/domain/models/Transacao";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
+import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
 
 export function GraficoService(repo: IGraficoRepository) {
   return {
@@ -20,7 +20,7 @@ export function GraficoService(repo: IGraficoRepository) {
     },
     async getTransacoesEvolucaoSaldo(
       userId: string
-    ): Promise<GraficoPorMesModel[]> {
+    ): Promise<GraficoEvolucaoSaldoMes[]> {
       const transacoes = await repo.getTransacoes(userId);
 
       if (!transacoes || transacoes.length === 0) {
@@ -51,7 +51,7 @@ export function GraficoService(repo: IGraficoRepository) {
 
       // Calcular saldo acumulado
       let saldoAcumulado = 0;
-      const resultado: GraficoPorMesModel[] = mesesOrdenados.map((mes) => {
+      const resultado: GraficoEvolucaoSaldoMes[] = mesesOrdenados.map((mes) => {
         saldoAcumulado += dadosAgrupados[mes];
         return { mes, saldo: saldoAcumulado };
       });

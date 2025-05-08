@@ -1,6 +1,5 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
-import { Transacao } from "./Transacao";
-import { GraficoPorMesModel } from "./GraficoPorMesModel";
+import { Transacao } from "../models/Transacao";
 
 export interface IGraficoRepository {
   getTransacoesPorTipoEData(
@@ -12,4 +11,3 @@ export interface IGraficoRepository {
 
   getTransacoes(userId: string): Promise<Transacao[]>;
 }
-

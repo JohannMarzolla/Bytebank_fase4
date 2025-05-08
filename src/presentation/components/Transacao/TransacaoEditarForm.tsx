@@ -6,7 +6,7 @@ import Button from "@/presentation/components/ui/Button";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoAdicionarErrors } from "@/domain/models/TransacaoAdicionar";
+import { TransacaoAdicionarFormErrors } from "@/presentation/models/TransacaoAdicionarForm";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
@@ -31,7 +31,7 @@ export default function TransacaoEditarForm({
     fileName: transacao.fileName,
   });
 
-  const [errors, setErrors] = useState<TransacaoAdicionarErrors>({});
+  const [errors, setErrors] = useState<TransacaoAdicionarFormErrors>({});
 
   const handleChange = (name: string, value: any) => {
     setFormData({

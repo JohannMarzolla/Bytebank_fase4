@@ -1,10 +1,8 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
-export interface Transacao {
-  id: string;
-  userId?: string;
+export interface TransacaoAdicionar {
   tipoTransacao: TipoTransacao;
   valor: number;
   date: Date;
-  fileName?: string;
+  file?: any;
 }

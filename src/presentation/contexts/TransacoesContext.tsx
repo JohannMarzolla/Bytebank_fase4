@@ -1,12 +1,4 @@
 import {
-  deleteTransacao,
-  getTransacoesLimitId,
-  postTransacao,
-  putTransacao,
-} from "@/domain/services/TransacoesServices";
-import { getSaldo, postSaldo } from "@/domain/services/SaldoServices";
-import {
-  Children,
   createContext,
   Dispatch,
   ReactNode,
@@ -17,7 +9,7 @@ import {
 } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoAdicionar } from "@/domain/models/TransacaoAdicionar";
+import { TransacaoAdicionarForm } from "@/presentation/models/TransacaoAdicionarForm";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/presentation/components/ui/Toast";
@@ -31,7 +23,7 @@ interface TransacoesContextData {
   saldo: number;
   deposito: (valor: number) => Promise<void>;
   transferencia: (valor: number) => Promise<void>;
-  novaTransacao: (transacao: TransacaoAdicionar) => Promise<void>;
+  novaTransacao: (transacao: TransacaoAdicionarForm) => Promise<void>;
   atualizarTransacao: (transacao: Transacao) => Promise<void>;
   deletarTransacao: (transacao: Transacao) => Promise<void>;
   transacoesLista: Transacao[];
@@ -154,7 +146,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const novaTransacao = async (transacao: TransacaoAdicionar) => {
+  const novaTransacao = async (transacao: TransacaoAdicionarForm) => {
     if (
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
       !verificaSaldo(transacao.valor)

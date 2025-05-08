@@ -4,18 +4,18 @@ import { useState } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
-import { LoginErrors, LoginModel } from "@/presentation/models/LoginModel";
+import { LoginFormErrors, LoginForm } from "@/presentation/models/LoginForm";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { Loading } from "@/presentation/components/ui/Loading";
 
 export default function Login() {
   const { login } = useAuth();
-  const [values, setValues] = useState<LoginModel>(new LoginModel());
-  const [errors, setErrors] = useState<LoginErrors>({});
+  const [values, setValues] = useState<LoginForm>(new LoginForm());
+  const [errors, setErrors] = useState<LoginFormErrors>({});
   const [loginRunning, setLoginRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
-    setValues(new LoginModel({ ...values, [field]: value }));
+    setValues(new LoginForm({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {

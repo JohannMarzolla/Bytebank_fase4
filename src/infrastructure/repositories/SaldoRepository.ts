@@ -1,8 +1,8 @@
-import { ISaldoRepository } from "@/domain/models/Saldo";
+import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../services/FirebaseConfig";
 
-export class SaldoRepositoryFirestore implements ISaldoRepository{
+export class SaldoRepositoryFirestore implements ISaldoRepository {
   async getSaldo(userId: string): Promise<any | null> {
     const docRef = doc(db, "users", userId);
     const docSnap = await getDoc(docRef);

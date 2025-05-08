@@ -2,9 +2,9 @@ import { View, Image, Text, ScrollView } from "react-native";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
-  CadastroUsuarioErrors,
-  CadastroUsuarioModel,
-} from "@/presentation/models/CadastroUsuarioModel";
+  CadastroUsuarioFormErrors,
+  CadastroUsuarioForm,
+} from "@/presentation/models/CadastroUsuarioForm";
 import InputCheckbox from "@/presentation/components/ui/InputCheckbox";
 import Input from "@/presentation/components/ui/Input";
 import Button from "@/presentation/components/ui/Button";
@@ -13,14 +13,14 @@ import { ShowToast } from "@/presentation/components/ui/Toast";
 import { Loading } from "@/presentation/components/ui/Loading";
 
 export default function CadastroUser() {
-  const [values, setValues] = useState<CadastroUsuarioModel>(
-    new CadastroUsuarioModel()
+  const [values, setValues] = useState<CadastroUsuarioForm>(
+    new CadastroUsuarioForm()
   );
-  const [errors, setErrors] = useState<CadastroUsuarioErrors>({});
+  const [errors, setErrors] = useState<CadastroUsuarioFormErrors>({});
   const [saveRunning, setSaveRunning] = useState(false);
 
   function handleOnChange(field: string, value: any) {
-    setValues(new CadastroUsuarioModel({ ...values, [field]: value }));
+    setValues(new CadastroUsuarioForm({ ...values, [field]: value }));
   }
 
   const onConfirm = async () => {

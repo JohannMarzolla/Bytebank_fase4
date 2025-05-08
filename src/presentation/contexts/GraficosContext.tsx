@@ -6,17 +6,16 @@ import {
   useState,
 } from "react";
 import { useAuth } from "./AuthContext";
-
 import { colors } from "@/shared/constants/colors";
-import { GraficoEntrasSaidasModel } from "@/domain/models/GraficoEntrasSaidasModel";
-import { GraficoPorMesModel } from "@/domain/models/GraficoPorMesModel";
+import { GraficoEntradaSaidaValor } from "@/application/models/GraficoEntradaSaidaValor";
+import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoService } from "@/application/services/GraficoService";
 import { GraficoRepository } from "@/infrastructure/repositories/GraficoRepository";
 
 interface GraficosContextData {
-  entradasSaidasData: GraficoEntrasSaidasModel[];
-  evolucaoSaldoData: GraficoPorMesModel[];
+  entradasSaidasData: GraficoEntradaSaidaValor[];
+  evolucaoSaldoData: GraficoEvolucaoSaldoMes[];
   calcularValue: { (): void };
   changeFiltro: { (mes: number, ano: number): void };
   filtroData: { mes: number; ano: number };
@@ -34,18 +33,17 @@ interface GraficosProviderProps {
 export const GraficosProvider = ({
   children,
   graficoService = GraficoService(new GraficoRepository()),
-}: GraficosProviderProps)  => {
-
+}: GraficosProviderProps) => {
   const { userId } = useAuth();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
   const [entradasSaidasData, setEntradasSaidasData] = useState<
-    GraficoEntrasSaidasModel[]
+    GraficoEntradaSaidaValor[]
   >([
     { name: "Depósito", value: 0, color: colors.fiap.green },
     { name: "Transferência", value: 0, color: colors.fiap.red },
   ]);
   const [evolucaoSaldoData, setEvolucaoSaldoData] = useState<
-    GraficoPorMesModel[]
+    GraficoEvolucaoSaldoMes[]
   >([]);
 
   useEffect(() => {

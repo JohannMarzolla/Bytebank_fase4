@@ -1,18 +1,17 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
-export interface TransacaoAdicionarErrors {
-  tipoTransacao?: string;
-  valor?: string;
-  date?: string;
-}
+export type TransacaoAdicionarFormFields = "tipoTransacao" | "valor" | "date";
+export type TransacaoAdicionarFormErrors = Partial<
+  Record<TransacaoAdicionarFormFields, string>
+>;
 
-export class TransacaoAdicionar {
+export class TransacaoAdicionarForm {
   tipoTransacao: TipoTransacao;
   valor: number;
   date: Date;
   file?: any;
 
-  constructor(obj?: TransacaoAdicionar) {
+  constructor(obj?: TransacaoAdicionarForm) {
     this.tipoTransacao = obj?.tipoTransacao ?? TipoTransacao.TRANSFERENCIA;
     this.valor = obj?.valor ?? 0;
     this.date = obj?.date ?? new Date();
@@ -20,7 +19,7 @@ export class TransacaoAdicionar {
   }
 
   validate = () => {
-    const errors: TransacaoAdicionarErrors = {};
+    const errors: TransacaoAdicionarFormErrors = {};
     let isValid = true;
 
     if (this.valor <= 0 || isNaN(this.valor)) {
