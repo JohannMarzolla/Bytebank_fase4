@@ -9,5 +9,5 @@ export interface IGraficoRepository {
     dataFim: Date
   ): Promise<Transacao[]>;
 
-  getTransacoes(userId: string): Promise<Transacao[]>;
+
 }

@@ -1,62 +1,45 @@
-import { IGraficoRepository } from "@/domain/repositories/IGraficoRepository";
-import { Transacao } from "@/domain/models/Transacao";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
+import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
 
-export function GraficoService(repo: IGraficoRepository) {
-  return {
-    async getTransacoesPorTipoEData(
-      userId: string,
-      tipo: TipoTransacao,
-      dataInicio: Date,
-      dataFim: Date
-    ): Promise<Transacao[]> {
-      return await repo.getTransacoesPorTipoEData(
-        userId,
-        tipo,
-        dataInicio,
-        dataFim
-      );
-    },
-    async getTransacoesEvolucaoSaldo(
-      userId: string
-    ): Promise<GraficoEvolucaoSaldoMes[]> {
-      const transacoes = await repo.getTransacoes(userId);
+export class GraficoService {
+  constructor(private readonly repo: ITransacaoRepository) {}
 
-      if (!transacoes || transacoes.length === 0) {
-        return [];
+  async getTransacoesEvolucaoSaldo(
+    userId: string
+  ): Promise<GraficoEvolucaoSaldoMes[]> {
+    const transacoes = await this.repo.getTransacoes(userId);
+
+    if (!transacoes || transacoes.length === 0) {
+      return [];
+    }
+
+    const dadosAgrupados = transacoes.reduce((acc, transacao) => {
+      const date = new Date(transacao.date);
+      const mesAno = `${date.getFullYear()}-${(date.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}`;
+
+      if (!acc[mesAno]) {
+        acc[mesAno] = 0;
       }
 
-      // Agrupar transações por mês-ano
-      const dadosAgrupados = transacoes.reduce((acc, transacao) => {
-        const date = new Date(transacao.date);
-        const mesAno = `${date.getFullYear()}-${(date.getMonth() + 1)
-          .toString()
-          .padStart(2, "0")}`;
+      acc[mesAno] +=
+        transacao.tipoTransacao === TipoTransacao.DEPOSITO
+          ? transacao.valor
+          : -transacao.valor;
 
-        if (!acc[mesAno]) {
-          acc[mesAno] = 0;
-        }
+      return acc;
+    }, {} as Record<string, number>);
 
-        acc[mesAno] +=
-          transacao.tipoTransacao === TipoTransacao.DEPOSITO
-            ? transacao.valor
-            : -transacao.valor;
+    const mesesOrdenados = Object.keys(dadosAgrupados).sort();
 
-        return acc;
-      }, {} as Record<string, number>);
+    let saldoAcumulado = 0;
+    const resultado: GraficoEvolucaoSaldoMes[] = mesesOrdenados.map((mes) => {
+      saldoAcumulado += dadosAgrupados[mes];
+      return { mes, saldo: saldoAcumulado };
+    });
 
-      // Ordenar meses
-      const mesesOrdenados = Object.keys(dadosAgrupados).sort();
-
-      // Calcular saldo acumulado
-      let saldoAcumulado = 0;
-      const resultado: GraficoEvolucaoSaldoMes[] = mesesOrdenados.map((mes) => {
-        saldoAcumulado += dadosAgrupados[mes];
-        return { mes, saldo: saldoAcumulado };
-      });
-
-      return resultado;
-    },
-  };
+    return resultado;
+  }
 }

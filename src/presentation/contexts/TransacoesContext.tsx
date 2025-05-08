@@ -61,7 +61,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const [dataFim, setDataFim] = useState<Date | null>(null);
 
   const saldoService = SaldoService(new SaldoRepositoryFirestore());
-  const trasacaoService = TransacaoService(new TransacaoRepository());
+  const trasacaoService =  new TransacaoService(new TransacaoRepository(), new SaldoRepositoryFirestore());
 
   useEffect(() => {
     const resetAndFetch = async () => {
@@ -118,7 +118,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!userId) return;
       const saldoAtualizado = await saldoService.obterSaldo(userId);
-      setSaldo(saldoAtualizado);
+      setSaldo(saldoAtualizado ?? 0);
     } catch (error) {
       console.error("Erro ao atualizar saldo:", error);
     }

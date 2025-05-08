@@ -1,7 +1,15 @@
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { Transacao } from "../models/Transacao";
 
 export interface ITransacaoRepository {
   getTransacoes(userId: string): Promise<Transacao[]>;
+  
+  getTransacoesPorTipoEData(
+      userId: string,
+      tipo: TipoTransacao,
+      dataInicio: Date,
+      dataFim: Date
+    ): Promise<Transacao[]>;
 
   getTransacoesLimitId(
     userId: string,
@@ -20,4 +28,7 @@ export interface ITransacaoRepository {
     id: string,
     novosDados: Partial<Transacao>
   ): Promise<boolean>;
+  deleteTransacao(userId: string,transacaoId:string):Promise<boolean>;
+  
+  uploadFile(file: File): Promise<string | null>;
 }

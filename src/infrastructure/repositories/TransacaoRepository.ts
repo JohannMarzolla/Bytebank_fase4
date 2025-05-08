@@ -16,8 +16,10 @@ import {
 import { db, storage } from "../services/FirebaseConfig";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
 export class TransacaoRepository implements ITransacaoRepository {
+  
   async getTransacoes(userId: string): Promise<Transacao[]> {
     try {
       const transacoesRef = collection(db, "users", userId, "transacoes");
@@ -31,6 +33,25 @@ export class TransacaoRepository implements ITransacaoRepository {
       return [];
     }
   }
+   async getTransacoesPorTipoEData(
+      userId: string,
+      tipo: TipoTransacao,
+      dataInicio: Date,
+      dataFim: Date
+    ): Promise<Transacao[]> {
+      const transacoesRef = collection(db, "users", userId, "transacoes");
+      const q = query(
+        transacoesRef,
+        where("tipoTransacao", "==", tipo),
+        where("date", ">=", dataInicio.toISOString()),
+        where("date", "<=", dataFim.toISOString())
+      );
+      const querySnapshot = await getDocs(q);
+  
+      return querySnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as Transacao)
+      );
+    }
 
   async getTransacoesLimitId(
     userId: string,

@@ -3,7 +3,7 @@ import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../services/FirebaseConfig";
 
 export class SaldoRepositoryFirestore implements ISaldoRepository {
-  async getSaldo(userId: string): Promise<any | null> {
+  async getSaldo(userId: string): Promise<number | null> {
     const docRef = doc(db, "users", userId);
     const docSnap = await getDoc(docRef);
 

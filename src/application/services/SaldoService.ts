@@ -1,6 +1,6 @@
-import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
+import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 
-export function SaldoService(repo: SaldoRepositoryFirestore) {
+export function SaldoService(repo: ISaldoRepository ) {
     return {
       async obterSaldo(userId: string) {
         return await repo.getSaldo(userId);

@@ -11,7 +11,9 @@ import { GraficoEntradaSaidaValor } from "@/application/models/GraficoEntradaSai
 import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoService } from "@/application/services/GraficoService";
-import { GraficoRepository } from "@/infrastructure/repositories/GraficoRepository";
+import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
+import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
+import { TransacaoService } from "@/application/services/TransacaoService";
 
 interface GraficosContextData {
   entradasSaidasData: GraficoEntradaSaidaValor[];
@@ -27,12 +29,16 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
 
 interface GraficosProviderProps {
   children: ReactNode;
-  graficoService?: ReturnType<typeof GraficoService>;
+  graficoService?: GraficoService;
+  transacaoService?: TransacaoService;
+
 }
 
 export const GraficosProvider = ({
   children,
-  graficoService = GraficoService(new GraficoRepository()),
+  graficoService = new GraficoService(new TransacaoRepository()),
+  transacaoService = new TransacaoService (new TransacaoRepository(), new SaldoRepositoryFirestore()),
+
 }: GraficosProviderProps) => {
   const { userId } = useAuth();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
@@ -75,13 +81,13 @@ export const GraficosProvider = ({
       if (!userId) return;
 
       const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-        graficoService.getTransacoesPorTipoEData(
+        transacaoService.buscarTransacoesPorTipoEData(
           userId,
           TipoTransacao.DEPOSITO,
           getFiltroDataInicioDate(),
           getFiltroDataFimDate()
         ),
-        graficoService.getTransacoesPorTipoEData(
+        transacaoService.buscarTransacoesPorTipoEData(
           userId,
           TipoTransacao.TRANSFERENCIA,
           getFiltroDataInicioDate(),

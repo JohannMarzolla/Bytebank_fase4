@@ -1,119 +1,113 @@
+// services/TransacaoService.ts
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { TransacaoAdicionar } from "../models/TransacaoAdicionar";
+import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
+import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
+import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 
-export function TransacaoService(repository: TransacaoRepository) {
-  return {
-    async buscarTransacoes(userId: string): Promise<Transacao[]> {
-      return await repository.getTransacoes(userId);
-    },
 
-    async buscarTransacaoPorId(
-      userId: string,
-      transacaoId: string
-    ): Promise<Transacao | null> {
-      return await repository.getTransacao(userId, transacaoId);
-    },
+export class TransacaoService {
+  constructor(
+    private transacaoRepo: ITransacaoRepository,
+    private saldoRepo: ISaldoRepository
+  ) {}
 
-    async buscarTransacoesPaginadas(
-      userId: string,
-      limite: number,
-      lastDoc?: any,
-      tipoFiltro?: string,
-      dataInicio?: Date | null,
-      dataFim?: Date | null
-    ) {
-      return await repository.getTransacoesLimitId(
-        userId,
-        limite,
-        lastDoc,
-        tipoFiltro,
-        dataInicio,
-        dataFim
-      );
-    },
+  async buscarTransacoes(userId: string): Promise<Transacao[]> {
+    return await this.transacaoRepo.getTransacoes(userId);
+  }
+  async buscarTransacoesPorTipoEData( 
+        userId: string,
+        tipo: TipoTransacao,
+        dataInicio: Date,
+        dataFim: Date) : Promise<Transacao[]>{
+          return await this.transacaoRepo.getTransacoesPorTipoEData(userId,tipo,dataInicio,dataFim)
 
-    async adicionarTransacao(
-      userId: string,
-      transacao: TransacaoAdicionar
-    ): Promise<string | null> {
-      console.log("Inicio do metodo adicionar transacao");
-      let fileUrl = null;
-      if (transacao.file) {
-        fileUrl = await repository.uploadFile(transacao.file);
-      }
-      const novaTransacao = {
-        userId,
-        tipoTransacao: transacao.tipoTransacao,
-        valor: transacao.valor,
-        date: transacao.date.toISOString(),
-        file: fileUrl,
-        fileName: fileUrl ? transacao.file?.name : null,
-      };
-      return await repository.postTransacao(userId, novaTransacao);
-    },
+        }
 
-    async atualizarTransacao(
-      userId: string,
-      id: string,
-      novosDados: Transacao
-    ): Promise<boolean> {
-      if (!userId || !id) {
-        throw new Error("Usuário ou ID da transação inválido.");
-      }
-      if (!Object.keys(novosDados).length) {
-        throw new Error("Nenhum dado fornecido para atualização.");
-      }
+  async buscarTransacaoPorId(userId: string, transacaoId: string): Promise<Transacao | null> {
+    return await this.transacaoRepo.getTransacao(userId, transacaoId);
+  }
 
-      // const dadosAtualizados: Transacao = {
-      //   ...novosDados,
-      //   date:
-      //     novosDados.date instanceof Date
-      //       ? novosDados.date.toISOString()
-      //       : novosDados.date,
-      // };
+  async buscarTransacoesPaginadas(
+    userId: string,
+    limite: number,
+    lastDoc?: any,
+    tipoFiltro?: string,
+    dataInicio?: Date | null,
+    dataFim?: Date | null
+  ) {
+    return await this.transacaoRepo.getTransacoesLimitId(
+      userId,
+      limite,
+      lastDoc,
+      tipoFiltro,
+      dataInicio,
+      dataFim
+    );
+  }
 
-      const transacaoAntiga = (await repository.getTransacao(
-        userId,
-        id
-      )) as Transacao;
-      if (!transacaoAntiga) {
-        ShowToast("error", "Transação não encontrada.");
-        return false;
-      }
-      // const saldoAtual = await getSaldo(userId);
-      // if (saldoAtual === null) {
-      //   ShowToast("error", "Erro ao obter saldo atual.");
-      //   return false;
-      // }
+  async adicionarTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
+    let fileUrl = null;
+    if (transacao.file) {
+      fileUrl = await this.transacaoRepo.uploadFile(transacao.file);
+    }
 
-      // let novoSaldo = saldoAtual;
+    const novaTransacao = {
+      userId,
+      tipoTransacao: transacao.tipoTransacao,
+      valor: transacao.valor,
+      date: transacao.date.toISOString(),
+      file: fileUrl,
+      fileName: fileUrl ? transacao.file?.name : null,
+    };
 
-      // transacaoAntiga.tipoTransacao === "deposito"
-      //   ? (novoSaldo -= transacaoAntiga.valor ?? 0)
-      //   : (novoSaldo += transacaoAntiga.valor ?? 0);
+    return await this.transacaoRepo.postTransacao(userId, novaTransacao);
+  }
 
-      // novosDados.tipoTransacao === "deposito"
-      //   ? (novoSaldo += novosDados.valor ?? 0)
-      //   : (novoSaldo -= novosDados.valor ?? 0);
+  async atualizarTransacao(userId: string, id: string, novosDados: Transacao): Promise<boolean> {
+    if (!userId || !id) throw new Error("Usuário ou ID da transação inválido.");
+    if (!Object.keys(novosDados).length) throw new Error("Nenhum dado fornecido para atualização.");
 
-      // if (novoSaldo < 0) {
-      //   ShowToast("error", "Saldo insuficiente.");
-      //   return false;
-      // }
-      // await postSaldo(userId, novoSaldo);
-      console.log("novos dados : ", novosDados);
-      console.log("dados atualizados", novosDados);
-      // editar transacao esta funcionando porem esta dando esse erro de tipagem
-      return await repository.putTransacao(userId, id, novosDados);
-    },
+    const dadosAtualizados: Transacao = {
+      ...novosDados,
+      date:
+        novosDados.date instanceof Date
+          ? novosDados.date.toISOString()
+          : novosDados.date,
+    };
 
-    async deletarTransacao(
-      userId: string,
-      transacaoId: string
-    ): Promise<boolean> {
-      return await repository.deleteTransacao(userId, transacaoId);
-    },
-  };
+    const transacaoAntiga = await this.transacaoRepo.getTransacao(userId, id);
+    if (!transacaoAntiga) {
+      ShowToast("error", "Transação não encontrada.");
+      return false;
+    }
+
+    const saldoAtual = await this.saldoRepo.getSaldo(userId);
+    if (saldoAtual === null) {
+      ShowToast("error", "Erro ao obter saldo atual.");
+      return false;
+    }
+
+    let novoSaldo = saldoAtual;
+    transacaoAntiga.tipoTransacao === "deposito"
+      ? (novoSaldo -= transacaoAntiga.valor ?? 0)
+      : (novoSaldo += transacaoAntiga.valor ?? 0);
+
+    novosDados.tipoTransacao === "deposito"
+      ? (novoSaldo += novosDados.valor ?? 0)
+      : (novoSaldo -= novosDados.valor ?? 0);
+
+    if (novoSaldo < 0) {
+      ShowToast("error", "Saldo insuficiente.");
+      return false;
+    }
+
+    await this.saldoRepo.updateSaldo(userId, novoSaldo);
+    return await this.transacaoRepo.putTransacao(userId, id, dadosAtualizados);
+  }
+
+  async deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {
+    return await this.transacaoRepo.deleteTransacao(userId, transacaoId);
+  }
 }
