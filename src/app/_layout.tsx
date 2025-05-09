@@ -11,6 +11,7 @@ import "react-native-reanimated";
 // Import your global CSS file
 import "./global.css";
 import GlobalLoading from "@/presentation/components/ui/Loading";
+import { SaldoProvider } from "@/presentation/contexts/SaldoContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -32,6 +33,7 @@ export default function RootLayout() {
   return (
     <>
       <AuthProvider>
+        <SaldoProvider>
         <GraficosProvider>
           <TransacoesProvider>
             <Stack>
@@ -51,6 +53,7 @@ export default function RootLayout() {
             </Stack>
           </TransacoesProvider>
         </GraficosProvider>
+        </SaldoProvider>
       </AuthProvider>
       <Toast />
       <GlobalLoading />

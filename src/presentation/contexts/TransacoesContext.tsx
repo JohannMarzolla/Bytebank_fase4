@@ -18,6 +18,7 @@ import { SaldoService } from "@/application/services/SaldoService";
 import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
 import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { TransacaoService } from "@/application/services/TransacaoService";
+import { useSaldo } from "./SaldoContext";
 
 interface TransacoesContextData {
   saldo: number;
@@ -49,7 +50,6 @@ const TransacoesContext = createContext<TransacoesContextData | undefined>(
 export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const { userId } = useAuth();
   const { calcularValue } = useGraficos();
-  const [saldo, setSaldo] = useState<number>(0);
   const [transacoesLista, setTransacoesLista] = useState<Transacao[]>([]);
   const [lastDoc, setLastDoc] = useState<any>(null);
   const [hasMoreData, setHasMoreData] = useState(true);
@@ -59,6 +59,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
+  const { saldo, atualizarSaldo, deposito, transferencia  } = useSaldo();
 
   const saldoService = SaldoService(new SaldoRepositoryFirestore());
   const trasacaoService =  new TransacaoService(new TransacaoRepository(), new SaldoRepositoryFirestore());
@@ -114,38 +115,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const atualizarSaldo = async () => {
-    try {
-      if (!userId) return;
-      const saldoAtualizado = await saldoService.obterSaldo(userId);
-      setSaldo(saldoAtualizado ?? 0);
-    } catch (error) {
-      console.error("Erro ao atualizar saldo:", error);
-    }
-  };
-
-  const deposito = async (valor: number) => {
-    try {
-      if (!userId) throw new Error("Usuário não autenticado.");
-      const novoSaldo = saldo + valor;
-      await saldoService.atualizarSaldo(userId, novoSaldo);
-      await atualizarSaldo();
-    } catch (error) {
-      console.error("Erro ao realizar depósito:", error);
-    }
-  };
-
-  const transferencia = async (valor: number) => {
-    try {
-      if (!userId) throw new Error("Usuário não autenticado.");
-      const novoSaldo = saldo - valor;
-      await saldoService.atualizarSaldo(userId, novoSaldo);
-      await atualizarSaldo();
-    } catch (error) {
-      console.error("Erro ao realizar transferência:", error);
-    }
-  };
-
+  
   const novaTransacao = async (transacao: TransacaoAdicionarForm) => {
     if (
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
