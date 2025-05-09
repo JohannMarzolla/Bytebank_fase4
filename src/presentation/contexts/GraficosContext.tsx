@@ -8,16 +8,16 @@ import {
 import { useAuth } from "./AuthContext";
 import { colors } from "@/shared/constants/colors";
 import { GraficoEntradaSaidaValor } from "@/application/models/GraficoEntradaSaidaValor";
-import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoService } from "@/application/services/GraficoService";
 import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
 import { TransacaoService } from "@/application/services/TransacaoService";
+import { GraficoEvolucaoSaldoData } from "@/presentation/models/GraficoEvolucaoSaldoData";
 
 interface GraficosContextData {
   entradasSaidasData: GraficoEntradaSaidaValor[];
-  evolucaoSaldoData: GraficoEvolucaoSaldoMes[];
+  evolucaoSaldoPorMes: GraficoEvolucaoSaldoData;
   calcularValue: { (): void };
   changeFiltro: { (mes: number, ano: number): void };
   filtroData: { mes: number; ano: number };
@@ -31,14 +31,15 @@ interface GraficosProviderProps {
   children: ReactNode;
   graficoService?: GraficoService;
   transacaoService?: TransacaoService;
-
 }
 
 export const GraficosProvider = ({
   children,
   graficoService = new GraficoService(new TransacaoRepository()),
-  transacaoService = new TransacaoService (new TransacaoRepository(), new SaldoRepositoryFirestore()),
-
+  transacaoService = new TransacaoService(
+    new TransacaoRepository(),
+    new SaldoRepositoryFirestore()
+  ),
 }: GraficosProviderProps) => {
   const { userId } = useAuth();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
@@ -48,20 +49,20 @@ export const GraficosProvider = ({
     { name: "Depósito", value: 0, color: colors.fiap.green },
     { name: "Transferência", value: 0, color: colors.fiap.red },
   ]);
-  const [evolucaoSaldoData, setEvolucaoSaldoData] = useState<
-    GraficoEvolucaoSaldoMes[]
-  >([]);
+  const [evolucaoSaldoPorMes, setEvolucaoSaldoPorMes] =
+    useState<GraficoEvolucaoSaldoData>(getEvolucaoSaldoVazio());
 
   useEffect(() => {
     calcularValue();
   }, [filtroData, userId]);
 
+  function getEvolucaoSaldoVazio() {
+    return { meses: ["vazio"], saldos: [0] };
+  }
+
   function getFiltroDataValorInicial() {
     const hoje = new Date();
-    return {
-      mes: hoje.getMonth(),
-      ano: hoje.getFullYear(),
-    };
+    return { mes: hoje.getMonth(), ano: hoje.getFullYear() };
   }
 
   function getFiltroDataInicioDate() {
@@ -108,24 +109,33 @@ export const GraficosProvider = ({
     try {
       if (!userId) return null;
 
-      await Promise.all([calcularEntradasESaidas(), calcularEvolucaoSaldo()]);
+      await Promise.all([loadEntradasESaidas(), loadEvolucaoSaldoPorMes()]);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValue:", error);
     }
   };
 
-  const calcularEvolucaoSaldo = async () => {
+  const loadEvolucaoSaldoPorMes = async () => {
     try {
-      const transacoes = await graficoService.getTransacoesEvolucaoSaldo(
-        userId
-      );
-      setEvolucaoSaldoData(transacoes ?? []);
+      const result = await graficoService.getEvolucaoSaldoPorMes(userId);
+
+      let data: GraficoEvolucaoSaldoData;
+      if (!result?.length) {
+        data = getEvolucaoSaldoVazio();
+      } else {
+        data = {
+          meses: result.map((t) => t.mes),
+          saldos: result.map((t) => t.saldo),
+        };
+      }
+
+      setEvolucaoSaldoPorMes(data);
     } catch (error) {
       console.log("Erro ao calcular valores calcularValuePorMes:", error);
     }
   };
 
-  const calcularEntradasESaidas = async () => {
+  const loadEntradasESaidas = async () => {
     try {
       const transacoes = await searchEntradasESaidas();
       if (!transacoes) return;
@@ -155,7 +165,7 @@ export const GraficosProvider = ({
         changeFiltro,
         filtroData,
         entradasSaidasData,
-        evolucaoSaldoData,
+        evolucaoSaldoPorMes,
       }}
     >
       {children}

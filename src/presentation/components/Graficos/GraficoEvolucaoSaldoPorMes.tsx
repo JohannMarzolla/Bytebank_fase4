@@ -6,26 +6,19 @@ import { View, ScrollView, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import { Svg, Text as TextSVG } from "react-native-svg";
 
-export default function GraficoEvolucaoSaldo() {
+export default function GraficoEvolucaoSaldoPorMes() {
   const screenWidth = Dimensions.get("window").width;
-  const { evolucaoSaldoData } = useGraficos();
-
-  const labels = evolucaoSaldoData.length
-    ? evolucaoSaldoData.map((t) => t.mes)
-    : ["vazio"];
-  const valores = evolucaoSaldoData.length
-    ? evolucaoSaldoData.map((t) => t.saldo)
-    : [0];
+  const { evolucaoSaldoPorMes } = useGraficos();
 
   return (
     <ScrollView horizontal={true} className="flex-1">
       <View className="rounded-lg shadow-md">
         <LineChart
           data={{
-            labels: labels,
+            labels: evolucaoSaldoPorMes.meses,
             datasets: [
               {
-                data: valores,
+                data: evolucaoSaldoPorMes.saldos,
                 color: (opacity = 1) => `rgba(34, 197, 94, ${opacity})`, // Verde para indicar crescimento
                 strokeWidth: 3,
               },
@@ -59,7 +52,7 @@ export default function GraficoEvolucaoSaldo() {
                 fill="black"
                 textAnchor="middle"
               >
-                {`${formatarMoeda(valores[index] ?? 0)}`}
+                {`${formatarMoeda(evolucaoSaldoPorMes.saldos[index] ?? 0)}`}
               </TextSVG>
             </Svg>
           )}

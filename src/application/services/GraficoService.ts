@@ -1,11 +1,12 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { GraficoEvolucaoSaldoMes } from "@/application/models/GraficoEvolucaoSaldoMes";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
+import { formatarData, FormatoDataEnum } from "@/shared/utils/formatarData";
 
 export class GraficoService {
   constructor(private readonly repo: ITransacaoRepository) {}
 
-  async getTransacoesEvolucaoSaldo(
+  async getEvolucaoSaldoPorMes(
     userId: string
   ): Promise<GraficoEvolucaoSaldoMes[]> {
     const transacoes = await this.repo.getTransacoes(userId);
@@ -16,13 +17,9 @@ export class GraficoService {
 
     const dadosAgrupados = transacoes.reduce((acc, transacao) => {
       const date = new Date(transacao.date);
-      const mesAno = `${date.getFullYear()}-${(date.getMonth() + 1)
-        .toString()
-        .padStart(2, "0")}`;
+      const mesAno = formatarData(date, FormatoDataEnum.MES_ANO);
 
-      if (!acc[mesAno]) {
-        acc[mesAno] = 0;
-      }
+      if (!acc[mesAno]) acc[mesAno] = 0;
 
       acc[mesAno] +=
         transacao.tipoTransacao === TipoTransacao.DEPOSITO
@@ -32,12 +29,11 @@ export class GraficoService {
       return acc;
     }, {} as Record<string, number>);
 
-    const mesesOrdenados = Object.keys(dadosAgrupados).sort();
-
     let saldoAcumulado = 0;
-    const resultado: GraficoEvolucaoSaldoMes[] = mesesOrdenados.map((mes) => {
+    const mesesOrdenados = Object.keys(dadosAgrupados).sort();
+    const resultado = mesesOrdenados.map((mes) => {
       saldoAcumulado += dadosAgrupados[mes];
-      return { mes, saldo: saldoAcumulado };
+      return { mes, saldo: saldoAcumulado } as GraficoEvolucaoSaldoMes;
     });
 
     return resultado;

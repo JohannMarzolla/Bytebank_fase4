@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { View, Text, Dimensions, Animated } from "react-native";
 import GraficoEntradasSaidas from "./GraficoEntradasSaidas";
-import GraficoEvolucaoSaldo from "./GraficoEvolucaoSaldo";
+import GraficoEvolucaoSaldoPorMes from "./GraficoEvolucaoSaldoPorMes";
 
 const data = [
   {
@@ -12,7 +12,7 @@ const data = [
   {
     type: "bar",
     title: "Evolução do saldo por mês 💰",
-    component: GraficoEvolucaoSaldo,
+    component: GraficoEvolucaoSaldoPorMes,
   },
 ];
 

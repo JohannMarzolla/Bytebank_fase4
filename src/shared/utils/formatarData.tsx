@@ -3,6 +3,7 @@ export enum FormatoDataEnum {
   DIA_SEMANA_DIA_MES_ANO = "DIA_SEMANA, DD/MM/AAAA",
   DIA_MES = "DD/MM",
   MES = "MM",
+  MES_ANO = "MM/AAAA",
 }
 
 export function formatarData(
@@ -24,6 +25,11 @@ export function formatarData(
       });
     case FormatoDataEnum.MES:
       return data.toLocaleDateString("pt-br", { month: "long" });
+    case FormatoDataEnum.MES_ANO:
+      return data.toLocaleDateString("pt-br", {
+        year: "numeric",
+        month: "2-digit",
+      });
     default:
       return data.toLocaleDateString("pt-br");
   }
