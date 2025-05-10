@@ -1,11 +1,8 @@
-// services/TransacaoService.ts
 import { Transacao } from "@/domain/models/Transacao";
-import { ShowToast } from "@/presentation/components/ui/Toast";
 import { TransacaoAdicionar } from "../models/TransacaoAdicionar";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
 import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
-
 
 export class TransacaoService {
   constructor(
@@ -13,23 +10,21 @@ export class TransacaoService {
     private saldoRepo: ISaldoRepository
   ) {}
 
-  async buscarTransacoes(userId: string): Promise<Transacao[]> {
-    return await this.transacaoRepo.getTransacoes(userId);
-  }
-  async buscarTransacoesPorTipoEData( 
-        userId: string,
-        tipo: TipoTransacao,
-        dataInicio: Date,
-        dataFim: Date) : Promise<Transacao[]>{
-          return await this.transacaoRepo.getTransacoesPorTipoEData(userId,tipo,dataInicio,dataFim)
-
-        }
-
-  async buscarTransacaoPorId(userId: string, transacaoId: string): Promise<Transacao | null> {
-    return await this.transacaoRepo.getTransacao(userId, transacaoId);
+  async getPorTipoEData(
+    userId: string,
+    tipo: TipoTransacao,
+    dataInicio: Date,
+    dataFim: Date
+  ): Promise<Transacao[]> {
+    return await this.transacaoRepo.getPorTipoEData(
+      userId,
+      tipo,
+      dataInicio,
+      dataFim
+    );
   }
 
-  async buscarTransacoesPaginadas(
+  async getPaged(
     userId: string,
     limite: number,
     lastDoc?: any,
@@ -37,7 +32,7 @@ export class TransacaoService {
     dataInicio?: Date | null,
     dataFim?: Date | null
   ) {
-    return await this.transacaoRepo.getTransacoesLimitId(
+    return await this.transacaoRepo.getPorFiltro(
       userId,
       limite,
       lastDoc,
@@ -47,67 +42,74 @@ export class TransacaoService {
     );
   }
 
-  async adicionarTransacao(userId: string, transacao: TransacaoAdicionar): Promise<string | null> {
-    let fileUrl = null;
+  async insert(
+    userId: string,
+    transacao: TransacaoAdicionar
+  ): Promise<string | null> {
+    if (!userId) throw new Error("Usuário inválido.");
+
+    let fileUrl: string | null = null;
     if (transacao.file) {
       fileUrl = await this.transacaoRepo.uploadFile(transacao.file);
     }
 
-    const novaTransacao = {
-      userId,
-      tipoTransacao: transacao.tipoTransacao,
-      valor: transacao.valor,
-      date: transacao.date.toISOString(),
-      file: fileUrl,
-      fileName: fileUrl ? transacao.file?.name : null,
-    };
-
-    return await this.transacaoRepo.postTransacao(userId, novaTransacao);
+    return await this.transacaoRepo.insert(
+      new Transacao({
+        userId,
+        tipoTransacao: transacao.tipoTransacao,
+        valor: transacao.valor,
+        date: transacao.date,
+        file: fileUrl ?? undefined,
+        fileName: fileUrl ? transacao.file?.name : undefined,
+      })
+    );
   }
 
-  async atualizarTransacao(userId: string, id: string, novosDados: Transacao): Promise<boolean> {
-    if (!userId || !id) throw new Error("Usuário ou ID da transação inválido.");
-    if (!Object.keys(novosDados).length) throw new Error("Nenhum dado fornecido para atualização.");
-
-    const dadosAtualizados: Transacao = {
-      ...novosDados,
-      date:
-        novosDados.date instanceof Date
-          ? novosDados.date.toISOString()
-          : novosDados.date,
-    };
-
-    const transacaoAntiga = await this.transacaoRepo.getTransacao(userId, id);
-    if (!transacaoAntiga) {
-      ShowToast("error", "Transação não encontrada.");
-      return false;
+  async update(transacao: Transacao): Promise<boolean> {
+    if (!transacao?.userId || !transacao?.id) {
+      throw new Error("Usuário ou ID da transação inválido.");
+    }
+    if (!Object.keys(transacao).length) {
+      throw new Error("Nenhum valor fornecido para atualização.");
     }
 
-    const saldoAtual = await this.saldoRepo.getSaldo(userId);
+    const previous = await this.transacaoRepo.getPorID(
+      transacao.userId,
+      transacao.id
+    );
+    if (!previous) throw new Error("Transação não existe");
+
+    const newTransacao = new Transacao(transacao);
+    await this._updateSaldo(newTransacao, previous);
+
+    await this.transacaoRepo.update(transacao);
+    return true;
+  }
+
+  async delete(userId: string, transacaoId: string): Promise<boolean> {
+    return await this.transacaoRepo.delete(userId, transacaoId);
+  }
+
+  private async _updateSaldo(newValues: Transacao, previous: Transacao) {
+    const saldoAtual = await this.saldoRepo.get(newValues.userId);
     if (saldoAtual === null) {
-      ShowToast("error", "Erro ao obter saldo atual.");
-      return false;
+      throw new Error("Erro ao obter saldo atual");
     }
 
-    let novoSaldo = saldoAtual;
-    transacaoAntiga.tipoTransacao === "deposito"
-      ? (novoSaldo -= transacaoAntiga.valor ?? 0)
-      : (novoSaldo += transacaoAntiga.valor ?? 0);
+    let newSaldo = saldoAtual;
+    previous.tipoTransacao === TipoTransacao.DEPOSITO
+      ? (newSaldo -= previous.valor ?? 0)
+      : (newSaldo += previous.valor ?? 0);
 
-    novosDados.tipoTransacao === "deposito"
-      ? (novoSaldo += novosDados.valor ?? 0)
-      : (novoSaldo -= novosDados.valor ?? 0);
+    newValues.tipoTransacao === TipoTransacao.DEPOSITO
+      ? (newSaldo += newValues.valor ?? 0)
+      : (newSaldo -= newValues.valor ?? 0);
 
-    if (novoSaldo < 0) {
-      ShowToast("error", "Saldo insuficiente.");
-      return false;
+    if (newSaldo < 0) {
+      throw new Error("Saldo insuficiente.");
     }
 
-    await this.saldoRepo.updateSaldo(userId, novoSaldo);
-    return await this.transacaoRepo.putTransacao(userId, id, dadosAtualizados);
-  }
-
-  async deletarTransacao(userId: string, transacaoId: string): Promise<boolean> {
-    return await this.transacaoRepo.deleteTransacao(userId, transacaoId);
+    await this.saldoRepo.update(newValues.userId, newSaldo);
+    return true;
   }
 }

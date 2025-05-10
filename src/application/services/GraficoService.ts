@@ -4,12 +4,12 @@ import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository
 import { formatarData, FormatoDataEnum } from "@/shared/utils/formatarData";
 
 export class GraficoService {
-  constructor(private readonly repo: ITransacaoRepository) {}
+  constructor(private readonly transacaoRepo: ITransacaoRepository) {}
 
   async getEvolucaoSaldoPorMes(
     userId: string
   ): Promise<GraficoEvolucaoSaldoMes[]> {
-    const transacoes = await this.repo.getTransacoes(userId);
+    const transacoes = await this.transacaoRepo.getAll(userId);
 
     if (!transacoes || transacoes.length === 0) {
       return [];

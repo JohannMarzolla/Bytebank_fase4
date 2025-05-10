@@ -21,7 +21,7 @@ export default function TransacaoEditarForm({
   transacao,
   readOnly,
 }: TransacaoEditarFormProps) {
-  const { atualizarTransacao } = useTransacoes();
+  const { update } = useTransacoes();
 
   const [formData, setFormData] = useState<Transacao>({
     id: transacao.id,
@@ -43,7 +43,7 @@ export default function TransacaoEditarForm({
   const handleSubmit = async () => {
     try {
       Loading.show();
-      await atualizarTransacao(formData);
+      await update(formData);
       Loading.hide();
     } catch (error: any) {
       ShowToast("error", error.message);

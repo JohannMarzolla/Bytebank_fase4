@@ -82,13 +82,13 @@ export const GraficosProvider = ({
       if (!userId) return;
 
       const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-        transacaoService.buscarTransacoesPorTipoEData(
+        transacaoService.getPorTipoEData(
           userId,
           TipoTransacao.DEPOSITO,
           getFiltroDataInicioDate(),
           getFiltroDataFimDate()
         ),
-        transacaoService.buscarTransacoesPorTipoEData(
+        transacaoService.getPorTipoEData(
           userId,
           TipoTransacao.TRANSFERENCIA,
           getFiltroDataInicioDate(),

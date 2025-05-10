@@ -10,50 +10,49 @@ import {
   orderBy,
   query,
   startAfter,
+  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
-import { db, storage } from "../services/FirebaseConfig";
+import { db, storage } from "@/infrastructure/services/FirebaseConfig";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
+import {
+  TransacaoConverterFirestore,
+  TransacaoConverter,
+} from "@/domain/converters/TransacaoConverter";
 
 export class TransacaoRepository implements ITransacaoRepository {
-  
-  async getTransacoes(userId: string): Promise<Transacao[]> {
+  async getAll(userId: string): Promise<Transacao[]> {
     try {
-      const transacoesRef = collection(db, "users", userId, "transacoes");
-      const querySnapshot = await getDocs(transacoesRef);
-      return querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Transacao[];
+      const collection = this._getCollectionRef(userId);
+      const querySnapshot = await getDocs(collection);
+      return querySnapshot.docs.map((doc) => doc.data());
     } catch (error) {
-      console.error("Erro ao buscar transações:", error);
       return [];
     }
   }
-   async getTransacoesPorTipoEData(
-      userId: string,
-      tipo: TipoTransacao,
-      dataInicio: Date,
-      dataFim: Date
-    ): Promise<Transacao[]> {
-      const transacoesRef = collection(db, "users", userId, "transacoes");
-      const q = query(
-        transacoesRef,
-        where("tipoTransacao", "==", tipo),
-        where("date", ">=", dataInicio.toISOString()),
-        where("date", "<=", dataFim.toISOString())
-      );
-      const querySnapshot = await getDocs(q);
-  
-      return querySnapshot.docs.map(
-        (doc) => ({ id: doc.id, ...doc.data() } as Transacao)
-      );
-    }
+  async getPorTipoEData(
+    userId: string,
+    tipo: TipoTransacao,
+    dataInicio: Date,
+    dataFim: Date
+  ): Promise<Transacao[]> {
+    const collection = this._getCollectionRef(userId);
 
-  async getTransacoesLimitId(
+    const filter = query(
+      collection,
+      where("tipoTransacao", "==", tipo),
+      where("date", ">=", Timestamp.fromDate(dataInicio)),
+      where("date", "<=", Timestamp.fromDate(dataFim))
+    );
+
+    const querySnapshot = await getDocs(filter);
+    return querySnapshot.docs.map((doc) => doc.data());
+  }
+
+  async getPorFiltro(
     userId: string,
     limite: number,
     lastDoc?: any,
@@ -62,101 +61,101 @@ export class TransacaoRepository implements ITransacaoRepository {
     dataFim?: Date | null
   ): Promise<{ transacoes: Transacao[]; lastVisible: any }> {
     try {
-      const transacoesRef = collection(db, "users", userId, "transacoes");
       let filtros: any[] = [orderBy("date", "desc"), limit(limite)];
-      if (tipoFiltro && tipoFiltro !== "Todos")
+      if (tipoFiltro && tipoFiltro !== "Todos") {
         filtros.push(where("tipoTransacao", "==", tipoFiltro));
-      if (dataInicio)
-        filtros.push(where("date", ">=", dataInicio.toISOString()));
-      if (dataFim) filtros.push(where("date", "<=", dataFim.toISOString()));
-      if (lastDoc) filtros.push(startAfter(lastDoc));
-      const q = query(transacoesRef, ...filtros);
-      const querySnapshot = await getDocs(q);
-      const transacoes = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        tipoTransacao: doc.data().tipoTransacao,
-        valor: doc.data().valor,
-        date: new Date(doc.data().date),
-        fileName: doc.data().fileName,
-      })) as Transacao[];
+      }
+      if (dataInicio) {
+        filtros.push(where("date", ">=", Timestamp.fromDate(dataInicio)));
+      }
+      if (dataFim) {
+        filtros.push(where("date", "<=", Timestamp.fromDate(dataFim)));
+      }
+      if (lastDoc) {
+        filtros.push(startAfter(lastDoc));
+      }
+
+      const collection = this._getCollectionRef(userId);
+      const filter = query(collection, ...filtros);
+      const querySnapshot = await getDocs(filter);
+      const transacoes = querySnapshot.docs.map((doc) => doc.data());
+
       const lastVisible =
         querySnapshot.docs.length >= limite
           ? querySnapshot.docs[limite - 1]
           : null;
+
       return { transacoes, lastVisible };
     } catch (error) {
-      console.error("Erro ao buscar transações:", error);
       return { transacoes: [], lastVisible: null };
     }
   }
 
-  async getTransacao(
+  async getPorID(
     userId: string,
     transacaoId: string
   ): Promise<Transacao | null> {
     try {
-      const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
-      const transacaoSnap = await getDoc(transacaoRef);
-      if (transacaoSnap.exists())
-        return {
-          id: transacaoSnap.id,
-          ...transacaoSnap.data(),
-        } as Transacao;
-      console.log("Transação não encontrada!");
-      return null;
-    } catch (error) {
-      console.error("Erro ao buscar transação:", error);
+      const docRef = this._getCollectionRefById(transacaoId, userId);
+      const querySnapshot = await getDoc(docRef);
+
+      return querySnapshot.exists() ? querySnapshot.data() : null;
+    } catch {
       return null;
     }
   }
 
-  async postTransacao(
-    userId: string,
-    transacao: Transacao
-  ): Promise<string | null> {
-    try {
-      const transacoesRef = collection(db, "users", userId, "transacoes");
-      const docRef = await addDoc(transacoesRef, transacao);
-      console.log("Transação adicionada com sucesso:", docRef.id);
-      return docRef.id;
-    } catch (error) {
-      console.error("Erro ao adicionar transação:", error);
-      return null;
-    }
+  async insert(transacao: Transacao): Promise<string | null> {
+    if (!transacao.userId) return null;
+
+    const collection = this._getCollectionRef(transacao.userId);
+    const toFirestore = TransacaoConverter.toFirestore(transacao);
+
+    const docRef = await addDoc(collection, {
+      userId: toFirestore.userId,
+      tipoTransacao: toFirestore.tipoTransacao,
+      valor: toFirestore.valor,
+      date: toFirestore.date,
+      file: toFirestore.file,
+      fileName: toFirestore.fileName,
+    });
+    return docRef.id;
   }
 
-  async putTransacao(
-    userId: string,
-    id: string,
-    novosDados: Partial<Transacao>
-  ): Promise<boolean> {
-    try {
-      const transacaoRef = doc(db, "users", userId, "transacoes", id);
-      await updateDoc(transacaoRef, novosDados);
-      return true;
-    } catch (error) {
-      console.error("Erro ao atualizar transação:", error);
-      return false;
-    }
+  async update(transacao: Transacao): Promise<boolean> {
+    if (!transacao?.id || !transacao?.userId) return false;
+
+    const docRef = this._getCollectionRefById(transacao.id, transacao.userId);
+    await updateDoc(docRef, TransacaoConverter.toFirestore(transacao));
+    return true;
   }
 
-  async deleteTransacao(userId: string, transacaoId: string): Promise<boolean> {
-    try {
-      const transacaoRef = doc(db, "users", userId, "transacoes", transacaoId);
-      await deleteDoc(transacaoRef);
-      return true;
-    } catch (error) {
-      console.error("Erro ao deletar transação:", error);
-      return false;
-    }
+  async delete(userId: string, transacaoId: string): Promise<boolean> {
+    const docRef = this._getCollectionRefById(transacaoId, userId);
+    await deleteDoc(docRef);
+    return true;
   }
 
   async uploadFile(file: any): Promise<string | null> {
     if (!file) return null;
+
     const response = await fetch(file.uri);
     const blob = await response.blob();
     const fileRef = ref(storage, `transacoes/${file.name}`);
     await uploadBytes(fileRef, blob);
+
     return await getDownloadURL(fileRef);
+  }
+
+  private _getCollectionRef(userId: string) {
+    return collection(db, "users", userId, "transacoes").withConverter(
+      TransacaoConverterFirestore
+    );
+  }
+
+  private _getCollectionRefById(id: string, userId: string) {
+    return doc(db, "users", userId, "transacoes", id).withConverter(
+      TransacaoConverterFirestore
+    );
   }
 }

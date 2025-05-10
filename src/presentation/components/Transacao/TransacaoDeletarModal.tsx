@@ -17,11 +17,11 @@ export default function TransacaoDeletarModal({
   transacao,
   onClose,
 }: TransacaoConfirmarDeletarModalProps) {
-  const { deletarTransacao } = useTransacoes();
+  const { delete } = useTransacoes();
 
   async function handleDelete(transacao: Transacao) {
     Loading.show();
-    await deletarTransacao(transacao);
+    await delete(transacao);
     onClose();
     Loading.hide();
   }

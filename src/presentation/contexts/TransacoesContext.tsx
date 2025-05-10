@@ -14,7 +14,6 @@ import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { DocumentData } from "firebase/firestore";
-import { SaldoService } from "@/application/services/SaldoService";
 import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
 import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { TransacaoService } from "@/application/services/TransacaoService";
@@ -25,8 +24,8 @@ interface TransacoesContextData {
   deposito: (valor: number) => Promise<void>;
   transferencia: (valor: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionarForm) => Promise<void>;
-  atualizarTransacao: (transacao: Transacao) => Promise<void>;
-  deletarTransacao: (transacao: Transacao) => Promise<void>;
+  update: (transacao: Transacao) => Promise<void>;
+  delete: (transacao: Transacao) => Promise<void>;
   transacoesLista: Transacao[];
   carregarMaisTransacoes: (reset?: boolean) => Promise<void>;
   loading: boolean;
@@ -59,10 +58,12 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
-  const { saldo, atualizarSaldo, deposito, transferencia  } = useSaldo();
+  const { saldo, atualizarSaldo, deposito, transferencia } = useSaldo();
 
-  const saldoService = SaldoService(new SaldoRepositoryFirestore());
-  const trasacaoService =  new TransacaoService(new TransacaoRepository(), new SaldoRepositoryFirestore());
+  const trasacaoService = new TransacaoService(
+    new TransacaoRepository(),
+    new SaldoRepositoryFirestore()
+  );
 
   useEffect(() => {
     const resetAndFetch = async () => {
@@ -92,7 +93,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       }
 
       const { transacoes: novasTransacoes, lastVisible } =
-        await trasacaoService.buscarTransacoesPaginadas(
+        await trasacaoService.getPaged(
           userId,
           4,
           reset ? null : lastDoc,
@@ -115,7 +116,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  
   const novaTransacao = async (transacao: TransacaoAdicionarForm) => {
     if (
       transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
@@ -125,7 +125,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      await trasacaoService.adicionarTransacao(userId, transacao);
+      await trasacaoService.insert(userId, transacao);
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
       calcularValue();
@@ -150,9 +150,9 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     return true;
   };
 
-  const atualizarTransacao = async (transacao: Transacao) => {
+  const update = async (transacao: Transacao) => {
     try {
-      await trasacaoService.atualizarTransacao(userId, transacao.id, transacao);
+      await trasacaoService.update(userId, transacao.id, transacao);
 
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
@@ -162,7 +162,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const deletarTransacao = async (transacao: Transacao) => {
+  const delete = async (transacao: Transacao) => {
     if (!transacao.id) {
       throw new Error("Não especificado ID da transação.");
     }
@@ -171,7 +171,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         ? await deposito(transacao.valor)
         : await transferencia(transacao.valor);
 
-      await trasacaoService.deletarTransacao(userId, transacao.id);
+      await trasacaoService.delete(userId, transacao.id);
       await carregarMaisTransacoes(true);
       calcularValue();
     } catch (error) {
@@ -185,8 +185,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         deposito,
         transferencia,
         novaTransacao,
-        deletarTransacao,
-        atualizarTransacao,
+        delete,
+        update,
         saldo,
         transacoesLista,
         carregarMaisTransacoes,

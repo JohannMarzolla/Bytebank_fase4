@@ -1,9 +1,9 @@
 import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "../services/FirebaseConfig";
+import { db } from "@/infrastructure/services/FirebaseConfig";
 
 export class SaldoRepositoryFirestore implements ISaldoRepository {
-  async getSaldo(userId: string): Promise<number | null> {
+  async get(userId: string): Promise<number | null> {
     const docRef = doc(db, "users", userId);
     const docSnap = await getDoc(docRef);
 
@@ -14,14 +14,9 @@ export class SaldoRepositoryFirestore implements ISaldoRepository {
     return null;
   }
 
-  async updateSaldo(userId: string, novoSaldo: number): Promise<boolean> {
-    try {
-      const docRef = doc(db, "users", userId);
-      await updateDoc(docRef, { saldo: novoSaldo });
-      return true;
-    } catch (error) {
-      console.error("Erro ao atualizar saldo:", error);
-      return false;
-    }
+  async update(userId: string, novoSaldo: number): Promise<boolean> {
+    const docRef = doc(db, "users", userId);
+    await updateDoc(docRef, { saldo: novoSaldo });
+    return true;
   }
 }
