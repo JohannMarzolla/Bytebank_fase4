@@ -25,7 +25,7 @@ interface TransacoesContextData {
   transferencia: (valor: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionarForm) => Promise<void>;
   update: (transacao: Transacao) => Promise<void>;
-  delete: (transacao: Transacao) => Promise<void>;
+  remove: (transacao: Transacao) => Promise<void>;
   transacoesLista: Transacao[];
   carregarMaisTransacoes: (reset?: boolean) => Promise<void>;
   loading: boolean;
@@ -162,7 +162,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const delete = async (transacao: Transacao) => {
+  const remove = async (transacao: Transacao) => {
     if (!transacao.id) {
       throw new Error("Não especificado ID da transação.");
     }
@@ -185,7 +185,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
         deposito,
         transferencia,
         novaTransacao,
-        delete,
+        remove,
         update,
         saldo,
         transacoesLista,

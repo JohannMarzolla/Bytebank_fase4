@@ -17,7 +17,7 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
   const { userId } = useAuth();
   const [saldo, setSaldo] = useState<number>(0);
 
-  const saldoService = SaldoService(new SaldoRepositoryFirestore());
+  const saldoService = new SaldoService(new SaldoRepositoryFirestore());
 
   const atualizarSaldo = async () => {
     if (!userId) return;
