@@ -18,6 +18,7 @@ import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRep
 import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { TransacaoService } from "@/application/services/TransacaoService";
 import { useSaldo } from "./SaldoContext";
+import ListaTransacoes from "../components/Transacao/ListaTransacoes";
 
 interface TransacoesContextData {
   saldo: number;
@@ -72,6 +73,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       setHasMoreData(true);
 
       await atualizarSaldo();
+      console.log("lista de transacoes em contexto  dentro useeffect ", transacoesLista)
       await carregarMaisTransacoes(true);
     };
 
@@ -79,6 +81,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       resetAndFetch();
     }
   }, [userId, tipoFiltro, dataInicio, dataFim]);
+   console.log("lista de transacoes em contexto  fora useeffect ", transacoesLista)
 
   const carregarMaisTransacoes = async (reset = false) => {
     if (!userId || loading || (!reset && !hasMoreData)) return;
