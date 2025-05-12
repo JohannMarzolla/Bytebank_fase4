@@ -109,14 +109,21 @@ export class TransacaoRepository implements ITransacaoRepository {
     if (!transacao.userId) return null;
 
     const collection = this._getCollectionRef(transacao.userId);
-    const toFirestore = TransacaoConverter.toFirestore(transacao);
+    const toFirestore = transacao;
 
-    const docRef = await addDoc(collection, {
+    console.log("transaçao insert repository", transacao)
+      console.log("transaçao  to firestore insert repository", toFirestore)
+
+      const date = transacao.date ?? new Date() 
+     const docRef = await addDoc(collection, {
       userId: toFirestore.userId,
       tipoTransacao: toFirestore.tipoTransacao,
       valor: toFirestore.valor,
-      date: toFirestore.date,
-      file: toFirestore.file,
+      date:
+        date instanceof Date
+          ? Timestamp.fromDate(date)
+          : Timestamp.fromDate(new Date(date)),
+      file: toFirestore.file ,
       fileName: toFirestore.fileName,
     });
     return docRef.id;

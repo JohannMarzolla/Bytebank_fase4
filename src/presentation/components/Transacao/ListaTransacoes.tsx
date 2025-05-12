@@ -16,7 +16,7 @@ export default function ListaTransacoes({
   return (
     <FlatList
       style={{ flex: 1 }}
-      keyExtractor={(transacao) => transacao.id}
+      keyExtractor={(transacao) => transacao.id as string }
       data={transacoes}
       renderItem={({ item }) => <TransacaoItem transacao={item} />}
       onEndReached={onEndReached}

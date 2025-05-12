@@ -9,18 +9,19 @@ import { TransacaoFirestore } from "@/domain/models/TransacaoFirestore";
 
 export const TransacaoConverter = {
   toFirestore(transacao: Transacao): TransacaoFirestore {
-    return new TransacaoFirestore({
+    const date = transacao.date ?? new Date() 
+    return {
       id: transacao.id ?? null,
       userId: transacao.userId,
       valor: transacao.valor,
       tipoTransacao: transacao.tipoTransacao,
-      file: transacao.file,
-      fileName: transacao.fileName,
+      file: transacao.file ?? "",
+      fileName: transacao.fileName ?? "",
       date:
-        transacao.date instanceof Date
-          ? Timestamp.fromDate(transacao.date)
-          : Timestamp.fromDate(new Date(transacao.date ?? new Date())), 
-    });
+        date instanceof Date
+          ? Timestamp.fromDate(date)
+          : Timestamp.fromDate(new Date(date)), 
+    };
   },
 
   fromFirestore(transacao: TransacaoFirestore, id?: string): Transacao {
@@ -29,8 +30,8 @@ export const TransacaoConverter = {
       userId: transacao.userId,
       valor: transacao.valor,
       tipoTransacao: transacao.tipoTransacao,
-      file: transacao.file,
-      fileName: transacao.fileName,
+      file: transacao.file ?? undefined,
+      fileName: transacao.fileName ?? undefined,
       date: transacao.date.toDate(),
     });
   },

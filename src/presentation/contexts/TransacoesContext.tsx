@@ -59,8 +59,8 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   >("Todos");
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
-  const { saldo, atualizarSaldo, deposito, transferencia } = useSaldo();
 
+  const { saldo, atualizarSaldo, deposito, transferencia } = useSaldo();
   const trasacaoService = new TransacaoService(
     new TransacaoRepository(),
     new SaldoRepositoryFirestore()
@@ -73,7 +73,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       setHasMoreData(true);
 
       await atualizarSaldo();
-      console.log("lista de transacoes em contexto  dentro useeffect ", transacoesLista)
       await carregarMaisTransacoes(true);
     };
 
@@ -81,7 +80,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       resetAndFetch();
     }
   }, [userId, tipoFiltro, dataInicio, dataFim]);
-   console.log("lista de transacoes em contexto  fora useeffect ", transacoesLista)
+   
 
   const carregarMaisTransacoes = async (reset = false) => {
     if (!userId || loading || (!reset && !hasMoreData)) return;
@@ -143,6 +142,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error: any) {
       ShowToast("error", error.message);
+      console.log("error ", error)
     }
   };
 
@@ -155,8 +155,7 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
 
   const update = async (transacao: Transacao) => {
     try {
-      await trasacaoService.update(userId, transacao.id, transacao);
-
+      await trasacaoService.update(transacao);
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
       calcularValue();
