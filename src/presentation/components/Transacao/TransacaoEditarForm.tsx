@@ -6,7 +6,6 @@ import Button from "@/presentation/components/ui/Button";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoAdicionarFormErrors } from "@/presentation/models/TransacaoAdicionarForm";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
@@ -22,16 +21,8 @@ export default function TransacaoEditarForm({
   readOnly,
 }: TransacaoEditarFormProps) {
   const { update } = useTransacoes();
-
-  const [formData, setFormData] = useState<Transacao>({
-    id: transacao.id,
-    tipoTransacao: transacao.tipoTransacao,
-    valor: transacao.valor,
-    date: transacao.date ? transacao.date : new Date(),
-    fileName: transacao.fileName,
-  });
-
-  const [errors, setErrors] = useState<TransacaoAdicionarFormErrors>({});
+  const [formData, setFormData] = useState<Transacao>(transacao);
+  const [valorError, setValorError] = useState<string>();
 
   const handleChange = (name: string, value: any) => {
     setFormData({
@@ -42,9 +33,15 @@ export default function TransacaoEditarForm({
 
   const handleSubmit = async () => {
     try {
-      Loading.show();
-      await update(formData);
-      Loading.hide();
+      if (formData.valor <= 0 || isNaN(formData.valor)) {
+        setValorError("Campo obrigatório");
+      } else {
+        setValorError("");
+
+        Loading.show();
+        await update(formData);
+        Loading.hide();
+      }
     } catch (error: any) {
       ShowToast("error", error.message);
       Loading.hide();
@@ -59,7 +56,6 @@ export default function TransacaoEditarForm({
         style="dark"
         readOnly={readOnly}
         value={formData.tipoTransacao}
-        error={errors.tipoTransacao}
         onValueChanged={(value) => handleChange("tipoTransacao", value)}
       />
 
@@ -69,7 +65,7 @@ export default function TransacaoEditarForm({
         style="dark"
         readOnly={readOnly}
         value={formData.valor.toString()}
-        error={errors.valor}
+        error={valorError}
         onValueChanged={(value) => handleChange("valor", Number(value))}
       />
 
@@ -78,7 +74,6 @@ export default function TransacaoEditarForm({
         style="dark"
         readOnly={readOnly}
         value={formData.date}
-        error={errors.date}
         maximumDate={new Date()}
         onValueChanged={(value) => handleChange("date", value)}
       />

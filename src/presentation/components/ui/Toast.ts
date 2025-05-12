@@ -13,5 +13,6 @@ export function ShowToast(
     text2: detail,
     text2Style: { fontSize: 13, color: colors.fiap.gray },
     position: "bottom",
+    visibilityTime: 3000,
   });
 }

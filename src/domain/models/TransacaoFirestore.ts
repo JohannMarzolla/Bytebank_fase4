@@ -7,8 +7,8 @@ export class TransacaoFirestore {
   tipoTransacao: TipoTransacao;
   valor: number;
   date: Timestamp;
-  file: string ;
-  fileName: string  ;
+  file?: string;
+  fileName?: string;
 
   constructor(obj: TransacaoFirestore) {
     this.id = obj.id;
