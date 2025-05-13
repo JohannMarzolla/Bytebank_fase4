@@ -23,6 +23,7 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
     if (!userId) return;
     try {
       const novoSaldo = await saldoService.get(userId);
+   
       setSaldo(novoSaldo ?? 0);
     } catch (error) {
       console.error("Erro ao buscar saldo:", error);
@@ -33,8 +34,7 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
   const deposito = async (valor: number) => {
     if (!userId) throw new Error("Usuário não autenticado.");
     try {
-      const updated = saldo + valor;
-      await saldoService.update(userId, updated);
+      await saldoService.deposito(userId, valor);
       await atualizarSaldo();
       ShowToast("success", "Depósito realizado com sucesso");
     } catch (error: any) {
@@ -46,9 +46,8 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
   const transferencia = async (valor: number) => {
     if (!userId) throw new Error("Usuário não autenticado.");
     try {
-      const updated = saldo - valor;
-      await saldoService.update(userId, updated);
-      await atualizarSaldo();
+      await saldoService.transferencia(userId, valor);
+        await atualizarSaldo();
       ShowToast("success", "Transferência realizada com sucesso");
     } catch (error: any) {
       console.error("Erro na transferência:", error);

@@ -10,4 +10,18 @@ export class SaldoService {
   async update(userId: string, novoSaldo: number) {
     return await this.saldoRepo.update(userId, novoSaldo);
   }
+
+  async deposito(userId: string, valor: number ): Promise<any> {
+  const saldoAtual = await this.get(userId) ?? 0;
+  const novoSaldo = saldoAtual + valor;
+  return this.update(userId, novoSaldo);
+
+}
+async transferencia(userId: string, valor: number): Promise<number> {
+    const saldoAtual = await this.get(userId) ?? 0;
+    const novoSaldo = saldoAtual - valor;
+    if (novoSaldo < 0) throw new Error("Saldo insuficiente.");
+    await this.saldoRepo.update(userId, novoSaldo);
+    return novoSaldo;
+  }
 }
