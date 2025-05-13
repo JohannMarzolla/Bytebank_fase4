@@ -58,11 +58,13 @@ export default function TransacaoItem({ transacao }: TransacaoItemOptions) {
 
       <TransacaoDeletarModal
         onClose={() => fecharModal()}
+        onOpen={() => abrirModal("delete")}
         visible={openConfirmarDeletarModal}
         transacao={transacao}
       />
       <TransacaoEditarModal
         onClose={() => fecharModal()}
+        onOpen={() => abrirModal("edit")}
         visible={openEditModal}
         transacao={transacao}
       />

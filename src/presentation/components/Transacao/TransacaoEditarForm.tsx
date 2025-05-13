@@ -13,12 +13,16 @@ import { Loading } from "@/presentation/components/ui/Loading";
 
 interface TransacaoEditarFormProps {
   transacao: Transacao;
-  readOnly?: boolean;
+  toDelete?: boolean;
+  onSubmit?: () => void;
+  onError?: () => void;
 }
 
 export default function TransacaoEditarForm({
   transacao,
-  readOnly,
+  toDelete,
+  onSubmit,
+  onError,
 }: TransacaoEditarFormProps) {
   const { update } = useTransacoes();
   const [formData, setFormData] = useState<Transacao>(transacao);
@@ -33,6 +37,8 @@ export default function TransacaoEditarForm({
 
   const handleSubmit = async () => {
     try {
+      if (onSubmit) onSubmit();
+
       if (formData.valor <= 0 || isNaN(formData.valor)) {
         setValorError("Campo obrigatório");
       } else {
@@ -41,8 +47,15 @@ export default function TransacaoEditarForm({
         Loading.show();
         await update(formData);
         Loading.hide();
+
+        if (toDelete) {
+          ShowToast("success", "Transação removida com sucesso");
+        } else {
+          ShowToast("success", "Transação atualizada com sucesso");
+        }
       }
     } catch (error: any) {
+      if (onError) onError();
       ShowToast("error", error.message);
       Loading.hide();
     }
@@ -54,7 +67,7 @@ export default function TransacaoEditarForm({
         label="Tipo"
         options={ListaTiposTransacao}
         style="dark"
-        readOnly={readOnly}
+        readOnly={toDelete}
         value={formData.tipoTransacao}
         onValueChanged={(value) => handleChange("tipoTransacao", value)}
       />
@@ -63,7 +76,7 @@ export default function TransacaoEditarForm({
         type="number"
         label="Valor"
         style="dark"
-        readOnly={readOnly}
+        readOnly={toDelete}
         value={formData.valor.toString()}
         error={valorError}
         onValueChanged={(value) => handleChange("valor", Number(value))}
@@ -72,7 +85,7 @@ export default function TransacaoEditarForm({
       <InputDate
         label="Data"
         style="dark"
-        readOnly={readOnly}
+        readOnly={toDelete}
         value={formData.date}
         maximumDate={new Date()}
         onValueChanged={(value) => handleChange("date", value)}
@@ -85,7 +98,7 @@ export default function TransacaoEditarForm({
         </Text>
       </View>
 
-      {!readOnly && (
+      {!toDelete && (
         <View className="pt-3">
           <Button text="Confirmar" color="green" onPress={handleSubmit} />
         </View>

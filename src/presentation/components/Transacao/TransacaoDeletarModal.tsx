@@ -10,19 +10,22 @@ interface TransacaoConfirmarDeletarModalProps {
   visible: boolean;
   transacao: Transacao;
   onClose: () => void;
+  onOpen: () => void;
 }
 
 export default function TransacaoDeletarModal({
   visible,
   transacao,
   onClose,
+  onOpen,
 }: TransacaoConfirmarDeletarModalProps) {
   const { remove } = useTransacoes();
 
   async function handleDelete(transacao: Transacao) {
+    onClose();
+
     Loading.show();
     await remove(transacao);
-    onClose();
     Loading.hide();
   }
 
@@ -39,7 +42,12 @@ export default function TransacaoDeletarModal({
             Deseja excluir esta transação?
           </Text>
 
-          <TransacaoEditarForm transacao={transacao} readOnly={true} />
+          <TransacaoEditarForm
+            transacao={transacao}
+            toDelete={true}
+            onSubmit={onClose}
+            onError={onOpen}
+          />
 
           <View className="flex gap-3 pt-7">
             <Button
