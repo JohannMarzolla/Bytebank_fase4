@@ -3,11 +3,13 @@ import { TransacaoAdicionar } from "../models/TransacaoAdicionar";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
 import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
+import { SaldoService } from "./SaldoService";
 
 export class TransacaoService {
   constructor(
     private transacaoRepo: ITransacaoRepository,
-    private saldoRepo: ISaldoRepository
+    private saldoRepo: ISaldoRepository,
+    private saldoService : SaldoService
   ) {}
 
   async getPorTipoEData(
@@ -48,6 +50,19 @@ export class TransacaoService {
   ): Promise<string | null> {
     if (!userId) throw new Error("Usuário inválido.");
 
+    if (transacao.tipoTransacao === TipoTransacao.DEPOSITO) {
+        await this.saldoService.deposito(userId, transacao.valor);
+  }
+   else if (transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA) {
+    const saldoSuficiente = await this.saldoService.verificaSaldo(userId, transacao.valor);
+
+        if (!saldoSuficiente) {
+            throw new Error("Saldo insuficiente para realizar a transferência.");
+          }
+
+    await this.saldoService.transferencia(userId, transacao.valor);
+  }
+    
     let fileUrl: string | null = null;
     if (transacao.file) {
       fileUrl = await this.transacaoRepo.uploadFile(transacao.file);
@@ -87,11 +102,23 @@ export class TransacaoService {
   }
 
   async delete(userId: string, transacaoId: string): Promise<boolean> {
+    const transacao = await this.transacaoRepo.getPorID(userId, transacaoId);
+
+    if (!transacao) throw new Error("Transação não encontrada.");
+
+    const saldoAtual = await this.saldoService.get(userId) ?? 0;
+    let novoSaldo = saldoAtual;
+      if (transacao.tipoTransacao === TipoTransacao.DEPOSITO) {
+        novoSaldo -= transacao.valor; 
+    } else {
+        novoSaldo += transacao.valor; 
+    }
+    await this.saldoService.update(userId, novoSaldo);
     return await this.transacaoRepo.delete(userId, transacaoId);
   }
 
   private async _updateSaldo(newValues: Transacao, previous: Transacao) {
-    const saldoAtual = await this.saldoRepo.get(newValues.userId);
+    const saldoAtual = await this.saldoService.get(newValues.userId);
     if (saldoAtual === null) {
       throw new Error("Erro ao obter saldo atual");
     }
@@ -109,7 +136,7 @@ export class TransacaoService {
       throw new Error("Saldo insuficiente.");
     }
 
-    await this.saldoRepo.update(newValues.userId, newSaldo);
+    await this.saldoService.update(newValues.userId, newSaldo);
     return true;
   }
 }

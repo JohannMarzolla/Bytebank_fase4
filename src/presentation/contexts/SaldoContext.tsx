@@ -7,8 +7,6 @@ import { ShowToast } from "@/presentation/components/ui/Toast";
 interface SaldoContextData {
   saldo: number;
   atualizarSaldo: () => Promise<void>;
-  deposito: (valor: number) => Promise<void>;
-  transferencia: (valor: number) => Promise<void>;
 }
 
 const SaldoContext = createContext<SaldoContextData | undefined>(undefined);
@@ -31,30 +29,6 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const deposito = async (valor: number) => {
-    if (!userId) throw new Error("Usuário não autenticado.");
-    try {
-      await saldoService.deposito(userId, valor);
-      await atualizarSaldo();
-      ShowToast("success", "Depósito realizado com sucesso");
-    } catch (error: any) {
-      console.error("Erro no depósito:", error);
-      ShowToast("error", error.message || "Erro no depósito");
-    }
-  };
-
-  const transferencia = async (valor: number) => {
-    if (!userId) throw new Error("Usuário não autenticado.");
-    try {
-      await saldoService.transferencia(userId, valor);
-        await atualizarSaldo();
-      ShowToast("success", "Transferência realizada com sucesso");
-    } catch (error: any) {
-      console.error("Erro na transferência:", error);
-      ShowToast("error", error.message || "Erro na transferência");
-    }
-  };
-
   useEffect(() => {
     atualizarSaldo();
   }, [userId]);
@@ -64,8 +38,7 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         saldo,
         atualizarSaldo,
-        deposito,
-        transferencia,
+       
       }}
     >
       {children}

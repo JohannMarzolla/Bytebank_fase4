@@ -10,7 +10,6 @@ import {
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionarForm } from "@/presentation/models/TransacaoAdicionarForm";
-import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { useGraficos } from "./GraficosContext";
 import { ShowToast } from "@/presentation/components/ui/Toast";
 import { DocumentData } from "firebase/firestore";
@@ -18,12 +17,10 @@ import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRep
 import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { TransacaoService } from "@/application/services/TransacaoService";
 import { useSaldo } from "./SaldoContext";
-import ListaTransacoes from "../components/Transacao/ListaTransacoes";
+import { SaldoService } from "@/application/services/SaldoService";
 
 interface TransacoesContextData {
   saldo: number;
-  deposito: (valor: number) => Promise<void>;
-  transferencia: (valor: number) => Promise<void>;
   novaTransacao: (transacao: TransacaoAdicionarForm) => Promise<void>;
   update: (transacao: Transacao) => Promise<void>;
   remove: (transacao: Transacao) => Promise<void>;
@@ -60,10 +57,11 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   const [dataInicio, setDataInicio] = useState<Date | null>(null);
   const [dataFim, setDataFim] = useState<Date | null>(null);
 
-  const { saldo, atualizarSaldo, deposito, transferencia } = useSaldo();
+  const { saldo, atualizarSaldo} = useSaldo();
   const trasacaoService = new TransacaoService(
     new TransacaoRepository(),
-    new SaldoRepositoryFirestore()
+    new SaldoRepositoryFirestore(),
+    new SaldoService(new SaldoRepositoryFirestore())
   );
 
   useEffect(() => {
@@ -119,38 +117,16 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const novaTransacao = async (transacao: TransacaoAdicionarForm) => {
-    if (
-      transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA &&
-      !verificaSaldo(transacao.valor)
-    ) {
-      throw new Error("Saldo insuficiente para realizar a transferência.");
-    }
-
     try {
       await trasacaoService.insert(userId, transacao);
       await carregarMaisTransacoes(true);
       await atualizarSaldo();
       calcularValue();
-
-      switch (transacao.tipoTransacao) {
-        case TipoTransacao.DEPOSITO:
-          await deposito(transacao.valor);
-          break;
-        case TipoTransacao.TRANSFERENCIA:
-          await transferencia(transacao.valor);
-          break;
-      }
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       ShowToast("error", error.message);
       console.log("error ", error)
     }
-  };
-
-  const verificaSaldo = (valor: number): boolean => {
-    if (valor > saldo) {
-      return false;
-    }
-    return true;
   };
 
   const update = async (transacao: Transacao) => {
@@ -168,13 +144,11 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
     if (!transacao.id) {
       throw new Error("Não especificado ID da transação.");
     }
-    try {
-      transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA
-        ? await deposito(transacao.valor)
-        : await transferencia(transacao.valor);
 
+    try {
       await trasacaoService.delete(userId, transacao.id);
       await carregarMaisTransacoes(true);
+      await atualizarSaldo();
       calcularValue();
     } catch (error) {
       console.error("Erro ao deletar a transação context:", error);
@@ -184,8 +158,6 @@ export const TransacoesProvider = ({ children }: { children: ReactNode }) => {
   return (
     <TransacoesContext.Provider
       value={{
-        deposito,
-        transferencia,
         novaTransacao,
         remove,
         update,

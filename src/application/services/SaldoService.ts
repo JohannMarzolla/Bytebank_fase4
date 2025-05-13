@@ -1,6 +1,7 @@
 import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
+import { ISaldoService } from "@/domain/services/ISaldoService";
 
-export class SaldoService {
+export class SaldoService implements ISaldoService {
   constructor(private saldoRepo: ISaldoRepository) {}
 
   async get(userId: string) {
@@ -23,5 +24,15 @@ async transferencia(userId: string, valor: number): Promise<number> {
     if (novoSaldo < 0) throw new Error("Saldo insuficiente.");
     await this.saldoRepo.update(userId, novoSaldo);
     return novoSaldo;
+  }
+
+  async verificaSaldo (userId: string, valor: number):Promise<boolean>{
+    const saldoAtual =  await this.get(userId) ?? 0 ;
+    if(valor > saldoAtual) {
+      return false
+    }
+    return true
+
+
   }
 }
