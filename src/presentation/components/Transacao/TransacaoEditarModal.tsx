@@ -5,15 +5,17 @@ import Button from "@/presentation/components/ui/Button";
 import TransacaoEditarForm from "@/presentation/components/Transacao/TransacaoEditarForm";
 
 interface TransacaoEditarModalProps {
+  transacao: Transacao;
   visible: boolean;
   onClose: () => void;
-  transacao: Transacao;
+  onOpen: () => void;
 }
 
 export default function TransacaoEditarModal({
   visible,
   transacao,
   onClose,
+  onOpen,
 }: TransacaoEditarModalProps) {
   return (
     <Modal
@@ -26,7 +28,11 @@ export default function TransacaoEditarModal({
         <View className="bg-white p-5 rounded-lg elevation-md w-[90%]">
           <Text className="text-xl font-bold mb-4">Editar Transação</Text>
 
-          <TransacaoEditarForm transacao={transacao} />
+          <TransacaoEditarForm
+            transacao={transacao}
+            onSubmit={onClose}
+            onError={onOpen}
+          />
 
           <View className="pt-3">
             <Button text="Fechar" onPress={onClose} />
