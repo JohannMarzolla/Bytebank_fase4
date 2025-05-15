@@ -4,7 +4,7 @@ import InputLabel from "@/presentation/components/ui/InputLabel";
 import InputSelect from "@/presentation/components/ui/InputSelect";
 import Button from "@/presentation/components/ui/Button";
 import { ShowToast } from "@/presentation/components/ui/Toast";
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
+import { useTransacaoContext } from "@/presentation/contexts/TransacaoContext";
 import { Transacao } from "@/domain/models/Transacao";
 import { useState } from "react";
 import { Text, View } from "react-native";
@@ -24,7 +24,7 @@ export default function TransacaoEditarForm({
   onSubmit,
   onError,
 }: TransacaoEditarFormProps) {
-  const { update } = useTransacoes();
+  const { update } = useTransacaoContext();
   const [formData, setFormData] = useState<Transacao>(transacao);
   const [valorError, setValorError] = useState<string>();
 

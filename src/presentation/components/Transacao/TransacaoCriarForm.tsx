@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { View } from "react-native";
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
 import Button from "@/presentation/components/ui/Button";
 import Input from "@/presentation/components/ui/Input";
 import InputDate from "@/presentation/components/ui/InputDate";
@@ -13,9 +12,10 @@ import {
 import FilePicker from "@/presentation/components/ui/FilePicker";
 import { ListaTiposTransacao } from "@/shared/constants/tipos-transacao";
 import { Loading } from "@/presentation/components/ui/Loading";
+import { useTransacaoContext } from "@/presentation/contexts/TransacaoContext";
 
 export default function TransacaoCriarForm() {
-  const { novaTransacao } = useTransacoes();
+  const { novaTransacao } = useTransacaoContext();
   const [addRunning, setAddRunning] = useState(false);
   const [formData, setFormData] = useState(new TransacaoAdicionarForm());
   const [errors, setErrors] = useState<TransacaoAdicionarFormErrors>({});

@@ -9,9 +9,10 @@ import {
 } from "react";
 import { useAuth } from "@/presentation/contexts/AuthContext";
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
 import { TransacaoFiltroTipoEnum } from "@/shared/types/TransacaoFiltroTipoEnum";
-import { TransacoesPaginatedService } from "@/application/services/TransacoesPaginatedService";
+import { useTransacaoContext } from "./TransacaoContext";
+import { useTransacoesPaginatedService } from "@/application/hooks/useTransacoesPaginatedService";
+import { ShowToast } from "@/presentation/components/ui/Toast";
 
 interface TransacoesPaginatedContextData {
   transacoes: Transacao[];
@@ -35,12 +36,11 @@ export const TransacoesPaginatedProvider = ({
   children: ReactNode;
 }) => {
   const { userId } = useAuth();
+  const { onChangeAddListener, onChangeRemoveListener } = useTransacaoContext();
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
   const [hasMoreData, setHasMoreData] = useState(true);
   const [loading, setLoading] = useState(false);
-  const paginateService = new TransacoesPaginatedService(
-    new TransacaoRepository()
-  );
+  const paginateService = useTransacoesPaginatedService();
   const [tipoFiltro, setTipoFiltro] = useState<TransacaoFiltroTipoEnum>(
     TransacaoFiltroTipoEnum.TODOS
   );
@@ -49,9 +49,7 @@ export const TransacoesPaginatedProvider = ({
   const pageSize = 5;
 
   const carregar = async (reset = false) => {
-    console.log("carregar", userId, loading, hasMoreData);
     if (!userId || loading || (!reset && !hasMoreData)) return;
-    console.log("carregar 2", dataInicio, dataFim);
 
     try {
       setLoading(true);
@@ -70,15 +68,27 @@ export const TransacoesPaginatedProvider = ({
       );
       setHasMoreData(novasTransacoes.length === pageSize);
     } catch (error) {
-      console.error("Erro ao carregar transações:", error);
+      if (error instanceof Error) {
+        ShowToast("error", error.message || "Erro ao carregar as transações.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log("useEffect", dataInicio, dataFim);
+    if (!userId) return;
+
     carregar(true);
+
+    const handleTransacoesAlteradas = () => {
+      carregar(true);
+    };
+
+    onChangeAddListener(handleTransacoesAlteradas);
+    return () => {
+      onChangeRemoveListener(handleTransacoesAlteradas);
+    };
   }, [userId, tipoFiltro, dataInicio, dataFim]);
 
   return (
@@ -100,11 +110,11 @@ export const TransacoesPaginatedProvider = ({
   );
 };
 
-export const useTransacoesPaginated = () => {
+export const useTransacoesPaginatedContext = () => {
   const context = useContext(TransacoesPaginatedContext);
   if (!context) {
     throw new Error(
-      "contexto não encontado, useTransacoes deve estar dentro de TransacoesProvider"
+      "contexto não encontado, useTransacao deve estar dentro de TransacaoProvider"
     );
   }
   return context;

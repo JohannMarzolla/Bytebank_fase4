@@ -3,16 +3,16 @@ import { View, Text } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 import { Dimensions } from "react-native";
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
-import { useGraficos } from "@/presentation/contexts/GraficosContext";
-import FiltroGraficos from "./FiltroGraficos";
+import { useGraficosContext } from "@/presentation/contexts/GraficosContext";
+import GraficosFiltro from "./GraficosFiltro";
 
 export default function GraficoEntradasSaidas() {
-  const { entradasSaidasData } = useGraficos();
+  const { entradasSaidasData } = useGraficosContext();
   const screenWidth = Dimensions.get("window").width;
 
   return (
     <View>
-      <FiltroGraficos />
+      <GraficosFiltro />
 
       <View className="flex-row items-center justify-center overflow-hidden">
         <PieChart

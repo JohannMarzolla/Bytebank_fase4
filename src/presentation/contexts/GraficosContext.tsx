@@ -7,13 +7,11 @@ import {
 } from "react";
 import { useAuth } from "./AuthContext";
 import { colors } from "@/shared/constants/colors";
-import { GraficoEntradaSaidaValor } from "@/application/models/GraficoEntradaSaidaValor";
-import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
-import { GraficoService } from "@/application/services/GraficoService";
-import { TransacaoRepository } from "@/infrastructure/repositories/TransacaoRepository";
-import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
-import { TransacaoService } from "@/application/services/TransacaoService";
 import { GraficoEvolucaoSaldoData } from "@/presentation/models/GraficoEvolucaoSaldoData";
+import { useTransacaoContext } from "./TransacaoContext";
+import { useGraficoService } from "@/application/hooks/useGraficoService";
+import { ShowToast } from "../components/ui/Toast";
+import { GraficoEntradaSaidaValor } from "../models/GraficoEntradaSaidaValor";
 
 interface GraficosContextData {
   entradasSaidasData: GraficoEntradaSaidaValor[];
@@ -29,19 +27,12 @@ const GraficosContext = createContext<GraficosContextData | undefined>(
 
 interface GraficosProviderProps {
   children: ReactNode;
-  graficoService?: GraficoService;
-  transacaoService?: TransacaoService;
 }
 
-export const GraficosProvider = ({
-  children,
-  graficoService = new GraficoService(new TransacaoRepository()),
-  transacaoService = new TransacaoService(
-    new TransacaoRepository(),
-    new SaldoRepositoryFirestore()
-  ),
-}: GraficosProviderProps) => {
+export const GraficosProvider = ({ children }: GraficosProviderProps) => {
   const { userId } = useAuth();
+  const { onChangeAddListener, onChangeRemoveListener } = useTransacaoContext();
+  const graficoService = useGraficoService();
   const [filtroData, setFiltroData] = useState(getFiltroDataValorInicial());
   const [entradasSaidasData, setEntradasSaidasData] = useState<
     GraficoEntradaSaidaValor[]
@@ -51,10 +42,6 @@ export const GraficosProvider = ({
   ]);
   const [evolucaoSaldoPorMes, setEvolucaoSaldoPorMes] =
     useState<GraficoEvolucaoSaldoData>(getEvolucaoSaldoVazio());
-
-  useEffect(() => {
-    calcularValue();
-  }, [filtroData, userId]);
 
   function getEvolucaoSaldoVazio() {
     return { meses: ["vazio"], saldos: [0] };
@@ -77,86 +64,62 @@ export const GraficosProvider = ({
     setFiltroData({ mes, ano });
   };
 
-  const searchEntradasESaidas = async () => {
-    try {
-      if (!userId) return;
-
-      const [transacoesDeposito, transacoesTransferencia] = await Promise.all([
-        transacaoService.getPorTipoEData(
-          userId,
-          TipoTransacao.DEPOSITO,
-          getFiltroDataInicioDate(),
-          getFiltroDataFimDate()
-        ),
-        transacaoService.getPorTipoEData(
-          userId,
-          TipoTransacao.TRANSFERENCIA,
-          getFiltroDataInicioDate(),
-          getFiltroDataFimDate()
-        ),
-      ]);
-      return {
-        depositos: transacoesDeposito,
-        transferencia: transacoesTransferencia,
-      };
-    } catch (error) {
-      console.log("Erro ao atualizar as transações", error);
-      return { depositos: [], transferencia: [] };
-    }
-  };
-
   const calcularValue = async () => {
-    try {
-      if (!userId) return null;
+    if (!userId) return null;
 
-      await Promise.all([loadEntradasESaidas(), loadEvolucaoSaldoPorMes()]);
-    } catch (error) {
-      console.log("Erro ao calcular valores calcularValue:", error);
-    }
+    await Promise.all([loadEntradasESaidas(), loadEvolucaoSaldoPorMes()]);
   };
 
   const loadEvolucaoSaldoPorMes = async () => {
     try {
       const result = await graficoService.getEvolucaoSaldoPorMes(userId);
-
-      let data: GraficoEvolucaoSaldoData;
-      if (!result?.length) {
-        data = getEvolucaoSaldoVazio();
-      } else {
-        data = {
-          meses: result.map((t) => t.mes),
-          saldos: result.map((t) => t.saldo),
-        };
-      }
-
-      setEvolucaoSaldoPorMes(data);
+      setEvolucaoSaldoPorMes(result ?? getEvolucaoSaldoVazio());
     } catch (error) {
-      console.log("Erro ao calcular valores calcularValuePorMes:", error);
+      if (error instanceof Error) {
+        ShowToast(
+          "error",
+          error.message || "Erro ao carregar evolução do saldo por mês."
+        );
+      }
     }
   };
 
   const loadEntradasESaidas = async () => {
     try {
-      const transacoes = await searchEntradasESaidas();
-      if (!transacoes) return;
-
-      const depositoValue = transacoes.depositos.reduce(
-        (acc, deposito) => acc + deposito.valor,
-        0
-      );
-      const transferenciaValue = transacoes.transferencia.reduce(
-        (acc, transferencia) => acc + transferencia.valor,
-        0
+      const valores = await graficoService.getValoresPorTipo(
+        userId,
+        getFiltroDataInicioDate(),
+        getFiltroDataFimDate()
       );
 
       const newValues = entradasSaidasData;
-      newValues[0].value = depositoValue;
-      newValues[1].value = transferenciaValue;
+      newValues[0].value = valores.depositos;
+      newValues[1].value = valores.transferencias;
       setEntradasSaidasData(newValues);
     } catch (error) {
-      console.log("Erro ao calcular valores calcularValuePorTipo:", error);
+      if (error instanceof Error) {
+        ShowToast(
+          "error",
+          error.message || "Erro ao buscar entradas e saidas."
+        );
+      }
     }
   };
+
+  useEffect(() => {
+    if (!userId) return;
+
+    calcularValue();
+
+    const handleTransacoesAlteradas = () => {
+      calcularValue();
+    };
+
+    onChangeAddListener(handleTransacoesAlteradas);
+    return () => {
+      onChangeRemoveListener(handleTransacoesAlteradas);
+    };
+  }, [filtroData, userId]);
 
   return (
     <GraficosContext.Provider
@@ -173,11 +136,11 @@ export const GraficosProvider = ({
   );
 };
 
-export const useGraficos = () => {
+export const useGraficosContext = () => {
   const context = useContext(GraficosContext);
   if (!context) {
     throw new Error(
-      "contexto não encontado, useTransacoes deve estar dentro de TransacoesProvider"
+      "contexto não encontado, useTransacao deve estar dentro de TransacaoProvider"
     );
   }
   return context;

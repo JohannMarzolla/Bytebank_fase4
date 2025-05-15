@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
-import { SaldoService } from "@/application/services/SaldoService";
-import { SaldoRepositoryFirestore } from "@/infrastructure/repositories/SaldoRepository";
 import { ShowToast } from "@/presentation/components/ui/Toast";
+import { useTransacaoContext } from "./TransacaoContext";
+import { useSaldoService } from "@/application/hooks/useSaldoService";
 
 interface SaldoContextData {
   saldo: number;
@@ -13,24 +13,35 @@ const SaldoContext = createContext<SaldoContextData | undefined>(undefined);
 
 export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
   const { userId } = useAuth();
+  const { onChangeAddListener, onChangeRemoveListener } = useTransacaoContext();
   const [saldo, setSaldo] = useState<number>(0);
-
-  const saldoService = new SaldoService(new SaldoRepositoryFirestore());
+  const saldoService = useSaldoService();
 
   const atualizarSaldo = async () => {
     if (!userId) return;
     try {
       const novoSaldo = await saldoService.get(userId);
-   
       setSaldo(novoSaldo ?? 0);
     } catch (error) {
-      console.error("Erro ao buscar saldo:", error);
-      ShowToast("error", "Erro ao buscar saldo");
+      if (error instanceof Error) {
+        ShowToast("error", error.message || "Erro ao buscar saldo");
+      }
     }
   };
 
   useEffect(() => {
+    if (!userId) return;
+
     atualizarSaldo();
+
+    const handleTransacoesMudaram = () => {
+      atualizarSaldo();
+    };
+
+    onChangeAddListener(handleTransacoesMudaram);
+    return () => {
+      onChangeRemoveListener(handleTransacoesMudaram);
+    };
   }, [userId]);
 
   return (
@@ -38,7 +49,6 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         saldo,
         atualizarSaldo,
-       
       }}
     >
       {children}
@@ -46,10 +56,10 @@ export const SaldoProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useSaldo = (): SaldoContextData => {
+export const useSaldoContext = (): SaldoContextData => {
   const context = useContext(SaldoContext);
   if (!context) {
-    throw new Error("useSaldo deve ser usado dentro de SaldoProvider");
+    throw new Error("useSaldoContext deve ser usado dentro de SaldoProvider");
   }
   return context;
 };

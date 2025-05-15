@@ -1,13 +1,9 @@
 import { Picker } from "@react-native-picker/picker";
 import InputLabel from "./InputLabel";
 import { Text, View } from "react-native";
+import { SelectOption } from "@/shared/models/SelectOption";
 
-export interface InputSelectOption {
-  /** Valor da opção, utilizado para identificar o valor selecionado. */
-  value: any;
-  /** Texto exibido para o usuário */
-  label: string;
-}
+export type InputSelectOption = SelectOption;
 
 export interface InputSelectOptions {
   /** Texto do label */

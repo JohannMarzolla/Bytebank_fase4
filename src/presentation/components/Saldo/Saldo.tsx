@@ -1,9 +1,9 @@
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
 import { Text, View } from "react-native";
+import { useSaldoContext } from "@/presentation/contexts/SaldoContext";
 
 export default function Saldo() {
-  const { saldo } = useTransacoes();
+  const { saldo } = useSaldoContext();
   const saldoFormato = formatarMoeda(saldo ?? 0);
 
   return (

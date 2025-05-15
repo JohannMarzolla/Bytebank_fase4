@@ -27,6 +27,8 @@ import { TransacaoFiltroTipoEnum } from "@/shared/types/TransacaoFiltroTipoEnum"
 
 export class TransacaoRepository implements ITransacaoRepository {
   async getAll(userId: string): Promise<Transacao[]> {
+    if (!userId) throw new Error("Usuário não autenticado");
+
     try {
       const collection = this._getCollectionRef(userId);
       const querySnapshot = await getDocs(collection);
@@ -35,23 +37,33 @@ export class TransacaoRepository implements ITransacaoRepository {
       return [];
     }
   }
+
   async getPorTipoEData(
     userId: string,
     tipo: TipoTransacao,
     dataInicio: Date,
     dataFim: Date
   ): Promise<Transacao[]> {
-    const collection = this._getCollectionRef(userId);
+    if (!userId) throw new Error("Usuário não autenticado");
+    if (!dataInicio || !dataFim) throw new Error("Intervalo de datas inválido");
 
-    const filter = query(
-      collection,
-      where("tipoTransacao", "==", tipo),
-      where("date", ">=", Timestamp.fromDate(dataInicio)),
-      where("date", "<=", Timestamp.fromDate(dataFim))
-    );
+    try {
+      const collection = this._getCollectionRef(userId);
 
-    const querySnapshot = await getDocs(filter);
-    return querySnapshot.docs.map((doc) => doc.data());
+      const filter = query(
+        collection,
+        where("tipoTransacao", "==", tipo),
+        where("date", ">=", Timestamp.fromDate(dataInicio)),
+        where("date", "<=", Timestamp.fromDate(dataFim))
+      );
+
+      const querySnapshot = await getDocs(filter);
+      return querySnapshot.docs.map((doc) => doc.data());
+    } catch (error) {
+      throw new Error(
+        "Não foi possível carregar as transações. Tente novamente."
+      );
+    }
   }
 
   async getPorFiltro(
@@ -65,9 +77,9 @@ export class TransacaoRepository implements ITransacaoRepository {
     transacoes: Transacao[];
     lastVisible: QueryDocumentSnapshot<Transacao> | null;
   }> {
-    try {
-      console.log("filtros", lastDoc, tipoFiltro, dataInicio, dataFim);
+    if (!userId) throw new Error("Usuário não autenticado");
 
+    try {
       let filtros: any[] = [];
       if (tipoFiltro && tipoFiltro !== TransacaoFiltroTipoEnum.TODOS) {
         filtros.push(
@@ -119,54 +131,85 @@ export class TransacaoRepository implements ITransacaoRepository {
     userId: string,
     transacaoId: string
   ): Promise<Transacao | null> {
+    if (!userId) throw new Error("Usuário não autenticado");
+    if (!transacaoId) throw new Error("Código da transação não informado");
+
     try {
       const docRef = this._getCollectionRefById(transacaoId, userId);
       const querySnapshot = await getDoc(docRef);
 
       return querySnapshot.exists() ? querySnapshot.data() : null;
-    } catch {
-      return null;
+    } catch (error) {
+      throw new Error(
+        "Não foi possível localizar a transação pelo código. Tente novamente."
+      );
     }
   }
 
   async insert(transacao: Transacao): Promise<string | null> {
-    if (!transacao.userId) return null;
+    if (!transacao) throw new Error("Transação não especificada");
+    if (!transacao.userId) throw new Error("Usuário não especificado");
 
-    const collection = this._getCollectionRef(transacao.userId);
-    const docRef = await addDoc(collection, {
-      userId: transacao.userId,
-      tipoTransacao: transacao.tipoTransacao,
-      valor: transacao.valor,
-      date: transacao.date,
-      file: transacao.file,
-      fileName: transacao.fileName,
-    });
-    return docRef.id;
+    try {
+      const collection = this._getCollectionRef(transacao.userId);
+      const docRef = await addDoc(collection, {
+        userId: transacao.userId,
+        tipoTransacao: transacao.tipoTransacao,
+        valor: transacao.valor,
+        date: transacao.date,
+        file: transacao.file,
+        fileName: transacao.fileName,
+      });
+      return docRef.id;
+    } catch (error) {
+      throw new Error("Não foi possível inserir a transação. Tente novamente.");
+    }
   }
 
   async update(transacao: Transacao): Promise<boolean> {
-    if (!transacao?.id || !transacao?.userId) return false;
+    if (!transacao) throw new Error("Transação não especificada");
+    if (!transacao.userId) throw new Error("Usuário não especificado");
+    if (!transacao.id) throw new Error("Código da transação não informado");
 
-    const docRef = this._getCollectionRefById(transacao.id, transacao.userId);
-    await updateDoc(docRef, TransacaoConverter.toFirestore(transacao));
-    return true;
+    try {
+      const docRef = this._getCollectionRefById(transacao.id, transacao.userId);
+      await updateDoc(docRef, TransacaoConverter.toFirestore(transacao));
+      return true;
+    } catch (error) {
+      throw new Error(
+        "Não foi possível atualizar a transação. Tente novamente."
+      );
+    }
   }
 
   async delete(userId: string, transacaoId: string): Promise<boolean> {
-    const docRef = this._getCollectionRefById(transacaoId, userId);
-    await deleteDoc(docRef);
-    return true;
+    if (!userId) throw new Error("Usuário não especificado");
+    if (!transacaoId) throw new Error("Código da transação não informado");
+
+    try {
+      const docRef = this._getCollectionRefById(transacaoId, userId);
+      await deleteDoc(docRef);
+      return true;
+    } catch (error) {
+      throw new Error("Não foi possível remover a transação. Tente novamente.");
+    }
   }
 
   async uploadFile(file: any): Promise<string | null> {
-    if (!file) return null;
+    if (!file) throw new Error("Arquivo não especificado");
 
-    const response = await fetch(file.uri);
-    const blob = await response.blob();
-    const fileRef = ref(storage, `transacoes/${file.name}`);
-    await uploadBytes(fileRef, blob);
+    try {
+      const response = await fetch(file.uri);
+      const blob = await response.blob();
+      const fileRef = ref(storage, `transacoes/${file.name}`);
+      await uploadBytes(fileRef, blob);
 
-    return await getDownloadURL(fileRef);
+      return await getDownloadURL(fileRef);
+    } catch (error) {
+      throw new Error(
+        "Não foi possível fazer o upload do arquivo. Tente novamente."
+      );
+    }
   }
 
   private _getCollectionRef(userId: string) {

@@ -1,4 +1,4 @@
-import { useTransacoes } from "@/presentation/contexts/TransacoesContext";
+import { useTransacaoContext } from "@/presentation/contexts/TransacaoContext";
 import { Transacao } from "@/domain/models/Transacao";
 import React from "react";
 import { Modal, View, Text } from "react-native";
@@ -19,13 +19,13 @@ export default function TransacaoDeletarModal({
   onClose,
   onOpen,
 }: TransacaoConfirmarDeletarModalProps) {
-  const { remove } = useTransacoes();
+  const { remove } = useTransacaoContext();
 
   async function handleDelete(transacao: Transacao) {
     onClose();
 
     Loading.show();
-    await remove(transacao);
+    if (transacao.id) await remove(transacao.id);
     Loading.hide();
   }
 

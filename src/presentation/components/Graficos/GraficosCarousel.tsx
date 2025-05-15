@@ -16,7 +16,7 @@ const data = [
   },
 ];
 
-export default function CarouselGraficos() {
+export default function GraficosCarousel() {
   const { width } = Dimensions.get("window");
   const scrollX = useRef(new Animated.Value(0)).current;
 

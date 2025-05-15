@@ -1,5 +1,5 @@
 import { Transacao } from "@/domain/models/Transacao";
-import { TransacaoAdicionar } from "../models/TransacaoAdicionar";
+import { TransacaoAdicionar } from "@/application/models/TransacaoAdicionar";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { SaldoService } from "./SaldoService";
@@ -9,20 +9,6 @@ export class TransacaoService {
     private transacaoRepo: ITransacaoRepository,
     private saldoService: SaldoService
   ) {}
-
-  async getPorTipoEData(
-    userId: string,
-    tipo: TipoTransacao,
-    dataInicio: Date,
-    dataFim: Date
-  ): Promise<Transacao[]> {
-    return await this.transacaoRepo.getPorTipoEData(
-      userId,
-      tipo,
-      dataInicio,
-      dataFim
-    );
-  }
 
   async insert(
     userId: string,

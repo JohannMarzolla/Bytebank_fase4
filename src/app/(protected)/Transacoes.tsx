@@ -6,7 +6,7 @@ import ListaTransacoes from "@/presentation/components/Transacao/ListaTransacoes
 import { ListaTiposTransacaoInputSelect } from "@/shared/constants/tipos-transacao";
 import {
   TransacoesPaginatedProvider,
-  useTransacoesPaginated,
+  useTransacoesPaginatedContext,
 } from "@/presentation/contexts/TransacoesPaginatedContext";
 
 function TelaDeTransacoes() {
@@ -20,7 +20,7 @@ function TelaDeTransacoes() {
     setTipoFiltro,
     setDataInicio,
     setDataFim,
-  } = useTransacoesPaginated();
+  } = useTransacoesPaginatedContext();
 
   return (
     <View className="flex-1 pt-6 px-6">
@@ -59,7 +59,6 @@ function TelaDeTransacoes() {
       <ListaTransacoes
         transacoes={transacoes}
         onEndReached={() => {
-          console.log("ListaTransacoes");
           carregar();
         }}
         loadingMore={loading}

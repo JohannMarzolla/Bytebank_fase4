@@ -1,6 +1,6 @@
 import { formatarMoeda } from "@/shared/utils/formatarMoeda";
 import { colors } from "@/shared/constants/colors";
-import { useGraficos } from "@/presentation/contexts/GraficosContext";
+import { useGraficosContext } from "@/presentation/contexts/GraficosContext";
 import React from "react";
 import { View, ScrollView, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
@@ -8,7 +8,7 @@ import { Svg, Text as TextSVG } from "react-native-svg";
 
 export default function GraficoEvolucaoSaldoPorMes() {
   const screenWidth = Dimensions.get("window").width;
-  const { evolucaoSaldoPorMes } = useGraficos();
+  const { evolucaoSaldoPorMes } = useGraficosContext();
 
   return (
     <ScrollView horizontal={true} className="flex-1">
