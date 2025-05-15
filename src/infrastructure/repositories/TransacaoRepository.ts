@@ -9,6 +9,7 @@ import {
   limit,
   orderBy,
   query,
+  QueryDocumentSnapshot,
   startAfter,
   Timestamp,
   updateDoc,
@@ -22,6 +23,7 @@ import {
   TransacaoConverterFirestore,
   TransacaoConverter,
 } from "@/domain/converters/TransacaoConverter";
+import { TransacaoFiltroTipoEnum } from "@/shared/types/TransacaoFiltroTipoEnum";
 
 export class TransacaoRepository implements ITransacaoRepository {
   async getAll(userId: string): Promise<Transacao[]> {
@@ -55,28 +57,50 @@ export class TransacaoRepository implements ITransacaoRepository {
   async getPorFiltro(
     userId: string,
     limite: number,
-    lastDoc?: any,
-    tipoFiltro?: string,
+    lastDoc: QueryDocumentSnapshot<Transacao> | null,
+    tipoFiltro?: TransacaoFiltroTipoEnum,
     dataInicio?: Date | null,
     dataFim?: Date | null
-  ): Promise<{ transacoes: Transacao[]; lastVisible: any }> {
+  ): Promise<{
+    transacoes: Transacao[];
+    lastVisible: QueryDocumentSnapshot<Transacao> | null;
+  }> {
     try {
-      let filtros: any[] = [orderBy("date", "desc"), limit(limite)];
-      if (tipoFiltro && tipoFiltro !== "Todos") {
-        filtros.push(where("tipoTransacao", "==", tipoFiltro));
+      console.log("filtros", lastDoc, tipoFiltro, dataInicio, dataFim);
+
+      let filtros: any[] = [];
+      if (tipoFiltro && tipoFiltro !== TransacaoFiltroTipoEnum.TODOS) {
+        filtros.push(
+          where(
+            "tipoTransacao",
+            "==",
+            tipoFiltro === TransacaoFiltroTipoEnum.DEPOSITO
+              ? TipoTransacao.DEPOSITO
+              : TipoTransacao.TRANSFERENCIA
+          )
+        );
       }
       if (dataInicio) {
-        filtros.push(where("date", ">=", Timestamp.fromDate(dataInicio)));
+        const dtStart = new Date(dataInicio);
+        dtStart.setHours(0, 0, 0, 0);
+        filtros.push(where("date", ">=", Timestamp.fromDate(dtStart)));
       }
       if (dataFim) {
-        filtros.push(where("date", "<=", Timestamp.fromDate(dataFim)));
+        const dtEnd = new Date(dataFim);
+        dtEnd.setHours(23, 59, 59, 999);
+        filtros.push(where("date", "<", Timestamp.fromDate(dtEnd)));
       }
       if (lastDoc) {
         filtros.push(startAfter(lastDoc));
       }
 
       const collection = this._getCollectionRef(userId);
-      const filter = query(collection, ...filtros);
+      const filter = query(
+        collection,
+        ...filtros,
+        orderBy("date", "desc"),
+        limit(limite)
+      );
       const querySnapshot = await getDocs(filter);
       const transacoes = querySnapshot.docs.map((doc) => doc.data());
 

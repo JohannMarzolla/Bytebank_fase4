@@ -47,12 +47,6 @@ export default function TransacaoEditarForm({
         Loading.show();
         await update(formData);
         Loading.hide();
-
-        if (toDelete) {
-          ShowToast("success", "Transação removida com sucesso");
-        } else {
-          ShowToast("success", "Transação atualizada com sucesso");
-        }
       }
     } catch (error: any) {
       if (onError) onError();

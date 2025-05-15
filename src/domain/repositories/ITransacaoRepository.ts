@@ -1,5 +1,7 @@
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { Transacao } from "@/domain/models/Transacao";
+import { TransacaoFiltroTipoEnum } from "@/shared/types/TransacaoFiltroTipoEnum";
+import { QueryDocumentSnapshot } from "firebase/firestore";
 
 export interface ITransacaoRepository {
   getAll(userId: string): Promise<Transacao[]>;
@@ -15,11 +17,14 @@ export interface ITransacaoRepository {
   getPorFiltro(
     userId: string,
     limite: number,
-    lastDoc?: any,
-    tipoFiltro?: string,
+    lastDoc: QueryDocumentSnapshot<Transacao> | null,
+    tipoFiltro?: TransacaoFiltroTipoEnum,
     dataInicio?: Date | null,
     dataFim?: Date | null
-  ): Promise<{ transacoes: Transacao[]; lastVisible: any }>;
+  ): Promise<{
+    transacoes: Transacao[];
+    lastVisible: QueryDocumentSnapshot<Transacao> | null;
+  }>;
 
   insert(transacao: Transacao): Promise<string | null>;
   update(transacao: Transacao): Promise<boolean>;

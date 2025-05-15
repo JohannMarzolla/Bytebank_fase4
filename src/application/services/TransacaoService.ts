@@ -1,15 +1,13 @@
 import { Transacao } from "@/domain/models/Transacao";
 import { TransacaoAdicionar } from "../models/TransacaoAdicionar";
 import { ITransacaoRepository } from "@/domain/repositories/ITransacaoRepository";
-import { ISaldoRepository } from "@/domain/repositories/ISaldoRepository";
 import { TipoTransacao } from "@/shared/types/TipoTransacaoEnum";
 import { SaldoService } from "./SaldoService";
 
 export class TransacaoService {
   constructor(
     private transacaoRepo: ITransacaoRepository,
-    private saldoRepo: ISaldoRepository,
-    private saldoService : SaldoService
+    private saldoService: SaldoService
   ) {}
 
   async getPorTipoEData(
@@ -26,24 +24,6 @@ export class TransacaoService {
     );
   }
 
-  async getPaged(
-    userId: string,
-    limite: number,
-    lastDoc?: any,
-    tipoFiltro?: string,
-    dataInicio?: Date | null,
-    dataFim?: Date | null
-  ) {
-    return await this.transacaoRepo.getPorFiltro(
-      userId,
-      limite,
-      lastDoc,
-      tipoFiltro,
-      dataInicio,
-      dataFim
-    );
-  }
-
   async insert(
     userId: string,
     transacao: TransacaoAdicionar
@@ -51,18 +31,20 @@ export class TransacaoService {
     if (!userId) throw new Error("Usuário inválido.");
 
     if (transacao.tipoTransacao === TipoTransacao.DEPOSITO) {
-        await this.saldoService.deposito(userId, transacao.valor);
-  }
-   else if (transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA) {
-    const saldoSuficiente = await this.saldoService.verificaSaldo(userId, transacao.valor);
+      await this.saldoService.deposito(userId, transacao.valor);
+    } else if (transacao.tipoTransacao === TipoTransacao.TRANSFERENCIA) {
+      const saldoSuficiente = await this.saldoService.verificaSaldo(
+        userId,
+        transacao.valor
+      );
 
-        if (!saldoSuficiente) {
-            throw new Error("Saldo insuficiente para realizar a transferência.");
-          }
+      if (!saldoSuficiente) {
+        throw new Error("Saldo insuficiente para realizar a transferência.");
+      }
 
-    await this.saldoService.transferencia(userId, transacao.valor);
-  }
-    
+      await this.saldoService.transferencia(userId, transacao.valor);
+    }
+
     let fileUrl: string | null = null;
     if (transacao.file) {
       fileUrl = await this.transacaoRepo.uploadFile(transacao.file);
@@ -106,12 +88,12 @@ export class TransacaoService {
 
     if (!transacao) throw new Error("Transação não encontrada.");
 
-    const saldoAtual = await this.saldoService.get(userId) ?? 0;
+    const saldoAtual = (await this.saldoService.get(userId)) ?? 0;
     let novoSaldo = saldoAtual;
-      if (transacao.tipoTransacao === TipoTransacao.DEPOSITO) {
-        novoSaldo -= transacao.valor; 
+    if (transacao.tipoTransacao === TipoTransacao.DEPOSITO) {
+      novoSaldo -= transacao.valor;
     } else {
-        novoSaldo += transacao.valor; 
+      novoSaldo += transacao.valor;
     }
     await this.saldoService.update(userId, novoSaldo);
     return await this.transacaoRepo.delete(userId, transacaoId);
