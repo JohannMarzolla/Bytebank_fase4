@@ -3,7 +3,7 @@ import InputDate from "@/presentation/components/ui/InputDate";
 import InputSelect from "@/presentation/components/ui/InputSelect";
 import React from "react";
 import ListaTransacoes from "@/presentation/components/Transacao/ListaTransacoes";
-import { ListaTiposTransacaoInputSelect } from "@/shared/constants/tipos-transacao";
+import { ListaTiposTransacaoFiltro } from "@/shared/constants/tipos-transacao";
 import {
   TransacoesPaginatedProvider,
   useTransacoesPaginatedContext,
@@ -31,7 +31,7 @@ function TelaDeTransacoes() {
           <InputSelect
             label="Tipo"
             labelTextBold={false}
-            options={ListaTiposTransacaoInputSelect}
+            options={ListaTiposTransacaoFiltro}
             style="dark"
             value={tipoFiltro}
             onValueChanged={setTipoFiltro}
