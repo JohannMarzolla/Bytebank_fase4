@@ -80,46 +80,22 @@ export class TransacaoRepository implements ITransacaoRepository {
     if (!userId) throw new Error("Usuário não autenticado");
 
     try {
-      let filtros: any[] = [];
-      if (tipoFiltro && tipoFiltro !== TransacaoFiltroTipoEnum.TODOS) {
-        filtros.push(
-          where(
-            "tipoTransacao",
-            "==",
-            tipoFiltro === TransacaoFiltroTipoEnum.DEPOSITO
-              ? TipoTransacao.DEPOSITO
-              : TipoTransacao.TRANSFERENCIA
-          )
-        );
-      }
-      if (dataInicio) {
-        const dtStart = new Date(dataInicio);
-        dtStart.setHours(0, 0, 0, 0);
-        filtros.push(where("date", ">=", Timestamp.fromDate(dtStart)));
-      }
-      if (dataFim) {
-        const dtEnd = new Date(dataFim);
-        dtEnd.setHours(23, 59, 59, 999);
-        filtros.push(where("date", "<", Timestamp.fromDate(dtEnd)));
-      }
-      if (lastDoc) {
-        filtros.push(startAfter(lastDoc));
-      }
-
       const collection = this._getCollectionRef(userId);
       const filter = query(
         collection,
-        ...filtros,
-        orderBy("date", "desc"),
-        limit(limite)
+        ...this._getPorFiltroQueryParams(
+          limite,
+          lastDoc,
+          tipoFiltro,
+          dataInicio,
+          dataFim
+        )
       );
       const querySnapshot = await getDocs(filter);
       const transacoes = querySnapshot.docs.map((doc) => doc.data());
 
-      const lastVisible =
-        querySnapshot.docs.length >= limite
-          ? querySnapshot.docs[limite - 1]
-          : null;
+      const docs = querySnapshot.docs;
+      const lastVisible = docs.length > 0 ? docs[docs.length - 1] : null;
 
       return { transacoes, lastVisible };
     } catch (error) {
@@ -210,6 +186,44 @@ export class TransacaoRepository implements ITransacaoRepository {
         "Não foi possível fazer o upload do arquivo. Tente novamente."
       );
     }
+  }
+
+  private _getPorFiltroQueryParams(
+    limite: number,
+    lastDoc: QueryDocumentSnapshot<Transacao> | null,
+    tipoFiltro?: TransacaoFiltroTipoEnum,
+    dataInicio?: Date | null,
+    dataFim?: Date | null
+  ) {
+    let filtros: any[] = [];
+
+    if (tipoFiltro && tipoFiltro !== TransacaoFiltroTipoEnum.TODOS) {
+      filtros.push(
+        where(
+          "tipoTransacao",
+          "==",
+          tipoFiltro === TransacaoFiltroTipoEnum.DEPOSITO
+            ? TipoTransacao.DEPOSITO
+            : TipoTransacao.TRANSFERENCIA
+        )
+      );
+    }
+    if (dataInicio) {
+      const dtStart = new Date(dataInicio);
+      dtStart.setHours(0, 0, 0, 0);
+      filtros.push(where("date", ">=", Timestamp.fromDate(dtStart)));
+    }
+    if (dataFim) {
+      const dtEnd = new Date(dataFim);
+      dtEnd.setHours(23, 59, 59, 999);
+      filtros.push(where("date", "<", Timestamp.fromDate(dtEnd)));
+    }
+
+    const queryParams = [...filtros, orderBy("date", "desc")];
+    if (lastDoc) queryParams.push(startAfter(lastDoc));
+    queryParams.push(limit(limite));
+
+    return queryParams;
   }
 
   private _getCollectionRef(userId: string) {
