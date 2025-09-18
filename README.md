@@ -23,6 +23,7 @@ src
  ├── infrastructure  # Integração com Firebase, repositories
  ├── presentation    # Componentes, contexto (Context API)
  └── shared          # Utilitários, constantes e helpers
+ ```
 
 ## Funcionalidades
 
